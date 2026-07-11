@@ -1,0 +1,55 @@
+{
+  "kind": "collectionType",
+  "collectionName": "product_references",
+  "info": {
+    "singularName": "product-reference",
+    "pluralName": "product-references",
+    "displayName": "Product Reference",
+    "description": "Lightweight Vendure product index with Strapi-owned editorial fields"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "vendureId": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "handle": {
+      "type": "uid",
+      "required": true
+    },
+    "thumbnailUrl": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "enumeration",
+      "enum": ["nepal", "hongkong", "both"],
+      "required": true,
+      "default": "both"
+    },
+    "syncedAt": {
+      "type": "datetime"
+    },
+    "enrichedDescription": {
+      "type": "richtext"
+    },
+    "seoTitle": {
+      "type": "string"
+    },
+    "seoDescription": {
+      "type": "text"
+    },
+    "events": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::event.event",
+      "mappedBy": "featuredProducts"
+    }
+  }
+}

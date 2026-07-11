@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: hakeems-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: hakeems
+      POSTGRES_PASSWORD: hakeems
+      POSTGRES_DB: hakeems_bootstrap
+    volumes:
+      - hakeems_postgres:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hakeems -d hakeems_vendure"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  hakeems_postgres:

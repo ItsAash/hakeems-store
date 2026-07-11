@@ -1,0 +1,33 @@
+import { notFound } from 'next/navigation';
+import { ProductCard } from '@/components/ProductCard';
+import { assertChannel } from '@/lib/channels';
+import { getEventBySlug } from '@/lib/strapi';
+import { getProductsByIds } from '@/lib/vendure';
+
+export default async function EventPage({ params }: { params: Promise<{ channel: string; slug: string }> }) {
+  const { channel: channelParam, slug } = await params;
+  const channel = assertChannel(channelParam);
+  const event = await getEventBySlug(channel, slug);
+
+  if (!event) notFound();
+
+  const vendureIds = event.featuredProducts?.map((product) => product.vendureId) || [];
+  const products = await getProductsByIds(channel, vendureIds).catch(() => []);
+
+  return (
+    <main className="container">
+      <p className="eyebrow">{event.status}</p>
+      <h1>{event.title}</h1>
+      <p className="muted">
+        {new Date(event.eventDate).toLocaleDateString()} at {event.location}
+      </p>
+      <div dangerouslySetInnerHTML={{ __html: event.description || '' }} />
+      <h2>Featured Products</h2>
+      <div className="grid">
+        {products.map((product) => (
+          <ProductCard key={product.id} channel={channel} product={product} />
+        ))}
+      </div>
+    </main>
+  );
+}
