@@ -19,5 +19,13 @@
   "devDependencies": {
     "turbo": "^2.6.3",
     "typescript": "^5.8.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "@tanstack/react-router": "^1.168.19",
+      "@tanstack/router-core": "^1.168.19",
+      "@tanstack/router-plugin": "^1.168.19",
+      "@tanstack/react-store": "^0.11.0"
+    }
   }
 }

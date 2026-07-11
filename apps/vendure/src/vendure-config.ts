@@ -15,6 +15,7 @@ import 'dotenv/config';
 import path from 'path';
 import { districtShippingCalculator, districtShippingEligibilityChecker } from './plugins/channel-shipping/district-shipping';
 import { fonepayPlaceholderHandler } from './plugins/fonepay-placeholder/fonepay-placeholder.handler';
+import { StockManagementPlugin } from './plugins/stock-management/stock-management.plugin';
 import { StrapiSyncPlugin } from './plugins/strapi-sync/strapi-sync.plugin';
 
 const IS_DEV = process.env.APP_ENV === 'dev';
@@ -103,6 +104,7 @@ export const config: VendureConfig = {
       url: process.env.STRAPI_SYNC_URL || '',
       secret: process.env.HAKEEMS_SYNC_SECRET || '',
     }),
+    StockManagementPlugin,
     DashboardPlugin.init({
       route: 'dashboard',
       appDir: IS_DEV ? path.join(__dirname, '../dist/dashboard') : path.join(__dirname, 'dashboard'),

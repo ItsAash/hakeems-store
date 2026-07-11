@@ -1,6 +1,7 @@
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ProductCard } from '@/components/ProductCard';
-import { assertChannel, PRODUCT_TYPES, titleCase, type ProductType } from '@/lib/channels';
+import { assertChannel, CHANNELS, PRODUCT_TYPES, titleCase, type ProductType } from '@/lib/channels';
 import { getProducts } from '@/lib/vendure';
 
 export default async function ProductListingPage({
@@ -21,16 +22,27 @@ export default async function ProductListingPage({
   );
 
   return (
-    <main className="container">
-      <p className="eyebrow">Shop {channel}</p>
-      <h1>{titleCase(type)}</h1>
-      <p className="muted">{filtered.length} products. Use Material, Fit, and Gender as Vendure facets in Admin for filtering.</p>
-      <div className="grid">
-        {filtered.map((product) => (
-          <ProductCard key={product.id} channel={channel} product={product} />
-        ))}
+    <main className="container section">
+      <p className="breadcrumb">
+        <Link href={`/${channel}`}>Home</Link> / {titleCase(type)}
+      </p>
+      <div className="listing-head">
+        <div>
+          <h1>{titleCase(type)}</h1>
+          <p className="muted">
+            {filtered.length} {filtered.length === 1 ? 'piece' : 'pieces'} · Priced in {CHANNELS[channel].currency}, tax included
+          </p>
+        </div>
       </div>
-      {filtered.length === 0 && <p>No products found for this type yet.</p>}
+      {filtered.length > 0 ? (
+        <div className="grid">
+          {filtered.map((product) => (
+            <ProductCard key={product.id} channel={channel} product={product} />
+          ))}
+        </div>
+      ) : (
+        <p className="muted">No products found for this type yet.</p>
+      )}
     </main>
   );
 }

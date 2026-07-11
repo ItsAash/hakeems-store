@@ -12,13 +12,14 @@ type GraphQLResult<T> = {
 let authToken = '';
 let sessionCookie = '';
 
-async function adminFetch<T>(query: string, variables?: Record<string, unknown>) {
+async function adminFetch<T>(query: string, variables?: Record<string, unknown>, channelToken?: string) {
   const response = await fetch(ADMIN_API_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
       ...(sessionCookie ? { Cookie: sessionCookie } : {}),
+      ...(channelToken ? { 'vendure-token': channelToken } : {}),
     },
     body: JSON.stringify({ query, variables }),
   });
@@ -106,9 +107,9 @@ async function ensureChannel(input: {
   zoneId: string;
 }) {
   const { channels } = await adminFetch<{
-    channels: Array<{ id: string; code: string; token: string; defaultCurrencyCode: string }>;
-  }>(`query Channels { channels { id code token defaultCurrencyCode } }`);
-  const existing = channels.find((channel) => channel.code === input.code);
+    channels: { items: Array<{ id: string; code: string; token: string; defaultCurrencyCode: string }> };
+  }>(`query Channels { channels { items { id code token defaultCurrencyCode } } }`);
+  const existing = channels.items.find((channel) => channel.code === input.code);
   if (existing) return existing;
 
   const { createChannel } = await adminFetch<{ createChannel: { id: string; code: string; token: string } }>(
@@ -163,9 +164,18 @@ async function ensureStockLocation(name: string, channelId: string) {
 }
 
 async function ensureTaxRate(name: string, zoneId: string, value: number) {
-  const categories = await getTaxCategories();
-  const category = categories.find((item) => item.name === 'Standard Tax') || categories[0];
-  if (!category) throw new Error('No tax category found');
+  let categories = await getTaxCategories();
+  let category = categories.find((item) => item.name === 'Standard Tax') || categories[0];
+
+  if (!category) {
+    const { createTaxCategory } = await adminFetch<{ createTaxCategory: { id: string; name: string } }>(
+      `mutation CreateTaxCategory($input: CreateTaxCategoryInput!) {
+        createTaxCategory(input: $input) { id name }
+      }`,
+      { input: { name: 'Standard Tax' } },
+    );
+    category = createTaxCategory;
+  }
 
   const { taxRates } = await adminFetch<{ taxRates: { items: Array<{ id: string; name: string }> } }>(
     `query TaxRates { taxRates(options: { take: 50 }) { items { id name } } }`,
@@ -235,6 +245,17 @@ async function ensureOptionGroup(code: string, name: string, values: string[]) {
     },
   );
   return createProductOptionGroup;
+}
+
+async function assignOptionGroupsToChannels(optionGroupIds: string[], channelIds: string[]) {
+  for (const channelId of channelIds) {
+    await adminFetch(
+      `mutation AssignOptionGroups($input: AssignProductOptionGroupsToChannelInput!) {
+        assignProductOptionGroupsToChannel(input: $input) { id code }
+      }`,
+      { input: { channelId, productOptionGroupIds: optionGroupIds } },
+    ).catch(() => undefined);
+  }
 }
 
 async function ensureShippingMethod(input: {
@@ -323,6 +344,24 @@ async function ensurePaymentMethod(input: {
   return method;
 }
 
+async function ensureDefaultChannelZone(zoneId: string) {
+  const { channels } = await adminFetch<{
+    channels: { items: Array<{ id: string; code: string; defaultTaxZone: { id: string } | null; defaultShippingZone: { id: string } | null }> };
+  }>(`query Channels { channels { items { id code defaultTaxZone { id } defaultShippingZone { id } } } }`);
+  const defaultChannel = channels.items.find((channel) => channel.code === '__default_channel__');
+  if (!defaultChannel || (defaultChannel.defaultTaxZone && defaultChannel.defaultShippingZone)) return;
+
+  await adminFetch(
+    `mutation UpdateDefaultChannel($input: UpdateChannelInput!) {
+      updateChannel(input: $input) {
+        ... on Channel { id code }
+        ... on ErrorResult { errorCode message }
+      }
+    }`,
+    { input: { id: defaultChannel.id, defaultTaxZoneId: zoneId, defaultShippingZoneId: zoneId } },
+  );
+}
+
 async function productExists(slug: string) {
   const { products } = await adminFetch<{ products: { items: Array<{ id: string; slug: string }> } }>(
     `query Products { products(options: { take: 100 }) { items { id slug } } }`,
@@ -330,70 +369,170 @@ async function productExists(slug: string) {
   return products.items.find((product) => product.slug === slug);
 }
 
-async function createDemoProduct(input: {
+/**
+ * Creates a product sold in BOTH channels: one variant with a price per currency
+ * (NPR for nepal, HKD for hongkong) and a stock level per warehouse. Vendure's
+ * MultiChannelStockLocationStrategy (the default since v3.1, unmodified here) then
+ * shows/allocates only the stock location that belongs to the active channel, so the
+ * Nepal storefront only ever sees Nepal Warehouse stock and vice versa.
+ */
+async function createSharedProduct(input: {
   name: string;
   slug: string;
   description: string;
   typeValueId: string;
   facetValueIds: string[];
   optionIds: string[];
-  price: number;
-  currencyCode: 'NPR' | 'HKD';
-  channelId: string;
+  optionGroupIds: string[];
   sku: string;
-  stockOnHand: number;
+  nepalPrice: number;
+  hongKongPrice: number;
+  nepalStock: number;
+  hongKongStock: number;
+  nepalChannelId: string;
+  hongKongChannelId: string;
+  nepalChannelToken: string;
+  hongKongChannelToken: string;
+  nepalStockLocationId: string;
+  hongKongStockLocationId: string;
+  staleStockLocationIds?: string[];
 }) {
   const existing = await productExists(input.slug);
-  if (existing) return existing;
 
-  const { createProduct } = await adminFetch<{ createProduct: { id: string; slug: string } }>(
-    `mutation CreateProduct($input: CreateProductInput!) {
-      createProduct(input: $input) { id slug }
-    }`,
-    {
-      input: {
-        enabled: true,
-        facetValueIds: [input.typeValueId, ...input.facetValueIds],
-        translations: [
-          {
-            languageCode: 'en',
-            name: input.name,
-            slug: input.slug,
-            description: input.description,
-          },
-        ],
-      },
-    },
-  );
-
-  await adminFetch(
-    `mutation CreateVariants($input: [CreateProductVariantInput!]!) {
-      createProductVariants(input: $input) { id sku }
-    }`,
-    {
-      input: [
+  const productId =
+    existing?.id ??
+    (
+      await adminFetch<{ createProduct: { id: string; slug: string } }>(
+        `mutation CreateProduct($input: CreateProductInput!) {
+          createProduct(input: $input) { id slug }
+        }`,
         {
-          productId: createProduct.id,
-          sku: input.sku,
-          enabled: true,
-          optionIds: input.optionIds,
-          stockOnHand: input.stockOnHand,
-          trackInventory: 'TRUE',
-          prices: [{ currencyCode: input.currencyCode, price: input.price }],
-          translations: [{ languageCode: 'en', name: input.name }],
+          input: {
+            enabled: true,
+            facetValueIds: [input.typeValueId, ...input.facetValueIds],
+            translations: [
+              {
+                languageCode: 'en',
+                name: input.name,
+                slug: input.slug,
+                description: input.description,
+              },
+            ],
+          },
         },
-      ],
-    },
-  );
+      )
+    ).createProduct.id;
 
+  // Ensure the product is assigned to both markets, whether newly created or repaired.
   await adminFetch(
     `mutation AssignProduct($input: AssignProductsToChannelInput!) {
       assignProductsToChannel(input: $input) { id slug }
     }`,
-    { input: { channelId: input.channelId, productIds: [createProduct.id] } },
+    { input: { channelId: input.nepalChannelId, productIds: [productId] } },
+    input.nepalChannelToken,
+  ).catch(() => undefined);
+  await adminFetch(
+    `mutation AssignProduct($input: AssignProductsToChannelInput!) {
+      assignProductsToChannel(input: $input) { id slug }
+    }`,
+    { input: { channelId: input.hongKongChannelId, productIds: [productId] } },
+    input.hongKongChannelToken,
   ).catch(() => undefined);
 
-  return createProduct;
+  // Idempotent regardless of prior state — safe to call even if already attached.
+  for (const optionGroupId of input.optionGroupIds) {
+    await adminFetch(
+      `mutation AddOptionGroupToProduct($productId: ID!, $optionGroupId: ID!) {
+        addOptionGroupToProduct(productId: $productId, optionGroupId: $optionGroupId) { id }
+      }`,
+      { productId, optionGroupId },
+      input.nepalChannelToken,
+    ).catch(() => undefined);
+  }
+
+  const { product } = await adminFetch<{ product: { variants: Array<{ id: string }> } | null }>(
+    `query ProductVariants($id: ID!) { product(id: $id) { variants { id } } }`,
+    { id: productId },
+    input.nepalChannelToken,
+  );
+
+  let variantId = product?.variants?.[0]?.id;
+
+  if (!variantId) {
+    const { createProductVariants } = await adminFetch<{ createProductVariants: Array<{ id: string }> }>(
+      `mutation CreateVariants($input: [CreateProductVariantInput!]!) {
+        createProductVariants(input: $input) { id }
+      }`,
+      {
+        input: [
+          {
+            productId,
+            sku: input.sku,
+            enabled: true,
+            optionIds: input.optionIds,
+            trackInventory: 'TRUE',
+            translations: [{ languageCode: 'en', name: input.name }],
+          },
+        ],
+      },
+      input.nepalChannelToken,
+    );
+    variantId = createProductVariants[0].id;
+  }
+
+  // A variant is only assigned to the channel it was created in (or, for older seed
+  // runs, whichever single channel existed at the time) — ensure it's in both so its
+  // per-currency price and per-warehouse stock can be set below.
+  await adminFetch(
+    `mutation AssignVariantToChannel($input: AssignProductVariantsToChannelInput!) {
+      assignProductVariantsToChannel(input: $input) { id }
+    }`,
+    { input: { productVariantIds: [variantId], channelId: input.nepalChannelId } },
+    input.nepalChannelToken,
+  ).catch(() => undefined);
+  await adminFetch(
+    `mutation AssignVariantToChannel($input: AssignProductVariantsToChannelInput!) {
+      assignProductVariantsToChannel(input: $input) { id }
+    }`,
+    { input: { productVariantIds: [variantId], channelId: input.hongKongChannelId } },
+    input.nepalChannelToken,
+  ).catch(() => undefined);
+
+  // Ensure the NPR price and both warehouses' stock, scoped to the Nepal channel.
+  await adminFetch(
+    `mutation UpdateVariant($input: [UpdateProductVariantInput!]!) {
+      updateProductVariants(input: $input) { id }
+    }`,
+    {
+      input: [
+        {
+          id: variantId,
+          prices: [{ currencyCode: 'NPR', price: input.nepalPrice }],
+          stockLevels: [
+            { stockLocationId: input.nepalStockLocationId, stockOnHand: input.nepalStock },
+            { stockLocationId: input.hongKongStockLocationId, stockOnHand: input.hongKongStock },
+            // Zero out stock at any other (e.g. Vendure's auto-created "Default Stock
+            // Location") that older seed runs may have written to via the deprecated
+            // flat stockOnHand field — it belongs to no channel here and was just
+            // confusing leftover clutter in the Dashboard's stock editor.
+            ...(input.staleStockLocationIds ?? []).map((stockLocationId) => ({ stockLocationId, stockOnHand: 0 })),
+          ],
+        },
+      ],
+    },
+    input.nepalChannelToken,
+  );
+
+  // Ensure the Hong Kong channel's HKD price for the same variant.
+  await adminFetch(
+    `mutation UpdateVariantPrice($input: [UpdateProductVariantInput!]!) {
+      updateProductVariants(input: $input) { id }
+    }`,
+    { input: [{ id: variantId, prices: [{ currencyCode: 'HKD', price: input.hongKongPrice }] }] },
+    input.hongKongChannelToken,
+  );
+
+  return { id: productId, slug: input.slug };
 }
 
 async function main() {
@@ -404,8 +543,13 @@ async function main() {
   const nepalChannel = await ensureChannel({ code: 'nepal', token: 'nepal', currencyCode: 'NPR', zoneId: nepalZone.id });
   const hongKongChannel = await ensureChannel({ code: 'hongkong', token: 'hongkong', currencyCode: 'HKD', zoneId: hongKongZone.id });
 
-  await ensureStockLocation('Nepal Warehouse', nepalChannel.id);
-  await ensureStockLocation('Hong Kong Warehouse', hongKongChannel.id);
+  // Vendure's built-in Default Channel has no tax/shipping zone out of the box, which
+  // causes "error.no-active-tax-zone" if a product/variant is created while the Dashboard
+  // is scoped to it instead of Nepal/Hong Kong. Give it a safe fallback zone.
+  await ensureDefaultChannelZone(nepalZone.id);
+
+  const nepalWarehouse = await ensureStockLocation('Nepal Warehouse', nepalChannel.id);
+  const hongKongWarehouse = await ensureStockLocation('Hong Kong Warehouse', hongKongChannel.id);
   await ensureTaxRate('Nepal VAT', nepalZone.id, 13);
   await ensureTaxRate('Hong Kong Tax', hongKongZone.id, 0);
 
@@ -432,6 +576,8 @@ async function main() {
 
   const size = await ensureOptionGroup('size', 'Size', ['S', 'M', 'L']);
   const color = await ensureOptionGroup('color', 'Color', ['Black', 'White', 'Olive']);
+
+  await assignOptionGroupsToChannels([size.id, color.id], [nepalChannel.id, hongKongChannel.id]);
 
   await ensureShippingMethod({
     code: 'nepal-district-shipping',
@@ -472,58 +618,87 @@ async function main() {
     size.options.find((option) => option.code === sizeCode)!.id,
     color.options.find((option) => option.code === colorCode)!.id,
   ];
+  const optionGroupIds = [size.id, color.id];
 
-  await createDemoProduct({
+  const { stockLocations: allStockLocations } = await adminFetch<{
+    stockLocations: { items: Array<{ id: string; name: string }> };
+  }>(`query AllStockLocations { stockLocations(options: { take: 100 }) { items { id name } } }`);
+  const staleStockLocationIds = allStockLocations.items
+    .filter((location) => location.id !== nepalWarehouse.id && location.id !== hongKongWarehouse.id)
+    .map((location) => location.id);
+
+  const sharedChannelFields = {
+    nepalChannelId: nepalChannel.id,
+    hongKongChannelId: hongKongChannel.id,
+    nepalChannelToken: 'nepal',
+    hongKongChannelToken: 'hongkong',
+    nepalStockLocationId: nepalWarehouse.id,
+    hongKongStockLocationId: hongKongWarehouse.id,
+    staleStockLocationIds,
+  };
+
+  // Every product below sells in both markets, with its own price per currency and
+  // its own stock count per warehouse — e.g. the Box Tee has 10 units in Nepal and
+  // 15 in Hong Kong, tracked and allocated independently.
+  await createSharedProduct({
     name: 'Hakeems Box Tee',
     slug: 'hakeems-box-tee',
     description: '<p>Midweight unisex tee for daily wear.</p>',
     typeValueId: typeValue('tops'),
     facetValueIds: facetValues('cotton', 'regular', 'unisex'),
     optionIds: optionIds('m', 'black'),
-    price: 250000,
-    currencyCode: 'NPR',
-    channelId: nepalChannel.id,
-    sku: 'HKM-NP-BOX-TEE-BLK-M',
-    stockOnHand: 25,
+    optionGroupIds,
+    sku: 'HKM-BOX-TEE-BLK-M',
+    nepalPrice: 250000,
+    hongKongPrice: 16800,
+    nepalStock: 10,
+    hongKongStock: 15,
+    ...sharedChannelFields,
   });
-  await createDemoProduct({
+  await createSharedProduct({
     name: 'Harbour Overshirt',
     slug: 'harbour-overshirt',
-    description: '<p>Relaxed overshirt for Hong Kong evenings.</p>',
+    description: '<p>Relaxed overshirt for cooler evenings.</p>',
     typeValueId: typeValue('tops'),
     facetValueIds: facetValues('cotton', 'relaxed', 'unisex'),
     optionIds: optionIds('l', 'olive'),
-    price: 42000,
-    currencyCode: 'HKD',
-    channelId: hongKongChannel.id,
-    sku: 'HKM-HK-HARBOUR-OVERSHIRT-OLV-L',
-    stockOnHand: 18,
+    optionGroupIds,
+    sku: 'HKM-HARBOUR-OVERSHIRT-OLV-L',
+    nepalPrice: 715000,
+    hongKongPrice: 42000,
+    nepalStock: 8,
+    hongKongStock: 20,
+    ...sharedChannelFields,
   });
-  await createDemoProduct({
+  await createSharedProduct({
     name: 'Kathmandu Utility Pant',
     slug: 'kathmandu-utility-pant',
     description: '<p>Durable relaxed bottoms with event-ready pockets.</p>',
     typeValueId: typeValue('bottoms'),
     facetValueIds: facetValues('canvas', 'relaxed', 'unisex'),
     optionIds: optionIds('m', 'black'),
-    price: 390000,
-    currencyCode: 'NPR',
-    channelId: nepalChannel.id,
-    sku: 'HKM-NP-UTILITY-PANT-BLK-M',
-    stockOnHand: 16,
+    optionGroupIds,
+    sku: 'HKM-UTILITY-PANT-BLK-M',
+    nepalPrice: 390000,
+    hongKongPrice: 22800,
+    nepalStock: 14,
+    hongKongStock: 6,
+    ...sharedChannelFields,
   });
-  await createDemoProduct({
+  await createSharedProduct({
     name: 'Market Tote',
     slug: 'market-tote',
     description: '<p>Canvas tote for pop-ups, markets, and daily carry.</p>',
     typeValueId: typeValue('accessories'),
     facetValueIds: facetValues('canvas', 'regular', 'unisex'),
     optionIds: optionIds('m', 'white'),
-    price: 16000,
-    currencyCode: 'HKD',
-    channelId: hongKongChannel.id,
-    sku: 'HKM-HK-MARKET-TOTE-WHT',
-    stockOnHand: 40,
+    optionGroupIds,
+    sku: 'HKM-MARKET-TOTE-WHT',
+    nepalPrice: 270000,
+    hongKongPrice: 16000,
+    nepalStock: 30,
+    hongKongStock: 25,
+    ...sharedChannelFields,
   });
 
   console.log('Hakeems Vendure seed complete.');

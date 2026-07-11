@@ -1,5 +1,7 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { AddToCartForm } from '@/components/AddToCartForm';
 import { assertChannel } from '@/lib/channels';
 import { formatMoney } from '@/lib/money';
 import { getProductBySlug } from '@/lib/vendure';
@@ -16,45 +18,49 @@ export default async function ProductDetailPage({
   if (!product) notFound();
 
   const variant = product.variants[0];
+  const typeLabel = product.facetValues.find((value) => value.facet.code === 'product-type')?.name || 'Hakeems';
   const enriched = product.customFields?.enrichedDescription || product.description;
 
   return (
-    <main className="container split">
-      <div>
-        {product.featuredAsset?.preview ? (
-          <Image className="product-image" src={product.featuredAsset.preview} alt={product.name} width={900} height={1125} priority />
-        ) : (
-          <div className="product-image" aria-hidden="true" />
-        )}
-      </div>
-      <section>
-        <p className="eyebrow">{product.facetValues.find((value) => value.facet.code === 'product-type')?.name || 'Hakeems'}</p>
-        <h1>{product.name}</h1>
-        <p>{variant ? formatMoney(variant.priceWithTax, variant.currencyCode) : 'Unavailable'}</p>
-        <p className="muted">{variant?.stockLevel || 'Stock checked at checkout'}</p>
-        <div className="panel">
-          <h2>Options</h2>
-          {product.variants.map((item) => (
-            <form key={item.id} action="/api/cart" method="post" className="form-grid" style={{ marginBottom: 14 }}>
-              <input type="hidden" name="channel" value={channel} />
-              <input type="hidden" name="variantId" value={item.id} />
-              <input type="hidden" name="quantity" value="1" />
-              <p>
-                <strong>{item.name}</strong>
-                <br />
-                <span className="muted">
-                  {item.options.map((option) => `${option.group.name}: ${option.name}`).join(', ')}
-                </span>
-              </p>
-              <button type="submit">Add to Cart</button>
-            </form>
-          ))}
+    <main className="container section">
+      <p className="breadcrumb">
+        <Link href={`/${channel}`}>Home</Link> / {typeLabel}
+      </p>
+      <div className="pdp">
+        <div className="pdp-gallery">
+          {product.featuredAsset?.preview ? (
+            <Image className="product-image" src={product.featuredAsset.preview} alt={product.name} width={900} height={1125} priority />
+          ) : (
+            <div className="product-image-placeholder" aria-hidden="true">
+              <span>Hakeems</span>
+            </div>
+          )}
         </div>
-        <section style={{ marginTop: 24 }}>
-          <h2>Details</h2>
-          <div dangerouslySetInnerHTML={{ __html: enriched || '' }} />
+        <section className="pdp-info">
+          <p className="eyebrow">{typeLabel}</p>
+          <h1>{product.name}</h1>
+          <p className="pdp-price">{variant ? formatMoney(variant.priceWithTax, variant.currencyCode) : 'Unavailable'}</p>
+          <p className="pdp-stock muted">{variant?.stockLevel === 'IN_STOCK' ? 'In stock, ships in 2–4 days' : variant?.stockLevel || 'Stock checked at checkout'}</p>
+
+          {product.variants.length > 0 && <AddToCartForm channel={channel} variants={product.variants} />}
+
+          <div className="accordion" style={{ marginTop: 32 }}>
+            <details open>
+              <summary>Details</summary>
+              <div className="accordion-body" dangerouslySetInnerHTML={{ __html: enriched || '' }} />
+            </details>
+            <details>
+              <summary>Shipping &amp; Returns</summary>
+              <div className="accordion-body">
+                <p>
+                  Shipping is calculated at checkout by district/city. Exchanges are accepted within 14 days of delivery,
+                  unworn and in original packaging.
+                </p>
+              </div>
+            </details>
+          </div>
         </section>
-      </section>
+      </div>
     </main>
   );
 }

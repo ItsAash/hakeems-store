@@ -6,8 +6,8 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: hakeems
-      POSTGRES_PASSWORD: hakeems
+      POSTGRES_USER: aash
+      POSTGRES_PASSWORD: aash
       POSTGRES_DB: hakeems_bootstrap
     volumes:
       - hakeems_postgres:/var/lib/postgresql/data

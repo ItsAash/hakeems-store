@@ -15,14 +15,19 @@ export default async function EventPage({ params }: { params: Promise<{ channel:
   const products = await getProductsByIds(channel, vendureIds).catch(() => []);
 
   return (
-    <main className="container">
+    <main className="container section">
       <p className="eyebrow">{event.status}</p>
-      <h1>{event.title}</h1>
+      <h1 style={{ margin: '10px 0 12px', fontSize: 'clamp(32px, 4.5vw, 56px)' }}>{event.title}</h1>
       <p className="muted">
         {new Date(event.eventDate).toLocaleDateString()} at {event.location}
       </p>
-      <div dangerouslySetInnerHTML={{ __html: event.description || '' }} />
-      <h2>Featured Products</h2>
+      <div style={{ marginTop: 20, maxWidth: 640, lineHeight: 1.7 }} dangerouslySetInnerHTML={{ __html: event.description || '' }} />
+
+      {products.length > 0 && (
+        <div className="section-head" style={{ marginTop: 48 }}>
+          <h2>Featured Products</h2>
+        </div>
+      )}
       <div className="grid">
         {products.map((product) => (
           <ProductCard key={product.id} channel={channel} product={product} />

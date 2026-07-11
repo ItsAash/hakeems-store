@@ -16,7 +16,15 @@
     "baseUrl": "./"
   },
   "include": ["src/**/*.ts", "scripts/**/*.ts"],
-  "exclude": ["node_modules", "migration.ts", "src/plugins/**/ui/*", "admin-ui", "src/plugins/**/dashboard/*", "src/gql/*", "vite.*.*ts"],
+  "exclude": [
+    "node_modules",
+    "migration.ts",
+    "src/plugins/**/ui/*",
+    "admin-ui",
+    "src/plugins/**/dashboard/*",
+    "src/gql/*",
+    "vite.*.*ts"
+  ],
   "ts-node": {
     "files": true
   },
