@@ -540,30 +540,35 @@ async function ensureCollection(input: {
     { slug: input.slug },
   );
   let collection = collections.items[0];
+  const translations = [{ languageCode: 'en', name: input.name, slug: input.slug, description: input.description }];
+  const filters = [
+    {
+      code: 'facet-value-filter',
+      arguments: [
+        { name: 'facetValueIds', value: JSON.stringify(input.facetValueIds) },
+        { name: 'containsAny', value: 'true' },
+      ],
+    },
+  ];
 
   if (!collection) {
     const { createCollection } = await adminFetch<{ createCollection: { id: string; slug: string } }>(
       `mutation CreateCollection($input: CreateCollectionInput!) {
         createCollection(input: $input) { id slug }
       }`,
-      {
-        input: {
-          isPrivate: false,
-          featuredAssetId: input.featuredAssetId,
-          translations: [{ languageCode: 'en', name: input.name, slug: input.slug, description: input.description }],
-          filters: [
-            {
-              code: 'facet-value-filter',
-              arguments: [
-                { name: 'facetValueIds', value: JSON.stringify(input.facetValueIds) },
-                { name: 'containsAny', value: 'true' },
-              ],
-            },
-          ],
-        },
-      },
+      { input: { isPrivate: false, featuredAssetId: input.featuredAssetId, translations, filters } },
     );
     collection = createCollection;
+  } else {
+    // Re-run with the same (idempotent) content on every seed so CollectionEvent fires and
+    // apps/vendure/src/plugins/collection-sync pushes to Strapi even if a prior sync attempt
+    // was missed (e.g. Strapi was down that run) — self-healing rather than create-once.
+    await adminFetch(
+      `mutation UpdateCollection($input: UpdateCollectionInput!) {
+        updateCollection(input: $input) { id slug }
+      }`,
+      { input: { id: collection.id, translations, filters } },
+    );
   }
 
   for (const channelId of input.channelIds) {

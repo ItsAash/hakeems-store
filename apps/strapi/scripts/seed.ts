@@ -4,6 +4,12 @@
  * `.load()` vs `.start()` below) and writes through the Document Service
  * directly, so it needs no admin credentials or API token.
  *
+ * Collection pages are NOT created here: Vendure's collection-sync plugin creates
+ * them automatically (see apps/vendure/src/plugins/collection-sync) whenever a
+ * collection is created in Vendure. Run `pnpm --filter @hakeems/vendure seed`
+ * first (the root `seed` script already does this in order) so those entries
+ * exist before this script enriches them with banners/copy/featured flags.
+ *
  * Run with: pnpm --filter @hakeems/strapi seed
  */
 import fs from 'node:fs';
@@ -40,11 +46,7 @@ async function uploadImage(strapi: Core.Strapi, url: string, fileName: string): 
   return uploaded.id;
 }
 
-/** Upsert-by-filter + publish, for draftAndPublish collection types (home-page, collection-page, event). */
-type DraftUID =
-  | 'api::home-page.home-page'
-  | 'api::collection-page.collection-page'
-  | 'api::event.event';
+type DraftUID = 'api::home-page.home-page';
 
 // Seed data is assembled as plain object literals below, which won't structurally match
 // the Document Service's generated per-content-type Input types (components in particular
@@ -238,6 +240,14 @@ async function seedHomePages(strapi: Core.Strapi) {
   console.log('Seeded home-page (nepal, hongkong)');
 }
 
+/**
+ * Enriches collection-page entries that Vendure's collection-sync plugin already created
+ * (matched by vendureCollectionSlug) with banner image, tagline, description, and featured
+ * flag. Deliberately does NOT create entries here — Vendure is the source of truth for
+ * which collections exist, so a slug with no matching entry means the collection hasn't
+ * synced yet (Strapi was down, or `pnpm --filter @hakeems/vendure seed` hasn't run) and is
+ * skipped with a warning rather than faked.
+ */
 async function seedCollectionPages(strapi: Core.Strapi) {
   const heroTops = await uploadImage(strapi, unsplash('photo-1445205170230-053b83016050', 'w=1600&h=900&fit=crop&q=80'), 'collection-tops.jpg');
   const heroBottoms = await uploadImage(strapi, unsplash('photo-1560243563-062bfc001d68', 'w=1600&h=900&fit=crop&q=80'), 'collection-bottoms.jpg');
@@ -247,160 +257,99 @@ async function seedCollectionPages(strapi: Core.Strapi) {
   const heroDashain = await uploadImage(strapi, unsplash('photo-1515886657613-9f3515b0c78f', 'w=1600&h=900&fit=crop&q=80'), 'collection-dashain-edit.jpg');
   const heroHarbour = await uploadImage(strapi, unsplash('photo-1558769132-cb1aea458c5e', 'w=1600&h=900&fit=crop&q=80'), 'collection-harbour-nights.jpg');
 
-  const pages: Array<Record<string, unknown>> = [
+  const enrichments: Array<{ vendureCollectionSlug: string; data: Record<string, unknown> }> = [
     {
       vendureCollectionSlug: 'tops',
-      title: 'Tops',
-      tagline: 'Tees, sweats, hoodies and overshirts',
-      description: 'Tees, sweats, hoodies and overshirts — the upper half of every Hakeems fit.',
-      heroImage: heroTops,
-      channel: 'both',
-      featured: false,
-      sortOrder: 1,
+      data: {
+        title: 'Tops',
+        tagline: 'Tees, sweats, hoodies and overshirts',
+        description: 'Tees, sweats, hoodies and overshirts — the upper half of every Hakeems fit.',
+        heroImage: heroTops,
+        featured: false,
+        sortOrder: 1,
+      },
     },
     {
       vendureCollectionSlug: 'bottoms',
-      title: 'Bottoms',
-      tagline: 'Utility pants, joggers and denim',
-      description: 'Utility pants, joggers and denim built for the street and the stage.',
-      heroImage: heroBottoms,
-      channel: 'both',
-      featured: false,
-      sortOrder: 2,
+      data: {
+        title: 'Bottoms',
+        tagline: 'Utility pants, joggers and denim',
+        description: 'Utility pants, joggers and denim built for the street and the stage.',
+        heroImage: heroBottoms,
+        featured: false,
+        sortOrder: 2,
+      },
     },
     {
       vendureCollectionSlug: 'accessories',
-      title: 'Accessories',
-      tagline: 'Totes, slings and caps',
-      description: 'Totes, slings and caps — the pieces that finish the fit.',
-      heroImage: heroAccessories,
-      channel: 'both',
-      featured: false,
-      sortOrder: 3,
+      data: {
+        title: 'Accessories',
+        tagline: 'Totes, slings and caps',
+        description: 'Totes, slings and caps — the pieces that finish the fit.',
+        heroImage: heroAccessories,
+        featured: false,
+        sortOrder: 3,
+      },
     },
     {
       vendureCollectionSlug: 'the-essentials',
-      title: 'The Essentials',
-      tagline: 'The permanent collection',
-      description: 'The permanent collection. Core pieces we cut in every drop, restocked season after season.',
-      heroImage: heroEssentials,
-      channel: 'both',
-      featured: true,
-      sortOrder: 4,
+      data: {
+        title: 'The Essentials',
+        tagline: 'The permanent collection',
+        description: 'The permanent collection. Core pieces we cut in every drop, restocked season after season.',
+        heroImage: heroEssentials,
+        featured: true,
+        sortOrder: 4,
+      },
     },
     {
       vendureCollectionSlug: 'new-drop',
-      title: 'New Drop · SS26',
-      tagline: 'The latest release',
-      description: 'The latest release — limited runs designed in Kathmandu and gone when they’re gone.',
-      heroImage: heroNewDrop,
-      channel: 'both',
-      featured: true,
-      sortOrder: 5,
+      data: {
+        title: 'New Drop · SS26',
+        tagline: 'The latest release',
+        description: 'The latest release — limited runs designed in Kathmandu and gone when they’re gone.',
+        heroImage: heroNewDrop,
+        featured: true,
+        sortOrder: 5,
+      },
     },
     {
       vendureCollectionSlug: 'dashain-edit',
-      title: 'Dashain Edit',
-      tagline: 'Festive capsule — Nepal exclusive',
-      description: 'A festive capsule for Dashain — layering pieces built for tika mornings and late family dinners. Nepal only.',
-      heroImage: heroDashain,
-      channel: 'nepal',
-      featured: true,
-      sortOrder: 6,
+      data: {
+        title: 'Dashain Edit',
+        tagline: 'Festive capsule — Nepal exclusive',
+        description: 'A festive capsule for Dashain — layering pieces built for tika mornings and late family dinners. Nepal only.',
+        heroImage: heroDashain,
+        featured: true,
+        sortOrder: 6,
+      },
     },
     {
       vendureCollectionSlug: 'harbour-nights',
-      title: 'Harbour Nights',
-      tagline: 'City-after-dark — Hong Kong exclusive',
-      description: 'Sleek, city-after-dark pieces cut for humid nights on the harbour. Hong Kong only.',
-      heroImage: heroHarbour,
-      channel: 'hongkong',
-      featured: true,
-      sortOrder: 6,
+      data: {
+        title: 'Harbour Nights',
+        tagline: 'City-after-dark — Hong Kong exclusive',
+        description: 'Sleek, city-after-dark pieces cut for humid nights on the harbour. Hong Kong only.',
+        heroImage: heroHarbour,
+        featured: true,
+        sortOrder: 6,
+      },
     },
   ];
 
-  for (const page of pages) {
-    await upsertAndPublish(strapi, 'api::collection-page.collection-page', { vendureCollectionSlug: page.vendureCollectionSlug }, page);
+  const uid = 'api::collection-page.collection-page';
+  let enriched = 0;
+  for (const { vendureCollectionSlug, data } of enrichments) {
+    const existing = await strapi.documents(uid).findFirst({ filters: { vendureCollectionSlug }, status: 'draft' });
+    if (!existing) {
+      console.warn(`Skipping "${vendureCollectionSlug}": no synced collection-page yet (has Vendure's seed run and pushed it?)`);
+      continue;
+    }
+    await strapi.documents(uid).update({ documentId: existing.documentId, data });
+    await strapi.documents(uid).publish({ documentId: existing.documentId });
+    enriched += 1;
   }
-  console.log(`Seeded collection-page x${pages.length}`);
-}
-
-async function seedEvents(strapi: Core.Strapi) {
-  const coverNepal = await uploadImage(strapi, unsplash('photo-1509631179647-0177331693ae', 'w=1600&h=1000&fit=crop&q=80'), 'event-jawalakhel.jpg');
-  const coverHongKong = await uploadImage(strapi, unsplash('photo-1496747611176-843222e1e57c', 'w=1600&h=1000&fit=crop&q=80'), 'event-pmq.jpg');
-
-  const productDocumentId = async (vendureId: string) => {
-    const ref = await strapi.documents('api::product-reference.product-reference').findFirst({
-      filters: { vendureId },
-      status: 'draft',
-    });
-    return ref?.documentId;
-  };
-
-  const nextLastSaturday = () => {
-    const date = new Date();
-    date.setDate(date.getDate() + ((6 - date.getDay() + 7) % 7 || 7));
-    date.setHours(14, 0, 0, 0);
-    return date.toISOString();
-  };
-  const firstWeekendNextMonth = () => {
-    const date = new Date();
-    date.setMonth(date.getMonth() + 1, 1);
-    const day = date.getDay();
-    date.setDate(1 + ((6 - day + 7) % 7));
-    date.setHours(18, 0, 0, 0);
-    return date.toISOString();
-  };
-
-  const dashainProductIds = (await Promise.all(['11', '2', '4'].map(productDocumentId))).filter(Boolean) as string[];
-  const harbourProductIds = (await Promise.all(['8', '13', '14'].map(productDocumentId))).filter(Boolean) as string[];
-
-  await upsertAndPublish(strapi, 'api::event.event', { slug: 'hakeems-pop-up-jawalakhel' }, {
-    title: 'Hakeems Pop-Up — Jawalakhel',
-    slug: 'hakeems-pop-up-jawalakhel',
-    status: 'upcoming',
-    eventDate: nextLastSaturday(),
-    location: 'Jawalakhel, Lalitpur',
-    address: 'Jawalakhel Chowk, Lalitpur 44700',
-    description:
-      'Where it all started. Come try on the new drop, grab a Dashain Edit piece before it sells out, and hang out at the table that started this whole thing.',
-    coverImage: coverNepal,
-    featuredProducts: dashainProductIds,
-    channel: 'nepal',
-    seo: { metaTitle: 'Hakeems Pop-Up — Jawalakhel', metaDescription: 'Join us at Jawalakhel, Lalitpur — every last Saturday.' },
-  });
-
-  await upsertAndPublish(strapi, 'api::event.event', { slug: 'hakeems-pop-up-pmq' }, {
-    title: 'Hakeems Pop-Up — PMQ',
-    slug: 'hakeems-pop-up-pmq',
-    status: 'upcoming',
-    eventDate: firstWeekendNextMonth(),
-    location: 'PMQ, Central, Hong Kong',
-    address: '35 Aberdeen Street, Central, Hong Kong',
-    description: 'Harbour Nights comes to PMQ. Try the city-after-dark capsule in person, first weekend of every month.',
-    coverImage: coverHongKong,
-    featuredProducts: harbourProductIds,
-    channel: 'hongkong',
-    seo: { metaTitle: 'Hakeems Pop-Up — PMQ', metaDescription: 'Join us at PMQ, Central — first weekend of every month.' },
-  });
-
-  console.log('Seeded event x2');
-}
-
-/**
- * Vendure pushes product-reference updates to the DRAFT only (see
- * apps/strapi/src/api/product-reference/controllers/product-reference.ts) so an
- * in-progress editorial draft is never prematurely published. For a fresh seed
- * there's no in-progress editorial content to protect, so republish every
- * product-reference once here to bring its live snapshot's title/handle in sync.
- */
-async function republishProductReferences(strapi: Core.Strapi) {
-  const drafts = await strapi.documents('api::product-reference.product-reference').findMany({ status: 'draft' });
-  for (const draft of drafts) {
-    await strapi.documents('api::product-reference.product-reference').publish({ documentId: draft.documentId });
-  }
-  console.log(`Republished ${drafts.length} product-reference entries`);
+  console.log(`Enriched ${enriched}/${enrichments.length} collection-page entries`);
 }
 
 async function main() {
@@ -413,11 +362,6 @@ async function main() {
   await seedSiteSetting(app);
   await seedHomePages(app);
   await seedCollectionPages(app);
-  // Publish product-references before events: events relate to them by documentId, and
-  // publishing an event only carries over relations to targets that already have a
-  // published version at that moment.
-  await republishProductReferences(app);
-  await seedEvents(app);
   console.log('Hakeems Strapi seed complete.');
 
   fs.rmSync(tmpDir, { recursive: true, force: true });

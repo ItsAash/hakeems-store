@@ -1,20 +1,10 @@
 import type { Core } from '@strapi/strapi';
 
-/**
- * Content the storefront reads directly over the public REST/GraphQL content API.
- *
- * product-reference gets read access too (find/findOne only — no create/update/delete,
- * those stay admin/sync-secret only) despite being primarily an editorial bridge to
- * Vendure: Strapi's content-API sanitizer strips any relation field whose target
- * content-type the requesting role can't read, so without this an event's
- * `featuredProducts` relation would silently vanish from the public API response.
- */
+/** Content the storefront reads directly over the public REST/GraphQL content API. */
 const PUBLIC_READ_ACTIONS: Record<string, string[]> = {
   'api::home-page.home-page': ['find', 'findOne'],
   'api::collection-page.collection-page': ['find', 'findOne'],
-  'api::event.event': ['find', 'findOne'],
   'api::site-setting.site-setting': ['find'],
-  'api::product-reference.product-reference': ['find', 'findOne'],
 };
 
 /**

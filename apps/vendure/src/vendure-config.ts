@@ -17,7 +17,8 @@ import { fonepayPlaceholderHandler } from './plugins/fonepay-placeholder/fonepay
 import { zoneShippingCalculator, zoneShippingEligibilityChecker } from './plugins/shipping-zones/zone-shipping.calculator';
 import { ShippingZonesPlugin } from './plugins/shipping-zones/shipping-zones.plugin';
 import { StockManagementPlugin } from './plugins/stock-management/stock-management.plugin';
-import { StrapiSyncPlugin } from './plugins/strapi-sync/strapi-sync.plugin';
+import { CollectionSyncPlugin } from './plugins/collection-sync/collection-sync.plugin';
+import { ProductOptionSwatchPlugin } from './plugins/product-option-swatch/product-option-swatch.plugin';
 
 const IS_DEV = process.env.APP_ENV === 'dev';
 const serverPort = +(process.env.PORT || 3000);
@@ -101,12 +102,13 @@ export const config: VendureConfig = {
         channel: ctx.channel.code,
       }),
     }),
-    StrapiSyncPlugin.init({
+    CollectionSyncPlugin.init({
       url: process.env.STRAPI_SYNC_URL || '',
       secret: process.env.HAKEEMS_SYNC_SECRET || '',
     }),
     StockManagementPlugin,
     ShippingZonesPlugin,
+    ProductOptionSwatchPlugin,
     DashboardPlugin.init({
       route: 'dashboard',
       appDir: IS_DEV ? path.join(__dirname, '../dist/dashboard') : path.join(__dirname, 'dashboard'),

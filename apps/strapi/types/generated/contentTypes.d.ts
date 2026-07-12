@@ -445,7 +445,7 @@ export interface ApiCollectionPageCollectionPage
   extends Struct.CollectionTypeSchema {
   collectionName: 'collection_pages';
   info: {
-    description: 'Editorial content (hero image, tagline, copy) for a Vendure collection, addressed by slug. The channel field controls whether a collection is shown on both storefronts or is exclusive to Nepal or Hong Kong.';
+    description: 'Editorial content (banner image, tagline, copy, featured flag) for a Vendure collection. Vendure is the source of truth for which collections exist and which channel(s) they sell in \u2014 this content type is created and kept in sync automatically whenever a collection is created or renamed in Vendure; editors then add the banner, tagline, description, and featured flag here.';
     displayName: 'Collection Page';
     pluralName: 'collection-pages';
     singularName: 'collection-page';
@@ -454,9 +454,6 @@ export interface ApiCollectionPageCollectionPage
     draftAndPublish: true;
   };
   attributes: {
-    channel: Schema.Attribute.Enumeration<['nepal', 'hongkong', 'both']> &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<'both'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -478,51 +475,9 @@ export interface ApiCollectionPageCollectionPage
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     vendureCollectionSlug: Schema.Attribute.String & Schema.Attribute.Required;
-  };
-}
-
-export interface ApiEventEvent extends Struct.CollectionTypeSchema {
-  collectionName: 'events';
-  info: {
-    description: 'Pop-ups and in-person events, optionally channel-exclusive, optionally cross-linked to featured Vendure products.';
-    displayName: 'Event';
-    pluralName: 'events';
-    singularName: 'event';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    address: Schema.Attribute.Text;
-    channel: Schema.Attribute.Enumeration<['nepal', 'hongkong', 'both']> &
+    vendureId: Schema.Attribute.String &
       Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<'both'>;
-    coverImage: Schema.Attribute.Media<'images'>;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    description: Schema.Attribute.RichText;
-    endDate: Schema.Attribute.DateTime;
-    eventDate: Schema.Attribute.DateTime & Schema.Attribute.Required;
-    featuredProducts: Schema.Attribute.Relation<
-      'manyToMany',
-      'api::product-reference.product-reference'
-    >;
-    gallery: Schema.Attribute.Media<'images', true>;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<'oneToMany', 'api::event.event'> &
-      Schema.Attribute.Private;
-    location: Schema.Attribute.String & Schema.Attribute.Required;
-    publishedAt: Schema.Attribute.DateTime;
-    seo: Schema.Attribute.Component<'shared.seo', false>;
-    slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required;
-    status: Schema.Attribute.Enumeration<['upcoming', 'live', 'past']> &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<'upcoming'>;
-    title: Schema.Attribute.String & Schema.Attribute.Required;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
+      Schema.Attribute.Unique;
   };
 }
 
@@ -562,46 +517,6 @@ export interface ApiHomePageHomePage extends Struct.CollectionTypeSchema {
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     values: Schema.Attribute.Component<'layout.value-item', true>;
-  };
-}
-
-export interface ApiProductReferenceProductReference
-  extends Struct.CollectionTypeSchema {
-  collectionName: 'product_references';
-  info: {
-    description: "Editorial content layer for a Vendure product, keyed by vendureId. Vendure pushes title/handle/thumbnail here on every product change; publishing enrichedDescription/SEO here pushes them back to Vendure's product custom fields.";
-    displayName: 'Product Reference';
-    pluralName: 'product-references';
-    singularName: 'product-reference';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    channel: Schema.Attribute.Enumeration<['nepal', 'hongkong', 'both']> &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<'both'>;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    enrichedDescription: Schema.Attribute.RichText;
-    handle: Schema.Attribute.String & Schema.Attribute.Required;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::product-reference.product-reference'
-    > &
-      Schema.Attribute.Private;
-    publishedAt: Schema.Attribute.DateTime;
-    seo: Schema.Attribute.Component<'shared.seo', false>;
-    thumbnailUrl: Schema.Attribute.String;
-    title: Schema.Attribute.String & Schema.Attribute.Required;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    vendureId: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.Unique;
   };
 }
 
@@ -1155,9 +1070,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::collection-page.collection-page': ApiCollectionPageCollectionPage;
-      'api::event.event': ApiEventEvent;
       'api::home-page.home-page': ApiHomePageHomePage;
-      'api::product-reference.product-reference': ApiProductReferenceProductReference;
       'api::site-setting.site-setting': ApiSiteSettingSiteSetting;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
