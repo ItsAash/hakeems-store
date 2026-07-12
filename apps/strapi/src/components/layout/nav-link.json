@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_layout_nav_links",
+  "info": {
+    "displayName": "Nav Link",
+    "icon": "link",
+    "description": "A single flyout link under a top-level Nav Item."
+  },
+  "options": {},
+  "attributes": {
+    "label": {
+      "type": "string",
+      "required": true
+    },
+    "href": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

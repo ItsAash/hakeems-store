@@ -8,6 +8,7 @@ export interface LayoutAnnouncement extends Struct.ComponentSchema {
     icon: 'bullhorn';
   };
   attributes: {
+    enabled: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
     endsAt: Schema.Attribute.DateTime;
     href: Schema.Attribute.String;
     startsAt: Schema.Attribute.DateTime;
@@ -30,6 +31,21 @@ export interface LayoutCollectionTile extends Struct.ComponentSchema {
   };
 }
 
+export interface LayoutFacetCategoryTile extends Struct.ComponentSchema {
+  collectionName: 'components_layout_facet_category_tiles';
+  info: {
+    description: "A visual category grid tile linking to a Vendure facet value (e.g. a 'Category' facet), independent of collection structure.";
+    displayName: 'Facet Category Tile';
+    icon: 'grid';
+  };
+  attributes: {
+    image: Schema.Attribute.Media<'images'>;
+    label: Schema.Attribute.String & Schema.Attribute.Required;
+    tagline: Schema.Attribute.String;
+    vendureFacetValueId: Schema.Attribute.String & Schema.Attribute.Required;
+  };
+}
+
 export interface LayoutHeroSlide extends Struct.ComponentSchema {
   collectionName: 'components_layout_hero_slides';
   info: {
@@ -46,7 +62,54 @@ export interface LayoutHeroSlide extends Struct.ComponentSchema {
     eyebrow: Schema.Attribute.String;
     heading: Schema.Attribute.String & Schema.Attribute.Required;
     image: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
+    imageMobile: Schema.Attribute.Media<'images'>;
     subheading: Schema.Attribute.Text;
+  };
+}
+
+export interface LayoutNavItem extends Struct.ComponentSchema {
+  collectionName: 'components_layout_nav_items';
+  info: {
+    description: 'One primary nav link, optionally with one level of flyout children.';
+    displayName: 'Nav Item';
+    icon: 'bulletList';
+  };
+  attributes: {
+    children: Schema.Attribute.Component<'layout.nav-link', true>;
+    href: Schema.Attribute.String & Schema.Attribute.Required;
+    label: Schema.Attribute.String & Schema.Attribute.Required;
+  };
+}
+
+export interface LayoutNavLink extends Struct.ComponentSchema {
+  collectionName: 'components_layout_nav_links';
+  info: {
+    description: 'A single flyout link under a top-level Nav Item.';
+    displayName: 'Nav Link';
+    icon: 'link';
+  };
+  attributes: {
+    href: Schema.Attribute.String & Schema.Attribute.Required;
+    label: Schema.Attribute.String & Schema.Attribute.Required;
+  };
+}
+
+export interface LayoutSpotlightBlock extends Struct.ComponentSchema {
+  collectionName: 'components_layout_spotlight_blocks';
+  info: {
+    description: 'A live Vendure collection shown with quick-add, paired with an editorial typography statement.';
+    displayName: 'Spotlight Block';
+    icon: 'star';
+  };
+  attributes: {
+    ctaHref: Schema.Attribute.String;
+    ctaLabel: Schema.Attribute.String;
+    eyebrow: Schema.Attribute.String;
+    heading: Schema.Attribute.String & Schema.Attribute.Required;
+    layout: Schema.Attribute.Enumeration<['image-left', 'image-right']> &
+      Schema.Attribute.DefaultTo<'image-left'>;
+    paragraphs: Schema.Attribute.Component<'shared.paragraph', true>;
+    vendureCollectionSlug: Schema.Attribute.String & Schema.Attribute.Required;
   };
 }
 
@@ -126,7 +189,11 @@ declare module '@strapi/strapi' {
     export interface ComponentSchemas {
       'layout.announcement': LayoutAnnouncement;
       'layout.collection-tile': LayoutCollectionTile;
+      'layout.facet-category-tile': LayoutFacetCategoryTile;
       'layout.hero-slide': LayoutHeroSlide;
+      'layout.nav-item': LayoutNavItem;
+      'layout.nav-link': LayoutNavLink;
+      'layout.spotlight-block': LayoutSpotlightBlock;
       'layout.value-item': LayoutValueItem;
       'shared.link': SharedLink;
       'shared.paragraph': SharedParagraph;

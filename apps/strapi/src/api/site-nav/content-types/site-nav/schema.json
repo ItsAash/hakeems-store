@@ -1,0 +1,26 @@
+{
+  "kind": "collectionType",
+  "collectionName": "site_navs",
+  "info": {
+    "singularName": "site-nav",
+    "pluralName": "site-navs",
+    "displayName": "Site Nav",
+    "description": "One entry per storefront channel (Nepal, Hong Kong): primary navigation links shown in the nav bar and mobile menu."
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "channel": {
+      "type": "enumeration",
+      "enum": ["nepal", "hongkong"],
+      "required": true
+    },
+    "items": {
+      "type": "component",
+      "repeatable": true,
+      "component": "layout.nav-item"
+    }
+  }
+}

@@ -13,6 +13,11 @@
       "required": true,
       "allowedTypes": ["images"]
     },
+    "imageMobile": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
     "alt": {
       "type": "string"
     },

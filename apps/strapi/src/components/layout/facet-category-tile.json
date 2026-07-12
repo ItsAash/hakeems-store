@@ -1,0 +1,27 @@
+{
+  "collectionName": "components_layout_facet_category_tiles",
+  "info": {
+    "displayName": "Facet Category Tile",
+    "icon": "grid",
+    "description": "A visual category grid tile linking to a Vendure facet value (e.g. a 'Category' facet), independent of collection structure."
+  },
+  "options": {},
+  "attributes": {
+    "vendureFacetValueId": {
+      "type": "string",
+      "required": true
+    },
+    "label": {
+      "type": "string",
+      "required": true
+    },
+    "tagline": {
+      "type": "string"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    }
+  }
+}

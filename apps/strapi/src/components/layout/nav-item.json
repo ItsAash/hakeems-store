@@ -1,0 +1,24 @@
+{
+  "collectionName": "components_layout_nav_items",
+  "info": {
+    "displayName": "Nav Item",
+    "icon": "bulletList",
+    "description": "One primary nav link, optionally with one level of flyout children."
+  },
+  "options": {},
+  "attributes": {
+    "label": {
+      "type": "string",
+      "required": true
+    },
+    "href": {
+      "type": "string",
+      "required": true
+    },
+    "children": {
+      "type": "component",
+      "repeatable": true,
+      "component": "layout.nav-link"
+    }
+  }
+}

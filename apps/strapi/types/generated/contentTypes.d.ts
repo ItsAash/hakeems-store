@@ -500,6 +500,10 @@ export interface ApiHomePageHomePage extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    facetCategoryTiles: Schema.Attribute.Component<
+      'layout.facet-category-tile',
+      true
+    >;
     heroSlides: Schema.Attribute.Component<'layout.hero-slide', true>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -509,6 +513,7 @@ export interface ApiHomePageHomePage extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
     seo: Schema.Attribute.Component<'shared.seo', false>;
+    spotlights: Schema.Attribute.Component<'layout.spotlight-block', true>;
     storyEyebrow: Schema.Attribute.String;
     storyHeading: Schema.Attribute.String;
     storyImage: Schema.Attribute.Media<'images'>;
@@ -517,6 +522,37 @@ export interface ApiHomePageHomePage extends Struct.CollectionTypeSchema {
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     values: Schema.Attribute.Component<'layout.value-item', true>;
+  };
+}
+
+export interface ApiSiteNavSiteNav extends Struct.CollectionTypeSchema {
+  collectionName: 'site_navs';
+  info: {
+    description: 'One entry per storefront channel (Nepal, Hong Kong): primary navigation links shown in the nav bar and mobile menu.';
+    displayName: 'Site Nav';
+    pluralName: 'site-navs';
+    singularName: 'site-nav';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    channel: Schema.Attribute.Enumeration<['nepal', 'hongkong']> &
+      Schema.Attribute.Required;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    items: Schema.Attribute.Component<'layout.nav-item', true>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::site-nav.site-nav'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
   };
 }
 
@@ -1071,6 +1107,7 @@ declare module '@strapi/strapi' {
       'admin::user': AdminUser;
       'api::collection-page.collection-page': ApiCollectionPageCollectionPage;
       'api::home-page.home-page': ApiHomePageHomePage;
+      'api::site-nav.site-nav': ApiSiteNavSiteNav;
       'api::site-setting.site-setting': ApiSiteSettingSiteSetting;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;

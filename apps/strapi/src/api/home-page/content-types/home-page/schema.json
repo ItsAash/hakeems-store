@@ -32,6 +32,16 @@
       "repeatable": true,
       "component": "layout.collection-tile"
     },
+    "facetCategoryTiles": {
+      "type": "component",
+      "repeatable": true,
+      "component": "layout.facet-category-tile"
+    },
+    "spotlights": {
+      "type": "component",
+      "repeatable": true,
+      "component": "layout.spotlight-block"
+    },
     "storyEyebrow": {
       "type": "string"
     },

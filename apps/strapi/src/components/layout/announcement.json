@@ -7,6 +7,10 @@
   },
   "options": {},
   "attributes": {
+    "enabled": {
+      "type": "boolean",
+      "default": true
+    },
     "text": {
       "type": "string",
       "required": true

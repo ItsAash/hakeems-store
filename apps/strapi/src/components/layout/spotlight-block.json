@@ -1,0 +1,38 @@
+{
+  "collectionName": "components_layout_spotlight_blocks",
+  "info": {
+    "displayName": "Spotlight Block",
+    "icon": "star",
+    "description": "A live Vendure collection shown with quick-add, paired with an editorial typography statement."
+  },
+  "options": {},
+  "attributes": {
+    "vendureCollectionSlug": {
+      "type": "string",
+      "required": true
+    },
+    "eyebrow": {
+      "type": "string"
+    },
+    "heading": {
+      "type": "string",
+      "required": true
+    },
+    "paragraphs": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.paragraph"
+    },
+    "ctaLabel": {
+      "type": "string"
+    },
+    "ctaHref": {
+      "type": "string"
+    },
+    "layout": {
+      "type": "enumeration",
+      "enum": ["image-left", "image-right"],
+      "default": "image-left"
+    }
+  }
+}
