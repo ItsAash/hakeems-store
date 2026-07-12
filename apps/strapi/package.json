@@ -1,35 +1,36 @@
 {
-  "name": "@hakeems/strapi",
-  "private": true,
+  "name": "strapi",
   "version": "0.1.0",
+  "private": true,
+  "description": "A Strapi application",
   "scripts": {
+    "build": "strapi build",
+    "console": "strapi console",
+    "deploy": "strapi deploy",
     "dev": "strapi develop",
     "develop": "strapi develop",
     "start": "strapi start",
-    "build": "strapi build",
-    "seed": "tsx scripts/seed.ts"
+    "strapi": "strapi",
+    "upgrade": "npx @strapi/upgrade latest",
+    "upgrade:dry": "npx @strapi/upgrade latest --dry"
   },
   "dependencies": {
     "@strapi/plugin-cloud": "5.50.1",
     "@strapi/plugin-users-permissions": "5.50.1",
     "@strapi/strapi": "5.50.1",
-    "pg": "^8.13.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.30.2",
-    "styled-components": "^6.1.19"
+    "better-sqlite3": "12.8.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-router-dom": "^6.0.0",
+    "styled-components": "^6.0.0"
   },
-  "devDependencies": {
-    "@types/node": "^22.13.14",
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
-    "tsx": "^4.20.5",
-    "typescript": "^5.8.3"
-  },
+  "devDependencies": {},
   "engines": {
-    "node": ">=20.11 <23"
+    "node": ">=20.0.0 <=26.x.x",
+    "npm": ">=6.0.0"
   },
   "strapi": {
-    "uuid": "hakeems-strapi-local"
+    "uuid": "5e550363-d37a-41c1-b1d7-c3ccfdb2c578",
+    "installId": "7f0e32b191ad6779a8e86a314a39ca3f2273f64c074f2c9db5559b40bff1daf6"
   }
 }

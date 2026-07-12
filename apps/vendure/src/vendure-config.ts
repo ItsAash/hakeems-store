@@ -13,8 +13,9 @@ import { GraphiqlPlugin } from '@vendure/graphiql-plugin';
 import { StripePlugin } from '@vendure/payments-plugin/package/stripe';
 import 'dotenv/config';
 import path from 'path';
-import { districtShippingCalculator, districtShippingEligibilityChecker } from './plugins/channel-shipping/district-shipping';
 import { fonepayPlaceholderHandler } from './plugins/fonepay-placeholder/fonepay-placeholder.handler';
+import { zoneShippingCalculator, zoneShippingEligibilityChecker } from './plugins/shipping-zones/zone-shipping.calculator';
+import { ShippingZonesPlugin } from './plugins/shipping-zones/shipping-zones.plugin';
 import { StockManagementPlugin } from './plugins/stock-management/stock-management.plugin';
 import { StrapiSyncPlugin } from './plugins/strapi-sync/strapi-sync.plugin';
 
@@ -60,8 +61,8 @@ export const config: VendureConfig = {
     paymentMethodHandlers: [dummyPaymentHandler, fonepayPlaceholderHandler],
   },
   shippingOptions: {
-    shippingEligibilityCheckers: [districtShippingEligibilityChecker],
-    shippingCalculators: [districtShippingCalculator],
+    shippingEligibilityCheckers: [zoneShippingEligibilityChecker],
+    shippingCalculators: [zoneShippingCalculator],
   },
   customFields: {
     Product: [
@@ -105,6 +106,7 @@ export const config: VendureConfig = {
       secret: process.env.HAKEEMS_SYNC_SECRET || '',
     }),
     StockManagementPlugin,
+    ShippingZonesPlugin,
     DashboardPlugin.init({
       route: 'dashboard',
       appDir: IS_DEV ? path.join(__dirname, '../dist/dashboard') : path.join(__dirname, 'dashboard'),

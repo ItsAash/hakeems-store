@@ -1,55 +1,61 @@
-# Hakeems Strapi CMS
+# 🚀 Getting started with Strapi
 
-Strapi owns editorial product content and events. It does not own commerce truth such as prices or stock.
+Strapi comes with a full featured [Command Line Interface](https://docs.strapi.io/dev-docs/cli) (CLI) which lets you scaffold and manage your project in seconds.
 
-## Content Model
+### `develop`
 
-- Product Reference: `vendureId`, title, handle, thumbnail URL, channel, syncedAt, plus editorial `enrichedDescription`, `seoTitle`, `seoDescription`.
-- Event: title, slug, description, bannerImage, eventDate, location, channel, status, featured Product References.
+Start your Strapi application with autoReload enabled. [Learn more](https://docs.strapi.io/dev-docs/cli#strapi-develop)
 
-## Setup
-
-```bash
-cp .env.example .env
-pnpm dev
+```
+npm run develop
+# or
+yarn develop
 ```
 
-The database is `hakeems_strapi`, separate from Vendure's database.
+### `start`
 
-## Vendure -> Strapi Sync
+Start your Strapi application with autoReload disabled. [Learn more](https://docs.strapi.io/dev-docs/cli#strapi-start)
 
-Vendure calls:
-
-```http
-POST /api/product-references/sync
-X-Hakeems-Sync-Secret: $HAKEEMS_SYNC_SECRET
+```
+npm run start
+# or
+yarn start
 ```
 
-Payload:
+### `build`
 
-```json
-{
-  "action": "upsert",
-  "products": [
-    {
-      "vendureId": "1",
-      "title": "Hakeems Box Tee",
-      "handle": "hakeems-box-tee",
-      "thumbnailUrl": "https://...",
-      "channel": "both"
-    }
-  ]
-}
+Build your admin panel. [Learn more](https://docs.strapi.io/dev-docs/cli#strapi-build)
+
+```
+npm run build
+# or
+yarn build
 ```
 
-For deletes, send `{"action":"delete","products":[{"vendureId":"1"}]}`.
+## ⚙️ Deployment
 
-## Strapi -> Vendure Webhook
+Strapi gives you many possible deployment options for your project including [Strapi Cloud](https://cloud.strapi.io). Browse the [deployment section of the documentation](https://docs.strapi.io/dev-docs/deployment) to find the best solution for your use case.
 
-Configure a native Strapi webhook in Admin:
+```
+yarn strapi deploy
+```
 
-- URL: `http://localhost:3000/webhooks/strapi`
-- Events: Product Reference `entry.update`
-- Header: `X-Hakeems-Sync-Secret: $HAKEEMS_SYNC_SECRET`
+## 📚 Learn more
 
-Vendure compares editorial fields before writing, so no-op updates are skipped.
+- [Resource center](https://strapi.io/resource-center) - Strapi resource center.
+- [Strapi documentation](https://docs.strapi.io) - Official Strapi documentation.
+- [Strapi tutorials](https://strapi.io/tutorials) - List of tutorials made by the core team and the community.
+- [Strapi blog](https://strapi.io/blog) - Official Strapi blog containing articles made by the Strapi team and the community.
+- [Changelog](https://strapi.io/changelog) - Find out about the Strapi product updates, new features and general improvements.
+
+Feel free to check out the [Strapi GitHub repository](https://github.com/strapi/strapi). Your feedback and contributions are welcome!
+
+## ✨ Community
+
+- [Discord](https://discord.strapi.io) - Come chat with the Strapi community including the core team.
+- [Forum](https://forum.strapi.io/) - Place to discuss, ask questions and find answers, show your Strapi project and get feedback or just talk with other Community members.
+- [Awesome Strapi](https://github.com/strapi/awesome-strapi) - A curated list of awesome things related to Strapi.
+
+---
+
+<sub>🤫 Psst! [Strapi is hiring](https://strapi.io/careers).</sub>
