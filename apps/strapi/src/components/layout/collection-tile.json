@@ -1,0 +1,27 @@
+{
+  "collectionName": "components_layout_collection_tiles",
+  "info": {
+    "displayName": "Collection Tile",
+    "icon": "grid",
+    "description": "A 'Shop by Collection' tile linking to a Vendure collection by slug."
+  },
+  "options": {},
+  "attributes": {
+    "vendureCollectionSlug": {
+      "type": "string",
+      "required": true
+    },
+    "label": {
+      "type": "string",
+      "required": true
+    },
+    "tagline": {
+      "type": "string"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    }
+  }
+}

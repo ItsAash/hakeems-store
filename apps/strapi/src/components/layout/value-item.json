@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_layout_value_items",
+  "info": {
+    "displayName": "Value Item",
+    "icon": "star",
+    "description": "One entry in the brand values strip, e.g. 'Small batches'."
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string",
+      "required": true
+    },
+    "body": {
+      "type": "text",
+      "required": true
+    }
+  }
+}

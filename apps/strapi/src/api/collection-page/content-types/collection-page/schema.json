@@ -1,0 +1,54 @@
+{
+  "kind": "collectionType",
+  "collectionName": "collection_pages",
+  "info": {
+    "singularName": "collection-page",
+    "pluralName": "collection-pages",
+    "displayName": "Collection Page",
+    "description": "Editorial content (hero image, tagline, copy) for a Vendure collection, addressed by slug. The channel field controls whether a collection is shown on both storefronts or is exclusive to Nepal or Hong Kong."
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "vendureCollectionSlug": {
+      "type": "string",
+      "required": true
+    },
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "tagline": {
+      "type": "string"
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "heroImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
+    "channel": {
+      "type": "enumeration",
+      "enum": ["nepal", "hongkong", "both"],
+      "default": "both",
+      "required": true
+    },
+    "featured": {
+      "type": "boolean",
+      "default": false
+    },
+    "sortOrder": {
+      "type": "integer",
+      "default": 0
+    },
+    "seo": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.seo"
+    }
+  }
+}

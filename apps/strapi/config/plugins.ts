@@ -1,3 +1,5 @@
+import type { Core } from '@strapi/strapi';
+
 const allowedMediaTypes = [
   'image/*',
   'video/*',
@@ -20,7 +22,7 @@ const deniedExecutableTypes = [
   'application/x-mach-binary',
 ];
 
-module.exports = () => ({
+const config = ({ env }: Core.Config.Shared.ConfigParams): Core.Config.Plugin => ({
   'users-permissions': {
     config: {
       jwtManagement: 'refresh',
@@ -38,3 +40,5 @@ module.exports = () => ({
     },
   },
 });
+
+export default config;

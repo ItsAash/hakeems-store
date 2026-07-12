@@ -1,6 +1,5 @@
 import { Body, Controller, Headers, Logger, OnApplicationBootstrap, Post } from '@nestjs/common';
 import {
-  EntityHydrator,
   EventBus,
   LanguageCode,
   PluginCommonModule,
@@ -98,7 +97,7 @@ export class StrapiSyncPlugin implements OnApplicationBootstrap {
 
   constructor(
     private eventBus: EventBus,
-    private entityHydrator: EntityHydrator,
+    private productService: ProductService,
   ) {}
 
   static init(pluginOptions: StrapiSyncPluginOptions) {
@@ -112,11 +111,15 @@ export class StrapiSyncPlugin implements OnApplicationBootstrap {
 
       try {
         const ctx = event.ctx;
-        const product = event.entity;
 
-        if (event.type !== 'deleted') {
-          await this.entityHydrator.hydrate(ctx, product, { relations: ['featuredAsset', 'channels'] });
-        }
+        // event.entity is the raw (untranslated) row EventBus emits — product.name would
+        // be undefined off of it directly. findOne() resolves translations plus the
+        // featuredAsset/channels relations we need below in one go.
+        const product =
+          event.type === 'deleted'
+            ? event.entity
+            : await this.productService.findOne(ctx, event.entity.id, ['featuredAsset', 'channels']);
+        if (!product) return;
 
         const channelCodes = (product.channels || []).map((channel) => channel.code);
         const channel =

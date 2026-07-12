@@ -1,0 +1,41 @@
+{
+  "collectionName": "components_layout_hero_slides",
+  "info": {
+    "displayName": "Hero Slide",
+    "icon": "images",
+    "description": "One slide in the homepage hero image slider."
+  },
+  "options": {},
+  "attributes": {
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": ["images"]
+    },
+    "alt": {
+      "type": "string"
+    },
+    "eyebrow": {
+      "type": "string"
+    },
+    "heading": {
+      "type": "string",
+      "required": true
+    },
+    "subheading": {
+      "type": "text"
+    },
+    "ctaLabel": {
+      "type": "string"
+    },
+    "ctaHref": {
+      "type": "string"
+    },
+    "align": {
+      "type": "enumeration",
+      "enum": ["start", "center"],
+      "default": "start"
+    }
+  }
+}

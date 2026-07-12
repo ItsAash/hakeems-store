@@ -864,6 +864,10 @@ async function main() {
   const drop = await ensureFacet('drop', 'Drop', [
     { code: 'essentials', name: 'The Essentials' },
     { code: 'new-drop', name: 'New Drop' },
+    // Channel-exclusive edits: these two collections (built below) are each
+    // assigned to only one channel, so only that storefront ever sees them.
+    { code: 'dashain-edit', name: 'Dashain Edit' },
+    { code: 'harbour-nights', name: 'Harbour Nights' },
   ]);
 
   // Facets live on the default channel when created; the shop API's channel-aware
@@ -934,6 +938,7 @@ async function main() {
     material: string;
     fit: string;
     drop: string;
+    extraDrops?: string[];
     colors: string[];
   }) => [
     facetValue(productType, product.type),
@@ -941,6 +946,7 @@ async function main() {
     facetValue(fit, product.fit),
     facetValue(gender, 'unisex'),
     facetValue(drop, product.drop),
+    ...(product.extraDrops ?? []).map((dropCode) => facetValue(drop, dropCode)),
     ...product.colors.map((colorName) => facetValue(colorFacet, optionCode(colorName))),
   ];
 
@@ -963,7 +969,9 @@ async function main() {
   const APPAREL = ['S', 'M', 'L'];
   const ONE_SIZE = ['One Size'];
 
-  const catalog: Array<Omit<CatalogProduct, 'facetValueIds'> & { type: string; material: string; fit: string; drop: string }> = [
+  const catalog: Array<
+    Omit<CatalogProduct, 'facetValueIds'> & { type: string; material: string; fit: string; drop: string; extraDrops?: string[] }
+  > = [
     {
       name: 'Hakeems Box Tee',
       slug: 'hakeems-box-tee',
@@ -984,7 +992,7 @@ async function main() {
       skuCode: 'STUDIO-TEE',
       description:
         '<p>A heavier, drapier tee for people who notice the difference. Garment-dyed so every piece fades its own way, with a slightly dropped shoulder.</p>',
-      type: 'tops', material: 'cotton', fit: 'relaxed', drop: 'essentials',
+      type: 'tops', material: 'cotton', fit: 'relaxed', drop: 'essentials', extraDrops: ['harbour-nights'],
       sizes: APPAREL, colors: ['Black', 'Charcoal'],
       images: [
         { fileName: 'studio-tee-1.jpg', url: unsplash('photo-1618354691373-d851c5c3a990') },
@@ -1026,7 +1034,7 @@ async function main() {
       skuCode: 'RIDGE-HOOD',
       description:
         '<p>Heavyweight 420gsm fleece hoodie with a double-layer hood that actually stands up. Oversized fit, kangaroo pocket, tonal drawcords.</p>',
-      type: 'tops', material: 'fleece', fit: 'oversized', drop: 'new-drop',
+      type: 'tops', material: 'fleece', fit: 'oversized', drop: 'new-drop', extraDrops: ['dashain-edit'],
       sizes: APPAREL, colors: ['Black', 'Clay'],
       images: [
         { fileName: 'ridgeline-hoodie-1.jpg', url: unsplash('photo-1571945153237-4929e783af4a') },
@@ -1040,7 +1048,7 @@ async function main() {
       skuCode: 'HARBOUR-OS',
       description:
         '<p>The layer for cooler evenings — a relaxed overshirt in brushed cotton twill with corozo buttons and two chest pockets sized for a phone and a notebook.</p>',
-      type: 'tops', material: 'cotton', fit: 'relaxed', drop: 'new-drop',
+      type: 'tops', material: 'cotton', fit: 'relaxed', drop: 'new-drop', extraDrops: ['dashain-edit'],
       sizes: APPAREL, colors: ['Olive', 'Charcoal'],
       images: [
         { fileName: 'harbour-overshirt-1.jpg', url: unsplash('photo-1591047139829-d91aecb6caea') },
@@ -1054,7 +1062,7 @@ async function main() {
       skuCode: 'UTILITY-PANT',
       description:
         '<p>Durable cotton canvas with a relaxed straight leg, reinforced knees and event-ready pockets. Built to survive load-ins, not just lookbooks.</p>',
-      type: 'bottoms', material: 'canvas', fit: 'relaxed', drop: 'essentials',
+      type: 'bottoms', material: 'canvas', fit: 'relaxed', drop: 'essentials', extraDrops: ['dashain-edit'],
       sizes: APPAREL, colors: ['Black', 'Olive'],
       images: [
         { fileName: 'kathmandu-utility-pant-1.jpg', url: unsplash('photo-1624378439575-d8705ad7ae80') },
@@ -1082,7 +1090,7 @@ async function main() {
       skuCode: 'SUMMIT-DNM',
       description:
         '<p>Rigid 13oz denim in a straight, slightly cropped cut. No stretch, no wash tricks — it breaks in on your schedule and looks better for it.</p>',
-      type: 'bottoms', material: 'denim', fit: 'regular', drop: 'essentials',
+      type: 'bottoms', material: 'denim', fit: 'regular', drop: 'essentials', extraDrops: ['harbour-nights'],
       sizes: APPAREL, colors: ['Charcoal'],
       images: [
         { fileName: 'summit-denim-pant-1.jpg', url: unsplash('photo-1560243563-062bfc001d68') },
@@ -1110,7 +1118,7 @@ async function main() {
       skuCode: 'CITY-SLING',
       description:
         '<p>Compact crossbody sling in bonded canvas with a water-resistant zip. Fits the essentials — wallet, keys, a paperback — and sits flat against the body.</p>',
-      type: 'accessories', material: 'canvas', fit: 'regular', drop: 'new-drop',
+      type: 'accessories', material: 'canvas', fit: 'regular', drop: 'new-drop', extraDrops: ['harbour-nights'],
       sizes: ONE_SIZE, colors: ['Charcoal'],
       images: [
         { fileName: 'city-sling-pack-1.jpg', url: unsplash('photo-1553062407-98eeb64c6a62') },
@@ -1135,10 +1143,10 @@ async function main() {
   ];
 
   for (const item of catalog) {
-    const { type, material: materialCode, fit: fitCode, drop: dropCode, ...productInput } = item;
+    const { type, material: materialCode, fit: fitCode, drop: dropCode, extraDrops, ...productInput } = item;
     await ensureProduct(ctx, {
       ...productInput,
-      facetValueIds: facetIdsFor({ type, material: materialCode, fit: fitCode, drop: dropCode, colors: item.colors }),
+      facetValueIds: facetIdsFor({ type, material: materialCode, fit: fitCode, drop: dropCode, extraDrops, colors: item.colors }),
     });
     console.log(`Seeded product: ${item.slug}`);
   }
@@ -1169,6 +1177,20 @@ async function main() {
     slug: 'new-drop', name: 'New Drop · SS26',
     description: 'The latest release — limited runs designed in Kathmandu and gone when they\'re gone.',
     facetValueIds: [facetValue(drop, 'new-drop')], channelIds,
+  });
+
+  // Channel-exclusive collections: each is assigned to only ONE channel, so it's
+  // invisible on the other storefront entirely (not just hidden by content — the
+  // collection itself doesn't exist in that channel's catalog).
+  await ensureCollection({
+    slug: 'dashain-edit', name: 'Dashain Edit',
+    description: 'A festive capsule for Dashain — layering pieces built for tika mornings and late family dinners. Nepal only.',
+    facetValueIds: [facetValue(drop, 'dashain-edit')], channelIds: [nepalChannel.id],
+  });
+  await ensureCollection({
+    slug: 'harbour-nights', name: 'Harbour Nights',
+    description: 'Sleek, city-after-dark pieces cut for humid nights on the harbour. Hong Kong only.',
+    facetValueIds: [facetValue(drop, 'harbour-nights')], channelIds: [hongKongChannel.id],
   });
 
   // Rebuild the per-channel search index so search/filters see everything above.

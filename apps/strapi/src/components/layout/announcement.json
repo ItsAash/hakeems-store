@@ -1,0 +1,24 @@
+{
+  "collectionName": "components_layout_announcements",
+  "info": {
+    "displayName": "Announcement",
+    "icon": "bullhorn",
+    "description": "One line in the top marquee. Optionally scheduled."
+  },
+  "options": {},
+  "attributes": {
+    "text": {
+      "type": "string",
+      "required": true
+    },
+    "href": {
+      "type": "string"
+    },
+    "startsAt": {
+      "type": "datetime"
+    },
+    "endsAt": {
+      "type": "datetime"
+    }
+  }
+}

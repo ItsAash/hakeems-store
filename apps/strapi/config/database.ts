@@ -1,6 +1,7 @@
-const path = require('path');
+import path from 'path';
+import type { Core } from '@strapi/strapi';
 
-module.exports = ({ env }) => {
+const config = ({ env }: Core.Config.Shared.ConfigParams): Core.Config.Database => {
   const client = env('DATABASE_CLIENT', 'sqlite');
 
   const connections = {
@@ -44,17 +45,27 @@ module.exports = ({ env }) => {
     },
     sqlite: {
       connection: {
-        filename: path.join(__dirname, '..', env('DATABASE_FILENAME', '.tmp/data.db')),
+        filename: path.join(__dirname, '..', '..', env('DATABASE_FILENAME', '.tmp/data.db')),
       },
       useNullAsDefault: true,
     },
   };
 
+  if (!(client in connections)) {
+    throw new Error(
+      `Unsupported DATABASE_CLIENT: ${client}. Use "postgres", "mysql", or "sqlite".`
+    );
+  }
+
+  type DatabaseClient = keyof typeof connections;
+
   return {
     connection: {
-      client,
-      ...connections[client],
+      client: client as DatabaseClient,
+      ...connections[client as DatabaseClient],
       acquireConnectionTimeout: env.int('DATABASE_CONNECTION_TIMEOUT', 60000),
     },
-  };
+  } as Core.Config.Database;
 };
+
+export default config;
