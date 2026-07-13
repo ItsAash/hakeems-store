@@ -134,14 +134,11 @@ async function seedHomePages(strapi: Core.Strapi) {
   const tileBottoms = await uploadImage(strapi, unsplash('photo-1560243563-062bfc001d68', 'w=1200&h=1500&fit=crop&q=80'), 'tile-bottoms.jpg');
   const tileAccessories = await uploadImage(strapi, unsplash('photo-1606522754091-a3bbf9ad4cb3', 'w=1200&h=1500&fit=crop&q=80'), 'tile-accessories.jpg');
   const tileEssentials = await uploadImage(strapi, unsplash('photo-1487222477894-8943e31ef7b2', 'w=1200&h=1500&fit=crop&q=80'), 'tile-essentials.jpg');
-  const tileNewDrop = await uploadImage(strapi, unsplash('photo-1483985988355-763728e1935b', 'w=1200&h=1500&fit=crop&q=80'), 'tile-new-drop.jpg');
-  const tileDashain = await uploadImage(strapi, unsplash('photo-1515886657613-9f3515b0c78f', 'w=1200&h=1500&fit=crop&q=80'), 'tile-dashain-edit.jpg');
-  const tileHarbour = await uploadImage(strapi, unsplash('photo-1558769132-cb1aea458c5e', 'w=1200&h=1500&fit=crop&q=80'), 'tile-harbour-nights.jpg');
 
   const heroBlockUp = await uploadImage(strapi, unsplash('photo-1558769132-cb1aea458c5e'), 'hero-block-up.jpg');
   const heroEssentials = await uploadImage(strapi, unsplash('photo-1487222477894-8943e31ef7b2'), 'hero-essentials.jpg');
-  const heroDashain = await uploadImage(strapi, unsplash('photo-1515886657613-9f3515b0c78f'), 'hero-dashain-edit.jpg');
-  const heroHarbour = await uploadImage(strapi, unsplash('photo-1441986300917-64674bd600d8'), 'hero-harbour-nights.jpg');
+  const heroAccessories = await uploadImage(strapi, unsplash('photo-1553062407-98eeb64c6a62'), 'hero-accessories.jpg');
+  const heroBottoms = await uploadImage(strapi, unsplash('photo-1594633312681-425c7b97ccd1'), 'hero-bottoms.jpg');
 
   const values = [
     { heading: 'Small batches', body: 'Every run is limited. When a drop sells through, it’s gone — no landfill overstock.' },
@@ -167,31 +164,23 @@ async function seedHomePages(strapi: Core.Strapi) {
         image: heroBlockUp,
         heading: 'Built From The Block Up',
         subheading: 'Streetwear made with the community, for the community — designed in Kathmandu, worn from Jhamsikhel to Jomsom.',
-        ctaLabel: 'Shop New Drop',
-        ctaHref: '/nepal/collections/new-drop',
+        ctaLabel: 'Shop The Spotlight',
+        ctaHref: '/nepal/collections/spotlight',
       },
       {
         image: heroEssentials,
         heading: 'Worn Daily, Made To Last',
-        subheading: 'The permanent collection — core pieces we cut in every drop and restock season after season.',
-        ctaLabel: 'Shop Essentials',
-        ctaHref: '/nepal/collections/the-essentials',
+        subheading: 'Core pieces we cut in every drop and restock season after season.',
+        ctaLabel: 'Shop Tops',
+        ctaHref: '/nepal/collections/tops',
       },
       {
-        image: heroDashain,
-        heading: 'Festive, Not Fussy',
-        subheading: 'A capsule for tika mornings and late family dinners — layering pieces built for the season. Nepal exclusive.',
-        ctaLabel: 'Shop Dashain Edit',
-        ctaHref: '/nepal/collections/dashain-edit',
+        image: heroAccessories,
+        heading: 'Finish The Fit',
+        subheading: 'Totes, slings and caps — the details that make the difference, from the pop-up to the street.',
+        ctaLabel: 'Shop Accessories',
+        ctaHref: '/nepal/collections/accessories',
       },
-    ],
-    collectionTiles: [
-      { vendureCollectionSlug: 'new-drop', label: 'New Drop · SS26', tagline: 'Limited runs, gone when they’re gone', image: tileNewDrop },
-      { vendureCollectionSlug: 'tops', label: 'Tops', tagline: 'Tees, sweats, hoodies & overshirts', image: tileTops },
-      { vendureCollectionSlug: 'bottoms', label: 'Bottoms', tagline: 'Utility pants, joggers & denim', image: tileBottoms },
-      { vendureCollectionSlug: 'accessories', label: 'Accessories', tagline: 'Totes, slings & caps', image: tileAccessories },
-      { vendureCollectionSlug: 'the-essentials', label: 'The Essentials', tagline: 'The permanent collection', image: tileEssentials },
-      { vendureCollectionSlug: 'dashain-edit', label: 'Dashain Edit', tagline: 'Festive capsule — Nepal exclusive', image: tileDashain },
     ],
     facetCategoryTiles: [
       { vendureFacetValueId: '1', label: 'Tops', tagline: 'Tees, sweats, hoodies & overshirts', image: tileTops },
@@ -206,7 +195,7 @@ async function seedHomePages(strapi: Core.Strapi) {
     values,
     seo: {
       metaTitle: 'Hakeems Nepal — Community Streetwear',
-      metaDescription: 'Streetwear designed in Kathmandu, worn from Jhamsikhel to Jomsom. Shop the new drop, the essentials, and the Dashain edit.',
+      metaDescription: 'Streetwear designed in Kathmandu, worn from Jhamsikhel to Jomsom. Shop tops, bottoms, accessories, and the weekly spotlight.',
     },
   });
 
@@ -223,31 +212,23 @@ async function seedHomePages(strapi: Core.Strapi) {
         heading: 'Built From The Block Up',
         subheading:
           'Streetwear made with the community, for the community — designed in Kathmandu, cut for Hong Kong humidity and harbour nights.',
-        ctaLabel: 'Shop New Drop',
-        ctaHref: '/hongkong/collections/new-drop',
+        ctaLabel: 'Shop The Spotlight',
+        ctaHref: '/hongkong/collections/spotlight',
       },
       {
         image: heroEssentials,
         heading: 'Worn Daily, Made To Last',
-        subheading: 'The permanent collection — core pieces we cut in every drop and restock season after season.',
-        ctaLabel: 'Shop Essentials',
-        ctaHref: '/hongkong/collections/the-essentials',
+        subheading: 'Core pieces we cut in every drop and restock season after season.',
+        ctaLabel: 'Shop Tops',
+        ctaHref: '/hongkong/collections/tops',
       },
       {
-        image: heroHarbour,
-        heading: 'After Dark, On The Harbour',
-        subheading: 'Sleek, city-after-dark pieces cut for humid nights on the water. Hong Kong exclusive.',
-        ctaLabel: 'Shop Harbour Nights',
-        ctaHref: '/hongkong/collections/harbour-nights',
+        image: heroBottoms,
+        heading: 'Built To Move',
+        subheading: 'Utility pants, joggers and denim, cut for the street and the stage — Hong Kong humidity included.',
+        ctaLabel: 'Shop Bottoms',
+        ctaHref: '/hongkong/collections/bottoms',
       },
-    ],
-    collectionTiles: [
-      { vendureCollectionSlug: 'new-drop', label: 'New Drop · SS26', tagline: 'Limited runs, gone when they’re gone', image: tileNewDrop },
-      { vendureCollectionSlug: 'tops', label: 'Tops', tagline: 'Tees, sweats, hoodies & overshirts', image: tileTops },
-      { vendureCollectionSlug: 'bottoms', label: 'Bottoms', tagline: 'Utility pants, joggers & denim', image: tileBottoms },
-      { vendureCollectionSlug: 'accessories', label: 'Accessories', tagline: 'Totes, slings & caps', image: tileAccessories },
-      { vendureCollectionSlug: 'the-essentials', label: 'The Essentials', tagline: 'The permanent collection', image: tileEssentials },
-      { vendureCollectionSlug: 'harbour-nights', label: 'Harbour Nights', tagline: 'City-after-dark — Hong Kong exclusive', image: tileHarbour },
     ],
     facetCategoryTiles: [
       { vendureFacetValueId: '1', label: 'Tops', tagline: 'Tees, sweats, hoodies & overshirts', image: tileTops },
@@ -262,7 +243,7 @@ async function seedHomePages(strapi: Core.Strapi) {
     values,
     seo: {
       metaTitle: 'Hakeems Hong Kong — Community Streetwear',
-      metaDescription: 'Streetwear designed in Kathmandu, cut for Hong Kong humidity and harbour nights. Shop the new drop, the essentials, and Harbour Nights.',
+      metaDescription: 'Streetwear designed in Kathmandu, cut for Hong Kong humidity and harbour nights. Shop tops, bottoms, accessories, and the weekly spotlight.',
     },
   });
 
@@ -270,32 +251,23 @@ async function seedHomePages(strapi: Core.Strapi) {
 }
 
 async function seedSiteNavs(strapi: Core.Strapi) {
+  // Both channels share the same catalog shape today (tops/bottoms/accessories/sets +
+  // one cross-channel Spotlight capsule) — no more channel-exclusive collections — so
+  // nepal and hongkong get the same nav structure.
   const shopChildren = [
     { label: 'Tops', href: '/collections/tops' },
     { label: 'Bottoms', href: '/collections/bottoms' },
     { label: 'Accessories', href: '/collections/accessories' },
-    { label: 'The Essentials', href: '/collections/the-essentials' },
+    { label: 'Sets', href: '/collections/sets' },
+  ];
+  const items = [
+    { label: 'Spotlight', href: '/collections/spotlight' },
+    { label: 'Shop', href: '/collections/tops', children: shopChildren },
+    { label: 'Our Story', href: '/story' },
   ];
 
-  await upsertAndPublish(strapi, 'api::site-nav.site-nav', { channel: 'nepal' }, {
-    channel: 'nepal',
-    items: [
-      { label: 'New Drop', href: '/collections/new-drop' },
-      { label: 'Shop', href: '/collections/the-essentials', children: shopChildren },
-      { label: 'Dashain Edit', href: '/collections/dashain-edit' },
-      { label: 'Our Story', href: '/story' },
-    ],
-  });
-
-  await upsertAndPublish(strapi, 'api::site-nav.site-nav', { channel: 'hongkong' }, {
-    channel: 'hongkong',
-    items: [
-      { label: 'New Drop', href: '/collections/new-drop' },
-      { label: 'Shop', href: '/collections/the-essentials', children: shopChildren },
-      { label: 'Harbour Nights', href: '/collections/harbour-nights' },
-      { label: 'Our Story', href: '/story' },
-    ],
-  });
+  await upsertAndPublish(strapi, 'api::site-nav.site-nav', { channel: 'nepal' }, { channel: 'nepal', items });
+  await upsertAndPublish(strapi, 'api::site-nav.site-nav', { channel: 'hongkong' }, { channel: 'hongkong', items });
 
   console.log('Seeded site-nav (nepal, hongkong)');
 }
@@ -312,10 +284,8 @@ async function seedCollectionPages(strapi: Core.Strapi) {
   const heroTops = await uploadImage(strapi, unsplash('photo-1445205170230-053b83016050', 'w=1600&h=900&fit=crop&q=80'), 'collection-tops.jpg');
   const heroBottoms = await uploadImage(strapi, unsplash('photo-1560243563-062bfc001d68', 'w=1600&h=900&fit=crop&q=80'), 'collection-bottoms.jpg');
   const heroAccessories = await uploadImage(strapi, unsplash('photo-1606522754091-a3bbf9ad4cb3', 'w=1600&h=900&fit=crop&q=80'), 'collection-accessories.jpg');
-  const heroEssentials = await uploadImage(strapi, unsplash('photo-1487222477894-8943e31ef7b2', 'w=1600&h=900&fit=crop&q=80'), 'collection-essentials.jpg');
-  const heroNewDrop = await uploadImage(strapi, unsplash('photo-1483985988355-763728e1935b', 'w=1600&h=900&fit=crop&q=80'), 'collection-new-drop.jpg');
-  const heroDashain = await uploadImage(strapi, unsplash('photo-1515886657613-9f3515b0c78f', 'w=1600&h=900&fit=crop&q=80'), 'collection-dashain-edit.jpg');
-  const heroHarbour = await uploadImage(strapi, unsplash('photo-1558769132-cb1aea458c5e', 'w=1600&h=900&fit=crop&q=80'), 'collection-harbour-nights.jpg');
+  const heroSets = await uploadImage(strapi, unsplash('photo-1487222477894-8943e31ef7b2', 'w=1600&h=900&fit=crop&q=80'), 'collection-sets.jpg');
+  const heroSpotlight = await uploadImage(strapi, unsplash('photo-1571945153237-4929e783af4a', 'w=1600&h=900&fit=crop&q=80'), 'collection-spotlight.jpg');
 
   const enrichments: Array<{ vendureCollectionSlug: string; data: Record<string, unknown> }> = [
     {
@@ -352,47 +322,25 @@ async function seedCollectionPages(strapi: Core.Strapi) {
       },
     },
     {
-      vendureCollectionSlug: 'the-essentials',
+      vendureCollectionSlug: 'sets',
       data: {
-        title: 'The Essentials',
-        tagline: 'The permanent collection',
-        description: 'The permanent collection. Core pieces we cut in every drop, restocked season after season.',
-        heroImage: heroEssentials,
-        featured: true,
+        title: 'Sets',
+        tagline: 'Matching pieces, worn together',
+        description: 'Matching pieces, worn together.',
+        heroImage: heroSets,
+        featured: false,
         sortOrder: 4,
       },
     },
     {
-      vendureCollectionSlug: 'new-drop',
+      vendureCollectionSlug: 'spotlight',
       data: {
-        title: 'New Drop · SS26',
-        tagline: 'The latest release',
-        description: 'The latest release — limited runs designed in Kathmandu and gone when they’re gone.',
-        heroImage: heroNewDrop,
+        title: 'Spotlight',
+        tagline: 'This week, front row',
+        description: 'A rotating edit of the pieces we’re wearing most right now — pulled from every drop, restocked while they last.',
+        heroImage: heroSpotlight,
         featured: true,
         sortOrder: 5,
-      },
-    },
-    {
-      vendureCollectionSlug: 'dashain-edit',
-      data: {
-        title: 'Dashain Edit',
-        tagline: 'Festive capsule — Nepal exclusive',
-        description: 'A festive capsule for Dashain — layering pieces built for tika mornings and late family dinners. Nepal only.',
-        heroImage: heroDashain,
-        featured: true,
-        sortOrder: 6,
-      },
-    },
-    {
-      vendureCollectionSlug: 'harbour-nights',
-      data: {
-        title: 'Harbour Nights',
-        tagline: 'City-after-dark — Hong Kong exclusive',
-        description: 'Sleek, city-after-dark pieces cut for humid nights on the harbour. Hong Kong only.',
-        heroImage: heroHarbour,
-        featured: true,
-        sortOrder: 6,
       },
     },
   ];
