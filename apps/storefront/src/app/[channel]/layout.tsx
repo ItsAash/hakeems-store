@@ -4,6 +4,7 @@ import { ChannelProvider } from '@/lib/channel-context';
 import { AnnouncementBar } from '@/components/marketing/announcement-bar';
 import { NavBar } from '@/components/nav/nav-bar';
 import { HeaderChrome } from '@/components/nav/header-chrome';
+import { Footer } from '@/components/nav/footer';
 import { getVisibleAnnouncements } from '@/lib/announcements';
 import { getHomePage } from '@/lib/strapi/queries';
 
@@ -39,6 +40,7 @@ export default async function ChannelLayout({
           <NavBar channel={channel} />
         </HeaderChrome>
         {children}
+        <Footer channel={channel} />
       </div>
     </ChannelProvider>
   );

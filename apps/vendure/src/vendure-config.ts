@@ -70,6 +70,8 @@ export const config: VendureConfig = {
       { name: 'enrichedDescription', type: 'text', public: true, nullable: true },
       { name: 'seoTitle', type: 'string', public: true, nullable: true },
       { name: 'seoDescription', type: 'text', public: true, nullable: true },
+      { name: 'fitAndFabric', type: 'text', public: true, nullable: true },
+      { name: 'shippingReturns', type: 'text', public: true, nullable: true },
     ],
   },
   plugins: [
