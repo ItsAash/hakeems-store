@@ -1,0 +1,39 @@
+{
+  "kind": "singleType",
+  "collectionName": "spotlights",
+  "info": {
+    "singularName": "spotlight",
+    "pluralName": "spotlights",
+    "displayName": "Spotlight",
+    "description": "The single, global product spotlight shown on every channel's home page — one curated Vendure collection, paired with an editorial statement. Not channel-specific: the same spotlight collection is featured everywhere, priced per-channel by Vendure at render time."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "vendureCollectionSlug": {
+      "type": "string",
+      "required": true,
+      "default": "spotlight"
+    },
+    "eyebrow": {
+      "type": "string"
+    },
+    "heading": {
+      "type": "string",
+      "required": true
+    },
+    "paragraphs": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.paragraph"
+    },
+    "ctaLabel": {
+      "type": "string"
+    },
+    "ctaHref": {
+      "type": "string"
+    }
+  }
+}

@@ -946,14 +946,14 @@ async function main() {
     extraDrops?: string[];
     colors: string[];
   }) => [
-    facetValue(productType, product.type),
-    facetValue(material, product.material),
-    facetValue(fit, product.fit),
-    facetValue(gender, 'unisex'),
-    facetValue(drop, product.drop),
-    ...(product.extraDrops ?? []).map((dropCode) => facetValue(drop, dropCode)),
-    ...product.colors.map((colorName) => facetValue(colorFacet, optionCode(colorName))),
-  ];
+      facetValue(productType, product.type),
+      facetValue(material, product.material),
+      facetValue(fit, product.fit),
+      facetValue(gender, 'unisex'),
+      facetValue(drop, product.drop),
+      ...(product.extraDrops ?? []).map((dropCode) => facetValue(drop, dropCode)),
+      ...product.colors.map((colorName) => facetValue(colorFacet, optionCode(colorName))),
+    ];
 
   const { stockLocations: allStockLocations } = await adminFetch<{
     stockLocations: { items: Array<{ id: string; name: string }> };
@@ -977,175 +977,175 @@ async function main() {
   const catalog: Array<
     Omit<CatalogProduct, 'facetValueIds'> & { type: string; material: string; fit: string; drop: string; extraDrops?: string[] }
   > = [
-    {
-      name: 'Hakeems Box Tee',
-      slug: 'hakeems-box-tee',
-      skuCode: 'BOX-TEE',
-      description:
-        '<p>The tee everything else is built around. Midweight 220gsm combed cotton, boxy through the body with a clean ribbed collar that holds its shape wash after wash.</p><p>Cut, sewn and finished in Kathmandu.</p>',
-      type: 'tops', material: 'cotton', fit: 'regular', drop: 'essentials',
-      sizes: APPAREL, colors: ['Black', 'White', 'Olive'],
-      images: [
-        { fileName: 'hakeems-box-tee-1.jpg', url: unsplash('photo-1521572163474-6864f9cf17ab') },
-        { fileName: 'hakeems-box-tee-2.jpg', url: unsplash('photo-1554568218-0f1715e72254') },
-      ],
-      nepalPrice: 250000, hongKongPrice: 16800, nepalStock: 14, hongKongStock: 12,
-    },
-    {
-      name: 'Studio Tee',
-      slug: 'studio-tee',
-      skuCode: 'STUDIO-TEE',
-      description:
-        '<p>A heavier, drapier tee for people who notice the difference. Garment-dyed so every piece fades its own way, with a slightly dropped shoulder.</p>',
-      type: 'tops', material: 'cotton', fit: 'relaxed', drop: 'essentials', extraDrops: ['harbour-nights'],
-      sizes: APPAREL, colors: ['Black', 'Charcoal'],
-      images: [
-        { fileName: 'studio-tee-1.jpg', url: unsplash('photo-1618354691373-d851c5c3a990') },
-        { fileName: 'studio-tee-2.jpg', url: unsplash('photo-1583743814966-8936f5b7be1a') },
-      ],
-      nepalPrice: 220000, hongKongPrice: 14800, nepalStock: 16, hongKongStock: 10,
-    },
-    {
-      name: 'Terrace Graphic Tee',
-      slug: 'terrace-graphic-tee',
-      skuCode: 'TERRACE-TEE',
-      description:
-        '<p>Season graphic printed front and back with water-based inks that sink into the fabric instead of sitting on top. Screen printed by hand in Patan.</p>',
-      type: 'tops', material: 'cotton', fit: 'oversized', drop: 'new-drop',
-      sizes: APPAREL, colors: ['Black', 'White'],
-      images: [
-        { fileName: 'terrace-graphic-tee-1.jpg', url: unsplash('photo-1503341504253-dff4815485f1') },
-        { fileName: 'terrace-graphic-tee-2.jpg', url: unsplash('photo-1576566588028-4147f3842f27') },
-      ],
-      nepalPrice: 280000, hongKongPrice: 18800, nepalStock: 12, hongKongStock: 12,
-    },
-    {
-      name: 'Everyday Crew Sweat',
-      slug: 'everyday-crew-sweat',
-      skuCode: 'CREW-SWEAT',
-      description:
-        '<p>Brushed-back fleece crewneck with set-in sleeves and ribbed everything — collar, cuffs, hem. Warm without the bulk, sharp enough for dinner after.</p>',
-      type: 'tops', material: 'fleece', fit: 'regular', drop: 'essentials',
-      sizes: APPAREL, colors: ['White', 'Sand'],
-      images: [
-        { fileName: 'everyday-crew-sweat-1.jpg', url: unsplash('photo-1620799140408-edc6dcb6d633') },
-        { fileName: 'everyday-crew-sweat-2.jpg', url: unsplash('photo-1434389677669-e08b4cac3105') },
-      ],
-      nepalPrice: 480000, hongKongPrice: 32800, nepalStock: 10, hongKongStock: 8,
-    },
-    {
-      name: 'Ridgeline Hoodie',
-      slug: 'ridgeline-hoodie',
-      skuCode: 'RIDGE-HOOD',
-      description:
-        '<p>Heavyweight 420gsm fleece hoodie with a double-layer hood that actually stands up. Oversized fit, kangaroo pocket, tonal drawcords.</p>',
-      type: 'tops', material: 'fleece', fit: 'oversized', drop: 'new-drop', extraDrops: ['dashain-edit'],
-      sizes: APPAREL, colors: ['Black', 'Clay'],
-      images: [
-        { fileName: 'ridgeline-hoodie-1.jpg', url: unsplash('photo-1571945153237-4929e783af4a') },
-        { fileName: 'ridgeline-hoodie-2.jpg', url: unsplash('photo-1556905055-8f358a7a47b2') },
-      ],
-      nepalPrice: 560000, hongKongPrice: 38800, nepalStock: 10, hongKongStock: 10,
-    },
-    {
-      name: 'Harbour Overshirt',
-      slug: 'harbour-overshirt',
-      skuCode: 'HARBOUR-OS',
-      description:
-        '<p>The layer for cooler evenings — a relaxed overshirt in brushed cotton twill with corozo buttons and two chest pockets sized for a phone and a notebook.</p>',
-      type: 'tops', material: 'cotton', fit: 'relaxed', drop: 'new-drop', extraDrops: ['dashain-edit'],
-      sizes: APPAREL, colors: ['Olive', 'Charcoal'],
-      images: [
-        { fileName: 'harbour-overshirt-1.jpg', url: unsplash('photo-1591047139829-d91aecb6caea') },
-        { fileName: 'harbour-overshirt-2.jpg', url: unsplash('photo-1611312449408-fcece27cdbb7') },
-      ],
-      nepalPrice: 715000, hongKongPrice: 42000, nepalStock: 8, hongKongStock: 14,
-    },
-    {
-      name: 'Kathmandu Utility Pant',
-      slug: 'kathmandu-utility-pant',
-      skuCode: 'UTILITY-PANT',
-      description:
-        '<p>Durable cotton canvas with a relaxed straight leg, reinforced knees and event-ready pockets. Built to survive load-ins, not just lookbooks.</p>',
-      type: 'bottoms', material: 'canvas', fit: 'relaxed', drop: 'essentials', extraDrops: ['dashain-edit'],
-      sizes: APPAREL, colors: ['Black', 'Olive'],
-      images: [
-        { fileName: 'kathmandu-utility-pant-1.jpg', url: unsplash('photo-1624378439575-d8705ad7ae80') },
-        { fileName: 'kathmandu-utility-pant-2.jpg', url: unsplash('photo-1541099649105-f69ad21f3246') },
-      ],
-      nepalPrice: 390000, hongKongPrice: 22800, nepalStock: 14, hongKongStock: 6,
-    },
-    {
-      name: 'Valley Jogger',
-      slug: 'valley-jogger',
-      skuCode: 'VALLEY-JOG',
-      description:
-        '<p>Tapered jogger in loopback terry — structured enough to leave the house in, soft enough that you won\'t want to. Zip pocket at the right hip.</p>',
-      type: 'bottoms', material: 'fleece', fit: 'relaxed', drop: 'new-drop',
-      sizes: APPAREL, colors: ['Sand', 'Black'],
-      images: [
-        { fileName: 'valley-jogger-1.jpg', url: unsplash('photo-1594633312681-425c7b97ccd1') },
-        { fileName: 'valley-jogger-2.jpg', url: unsplash('photo-1516762689617-e1cffcef479d') },
-      ],
-      nepalPrice: 420000, hongKongPrice: 26800, nepalStock: 12, hongKongStock: 10,
-    },
-    {
-      name: 'Summit Denim Pant',
-      slug: 'summit-denim-pant',
-      skuCode: 'SUMMIT-DNM',
-      description:
-        '<p>Rigid 13oz denim in a straight, slightly cropped cut. No stretch, no wash tricks — it breaks in on your schedule and looks better for it.</p>',
-      type: 'bottoms', material: 'denim', fit: 'regular', drop: 'essentials', extraDrops: ['harbour-nights'],
-      sizes: APPAREL, colors: ['Charcoal'],
-      images: [
-        { fileName: 'summit-denim-pant-1.jpg', url: unsplash('photo-1560243563-062bfc001d68') },
-        { fileName: 'summit-denim-pant-2.jpg', url: unsplash('photo-1525507119028-ed4c629a60a3') },
-      ],
-      nepalPrice: 520000, hongKongPrice: 34800, nepalStock: 8, hongKongStock: 8,
-    },
-    {
-      name: 'Market Tote',
-      slug: 'market-tote',
-      skuCode: 'MARKET-TOTE',
-      description:
-        '<p>Heavy canvas tote for pop-ups, markets and daily carry. Reinforced handles, interior sleeve pocket, and a base wide enough for records or groceries.</p>',
-      type: 'accessories', material: 'canvas', fit: 'regular', drop: 'essentials',
-      sizes: ONE_SIZE, colors: ['White', 'Sand'],
-      images: [
-        { fileName: 'market-tote-1.jpg', url: unsplash('photo-1590874103328-eac38a683ce7') },
-        { fileName: 'market-tote-2.jpg', url: unsplash('photo-1606522754091-a3bbf9ad4cb3') },
-      ],
-      nepalPrice: 270000, hongKongPrice: 16000, nepalStock: 30, hongKongStock: 25,
-    },
-    {
-      name: 'City Sling Pack',
-      slug: 'city-sling-pack',
-      skuCode: 'CITY-SLING',
-      description:
-        '<p>Compact crossbody sling in bonded canvas with a water-resistant zip. Fits the essentials — wallet, keys, a paperback — and sits flat against the body.</p>',
-      type: 'accessories', material: 'canvas', fit: 'regular', drop: 'new-drop', extraDrops: ['harbour-nights'],
-      sizes: ONE_SIZE, colors: ['Charcoal'],
-      images: [
-        { fileName: 'city-sling-pack-1.jpg', url: unsplash('photo-1553062407-98eeb64c6a62') },
-        { fileName: 'city-sling-pack-2.jpg', url: unsplash('photo-1441986300917-64674bd600d8') },
-      ],
-      nepalPrice: 310000, hongKongPrice: 19800, nepalStock: 15, hongKongStock: 15,
-    },
-    {
-      name: 'Trail Cap',
-      slug: 'trail-cap',
-      skuCode: 'TRAIL-CAP',
-      description:
-        '<p>Six-panel cap in washed cotton with an unstructured crown and adjustable strap. The kind of cap that looks better the more it gets worn.</p>',
-      type: 'accessories', material: 'cotton', fit: 'regular', drop: 'essentials',
-      sizes: ONE_SIZE, colors: ['White', 'Sand'],
-      images: [
-        { fileName: 'trail-cap-1.jpg', url: unsplash('photo-1622445275576-721325763afe') },
-        { fileName: 'trail-cap-2.jpg', url: unsplash('photo-1588850561407-ed78c282e89b') },
-      ],
-      nepalPrice: 180000, hongKongPrice: 12800, nepalStock: 20, hongKongStock: 20,
-    },
-  ];
+      {
+        name: 'Hakeems Box Tee',
+        slug: 'hakeems-box-tee',
+        skuCode: 'BOX-TEE',
+        description:
+          '<p>The tee everything else is built around. Midweight 220gsm combed cotton, boxy through the body with a clean ribbed collar that holds its shape wash after wash.</p><p>Cut, sewn and finished in Kathmandu.</p>',
+        type: 'tops', material: 'cotton', fit: 'regular', drop: 'essentials',
+        sizes: APPAREL, colors: ['Black', 'White', 'Olive'],
+        images: [
+          { fileName: 'hakeems-box-tee-1.jpg', url: unsplash('photo-1521572163474-6864f9cf17ab') },
+          { fileName: 'hakeems-box-tee-2.jpg', url: unsplash('photo-1554568218-0f1715e72254') },
+        ],
+        nepalPrice: 250000, hongKongPrice: 16800, nepalStock: 14, hongKongStock: 12,
+      },
+      {
+        name: 'Studio Tee',
+        slug: 'studio-tee',
+        skuCode: 'STUDIO-TEE',
+        description:
+          '<p>A heavier, drapier tee for people who notice the difference. Garment-dyed so every piece fades its own way, with a slightly dropped shoulder.</p>',
+        type: 'tops', material: 'cotton', fit: 'relaxed', drop: 'essentials', extraDrops: ['harbour-nights'],
+        sizes: APPAREL, colors: ['Black', 'Charcoal'],
+        images: [
+          { fileName: 'studio-tee-1.jpg', url: unsplash('photo-1618354691373-d851c5c3a990') },
+          { fileName: 'studio-tee-2.jpg', url: unsplash('photo-1583743814966-8936f5b7be1a') },
+        ],
+        nepalPrice: 220000, hongKongPrice: 14800, nepalStock: 16, hongKongStock: 10,
+      },
+      {
+        name: 'Terrace Graphic Tee',
+        slug: 'terrace-graphic-tee',
+        skuCode: 'TERRACE-TEE',
+        description:
+          '<p>Season graphic printed front and back with water-based inks that sink into the fabric instead of sitting on top. Screen printed by hand in Patan.</p>',
+        type: 'tops', material: 'cotton', fit: 'oversized', drop: 'new-drop',
+        sizes: APPAREL, colors: ['Black', 'White'],
+        images: [
+          { fileName: 'terrace-graphic-tee-1.jpg', url: unsplash('photo-1503341504253-dff4815485f1') },
+          { fileName: 'terrace-graphic-tee-2.jpg', url: unsplash('photo-1576566588028-4147f3842f27') },
+        ],
+        nepalPrice: 280000, hongKongPrice: 18800, nepalStock: 12, hongKongStock: 12,
+      },
+      {
+        name: 'Everyday Crew Sweat',
+        slug: 'everyday-crew-sweat',
+        skuCode: 'CREW-SWEAT',
+        description:
+          '<p>Brushed-back fleece crewneck with set-in sleeves and ribbed everything — collar, cuffs, hem. Warm without the bulk, sharp enough for dinner after.</p>',
+        type: 'tops', material: 'fleece', fit: 'regular', drop: 'essentials',
+        sizes: APPAREL, colors: ['White', 'Sand'],
+        images: [
+          { fileName: 'everyday-crew-sweat-1.jpg', url: unsplash('photo-1620799140408-edc6dcb6d633') },
+          { fileName: 'everyday-crew-sweat-2.jpg', url: unsplash('photo-1434389677669-e08b4cac3105') },
+        ],
+        nepalPrice: 480000, hongKongPrice: 32800, nepalStock: 10, hongKongStock: 8,
+      },
+      {
+        name: 'Ridgeline Hoodie',
+        slug: 'ridgeline-hoodie',
+        skuCode: 'RIDGE-HOOD',
+        description:
+          '<p>Heavyweight 420gsm fleece hoodie with a double-layer hood that actually stands up. Oversized fit, kangaroo pocket, tonal drawcords.</p>',
+        type: 'tops', material: 'fleece', fit: 'oversized', drop: 'new-drop', extraDrops: ['dashain-edit'],
+        sizes: APPAREL, colors: ['Black', 'Clay'],
+        images: [
+          { fileName: 'ridgeline-hoodie-1.jpg', url: unsplash('photo-1571945153237-4929e783af4a') },
+          { fileName: 'ridgeline-hoodie-2.jpg', url: unsplash('photo-1556905055-8f358a7a47b2') },
+        ],
+        nepalPrice: 560000, hongKongPrice: 38800, nepalStock: 10, hongKongStock: 10,
+      },
+      {
+        name: 'Harbour Overshirt',
+        slug: 'harbour-overshirt',
+        skuCode: 'HARBOUR-OS',
+        description:
+          '<p>The layer for cooler evenings — a relaxed overshirt in brushed cotton twill with corozo buttons and two chest pockets sized for a phone and a notebook.</p>',
+        type: 'tops', material: 'cotton', fit: 'relaxed', drop: 'new-drop', extraDrops: ['dashain-edit'],
+        sizes: APPAREL, colors: ['Olive', 'Charcoal'],
+        images: [
+          { fileName: 'harbour-overshirt-1.jpg', url: unsplash('photo-1591047139829-d91aecb6caea') },
+          { fileName: 'harbour-overshirt-2.jpg', url: unsplash('photo-1611312449408-fcece27cdbb7') },
+        ],
+        nepalPrice: 715000, hongKongPrice: 42000, nepalStock: 8, hongKongStock: 14,
+      },
+      {
+        name: 'Kathmandu Utility Pant',
+        slug: 'kathmandu-utility-pant',
+        skuCode: 'UTILITY-PANT',
+        description:
+          '<p>Durable cotton canvas with a relaxed straight leg, reinforced knees and event-ready pockets. Built to survive load-ins, not just lookbooks.</p>',
+        type: 'bottoms', material: 'canvas', fit: 'relaxed', drop: 'essentials', extraDrops: ['dashain-edit'],
+        sizes: APPAREL, colors: ['Black', 'Olive'],
+        images: [
+          { fileName: 'kathmandu-utility-pant-1.jpg', url: unsplash('photo-1624378439575-d8705ad7ae80') },
+          { fileName: 'kathmandu-utility-pant-2.jpg', url: unsplash('photo-1541099649105-f69ad21f3246') },
+        ],
+        nepalPrice: 390000, hongKongPrice: 22800, nepalStock: 14, hongKongStock: 6,
+      },
+      {
+        name: 'Valley Jogger',
+        slug: 'valley-jogger',
+        skuCode: 'VALLEY-JOG',
+        description:
+          '<p>Tapered jogger in loopback terry — structured enough to leave the house in, soft enough that you won\'t want to. Zip pocket at the right hip.</p>',
+        type: 'bottoms', material: 'fleece', fit: 'relaxed', drop: 'new-drop',
+        sizes: APPAREL, colors: ['Sand', 'Black'],
+        images: [
+          { fileName: 'valley-jogger-1.jpg', url: unsplash('photo-1594633312681-425c7b97ccd1') },
+          { fileName: 'valley-jogger-2.jpg', url: unsplash('photo-1516762689617-e1cffcef479d') },
+        ],
+        nepalPrice: 420000, hongKongPrice: 26800, nepalStock: 12, hongKongStock: 10,
+      },
+      {
+        name: 'Summit Denim Pant',
+        slug: 'summit-denim-pant',
+        skuCode: 'SUMMIT-DNM',
+        description:
+          '<p>Rigid 13oz denim in a straight, slightly cropped cut. No stretch, no wash tricks — it breaks in on your schedule and looks better for it.</p>',
+        type: 'bottoms', material: 'denim', fit: 'regular', drop: 'essentials', extraDrops: ['harbour-nights'],
+        sizes: APPAREL, colors: ['Charcoal'],
+        images: [
+          { fileName: 'summit-denim-pant-1.jpg', url: unsplash('photo-1560243563-062bfc001d68') },
+          { fileName: 'summit-denim-pant-2.jpg', url: unsplash('photo-1525507119028-ed4c629a60a3') },
+        ],
+        nepalPrice: 520000, hongKongPrice: 34800, nepalStock: 8, hongKongStock: 8,
+      },
+      {
+        name: 'Market Tote',
+        slug: 'market-tote',
+        skuCode: 'MARKET-TOTE',
+        description:
+          '<p>Heavy canvas tote for pop-ups, markets and daily carry. Reinforced handles, interior sleeve pocket, and a base wide enough for records or groceries.</p>',
+        type: 'accessories', material: 'canvas', fit: 'regular', drop: 'essentials',
+        sizes: ONE_SIZE, colors: ['White', 'Sand'],
+        images: [
+          { fileName: 'market-tote-1.jpg', url: unsplash('photo-1590874103328-eac38a683ce7') },
+          { fileName: 'market-tote-2.jpg', url: unsplash('photo-1606522754091-a3bbf9ad4cb3') },
+        ],
+        nepalPrice: 270000, hongKongPrice: 16000, nepalStock: 30, hongKongStock: 25,
+      },
+      {
+        name: 'City Sling Pack',
+        slug: 'city-sling-pack',
+        skuCode: 'CITY-SLING',
+        description:
+          '<p>Compact crossbody sling in bonded canvas with a water-resistant zip. Fits the essentials — wallet, keys, a paperback — and sits flat against the body.</p>',
+        type: 'accessories', material: 'canvas', fit: 'regular', drop: 'new-drop', extraDrops: ['harbour-nights'],
+        sizes: ONE_SIZE, colors: ['Charcoal'],
+        images: [
+          { fileName: 'city-sling-pack-1.jpg', url: unsplash('photo-1553062407-98eeb64c6a62') },
+          { fileName: 'city-sling-pack-2.jpg', url: unsplash('photo-1441986300917-64674bd600d8') },
+        ],
+        nepalPrice: 310000, hongKongPrice: 19800, nepalStock: 15, hongKongStock: 15,
+      },
+      {
+        name: 'Trail Cap',
+        slug: 'trail-cap',
+        skuCode: 'TRAIL-CAP',
+        description:
+          '<p>Six-panel cap in washed cotton with an unstructured crown and adjustable strap. The kind of cap that looks better the more it gets worn.</p>',
+        type: 'accessories', material: 'cotton', fit: 'regular', drop: 'essentials',
+        sizes: ONE_SIZE, colors: ['White', 'Sand'],
+        images: [
+          { fileName: 'trail-cap-1.jpg', url: unsplash('photo-1622445275576-721325763afe') },
+          { fileName: 'trail-cap-2.jpg', url: unsplash('photo-1588850561407-ed78c282e89b') },
+        ],
+        nepalPrice: 180000, hongKongPrice: 12800, nepalStock: 20, hongKongStock: 20,
+      },
+    ];
 
   for (const item of catalog) {
     const { type, material: materialCode, fit: fitCode, drop: dropCode, extraDrops, ...productInput } = item;

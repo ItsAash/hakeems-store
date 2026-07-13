@@ -3,15 +3,12 @@ import type { Schema, Struct } from '@strapi/strapi';
 export interface LayoutAnnouncement extends Struct.ComponentSchema {
   collectionName: 'components_layout_announcements';
   info: {
-    description: 'One line in the top marquee. Optionally scheduled.';
+    description: 'One line in the top marquee.';
     displayName: 'Announcement';
     icon: 'bullhorn';
   };
   attributes: {
-    enabled: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
-    endsAt: Schema.Attribute.DateTime;
     href: Schema.Attribute.String;
-    startsAt: Schema.Attribute.DateTime;
     text: Schema.Attribute.String & Schema.Attribute.Required;
   };
 }
@@ -54,12 +51,9 @@ export interface LayoutHeroSlide extends Struct.ComponentSchema {
     icon: 'images';
   };
   attributes: {
-    align: Schema.Attribute.Enumeration<['start', 'center']> &
-      Schema.Attribute.DefaultTo<'start'>;
     alt: Schema.Attribute.String;
     ctaHref: Schema.Attribute.String;
     ctaLabel: Schema.Attribute.String;
-    eyebrow: Schema.Attribute.String;
     heading: Schema.Attribute.String & Schema.Attribute.Required;
     image: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
     imageMobile: Schema.Attribute.Media<'images'>;
@@ -91,25 +85,6 @@ export interface LayoutNavLink extends Struct.ComponentSchema {
   attributes: {
     href: Schema.Attribute.String & Schema.Attribute.Required;
     label: Schema.Attribute.String & Schema.Attribute.Required;
-  };
-}
-
-export interface LayoutSpotlightBlock extends Struct.ComponentSchema {
-  collectionName: 'components_layout_spotlight_blocks';
-  info: {
-    description: 'A live Vendure collection shown with quick-add, paired with an editorial typography statement.';
-    displayName: 'Spotlight Block';
-    icon: 'star';
-  };
-  attributes: {
-    ctaHref: Schema.Attribute.String;
-    ctaLabel: Schema.Attribute.String;
-    eyebrow: Schema.Attribute.String;
-    heading: Schema.Attribute.String & Schema.Attribute.Required;
-    layout: Schema.Attribute.Enumeration<['image-left', 'image-right']> &
-      Schema.Attribute.DefaultTo<'image-left'>;
-    paragraphs: Schema.Attribute.Component<'shared.paragraph', true>;
-    vendureCollectionSlug: Schema.Attribute.String & Schema.Attribute.Required;
   };
 }
 
@@ -193,7 +168,6 @@ declare module '@strapi/strapi' {
       'layout.hero-slide': LayoutHeroSlide;
       'layout.nav-item': LayoutNavItem;
       'layout.nav-link': LayoutNavLink;
-      'layout.spotlight-block': LayoutSpotlightBlock;
       'layout.value-item': LayoutValueItem;
       'shared.link': SharedLink;
       'shared.paragraph': SharedParagraph;

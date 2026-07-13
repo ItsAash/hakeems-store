@@ -1,0 +1,53 @@
+query PdpProduct($slug: String!) {
+  product(slug: $slug) {
+    id
+    name
+    slug
+    description
+    customFields {
+      enrichedDescription
+      seoTitle
+      seoDescription
+    }
+    assets {
+      id
+      preview
+      width
+      height
+    }
+    collections {
+      id
+      name
+      slug
+      breadcrumbs {
+        id
+        name
+        slug
+      }
+    }
+    variants {
+      id
+      name
+      sku
+      priceWithTax
+      currencyCode
+      stockLevel
+      featuredAsset {
+        preview
+      }
+      options {
+        id
+        code
+        name
+        groupId
+        group {
+          code
+          name
+        }
+        customFields {
+          swatch
+        }
+      }
+    }
+  }
+}

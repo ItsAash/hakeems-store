@@ -46,7 +46,7 @@ async function uploadImage(strapi: Core.Strapi, url: string, fileName: string): 
   return uploaded.id;
 }
 
-type DraftUID = 'api::home-page.home-page';
+type DraftUID = 'api::home-page.home-page' | 'api::site-nav.site-nav';
 
 // Seed data is assembled as plain object literals below, which won't structurally match
 // the Document Service's generated per-content-type Input types (components in particular
@@ -99,6 +99,35 @@ async function seedSiteSetting(strapi: Core.Strapi) {
   console.log('Seeded site-setting');
 }
 
+/**
+ * The spotlight is global, not per-channel: one curated Vendure collection (see
+ * apps/vendure — the "spotlight" collection) featured identically on every
+ * storefront, priced per-channel by Vendure at render time. A single type, so there
+ * is exactly one document — no filters needed to find it.
+ */
+async function seedSpotlight(strapi: Core.Strapi) {
+  const existing = await strapi.documents('api::spotlight.spotlight').findFirst({});
+  const data: any = {
+    vendureCollectionSlug: 'spotlight',
+    eyebrow: 'The Spotlight',
+    heading: 'This Week, Front Row',
+    paragraphs: [
+      {
+        text: 'A rotating edit of the pieces we’re wearing most right now — pulled from every drop, restocked while they last.',
+      },
+    ],
+    ctaLabel: 'Shop The Spotlight',
+    ctaHref: '/collections/spotlight',
+  };
+
+  if (existing) {
+    await strapi.documents('api::spotlight.spotlight').update({ documentId: existing.documentId, data });
+  } else {
+    await strapi.documents('api::spotlight.spotlight').create({ data });
+  }
+  console.log('Seeded spotlight');
+}
+
 async function seedHomePages(strapi: Core.Strapi) {
   const storyImage = await uploadImage(strapi, unsplash('photo-1441986300917-64674bd600d8', 'w=1400&h=1120&fit=crop&q=80'), 'brand-story.jpg');
   const tileTops = await uploadImage(strapi, unsplash('photo-1445205170230-053b83016050', 'w=1200&h=1500&fit=crop&q=80'), 'tile-tops.jpg');
@@ -136,30 +165,24 @@ async function seedHomePages(strapi: Core.Strapi) {
     heroSlides: [
       {
         image: heroBlockUp,
-        eyebrow: 'Nepal · SS26',
         heading: 'Built From The Block Up',
         subheading: 'Streetwear made with the community, for the community — designed in Kathmandu, worn from Jhamsikhel to Jomsom.',
         ctaLabel: 'Shop New Drop',
         ctaHref: '/nepal/collections/new-drop',
-        align: 'start',
       },
       {
         image: heroEssentials,
-        eyebrow: 'The Essentials',
         heading: 'Worn Daily, Made To Last',
         subheading: 'The permanent collection — core pieces we cut in every drop and restock season after season.',
         ctaLabel: 'Shop Essentials',
         ctaHref: '/nepal/collections/the-essentials',
-        align: 'start',
       },
       {
         image: heroDashain,
-        eyebrow: 'Dashain Edit',
         heading: 'Festive, Not Fussy',
         subheading: 'A capsule for tika mornings and late family dinners — layering pieces built for the season. Nepal exclusive.',
         ctaLabel: 'Shop Dashain Edit',
         ctaHref: '/nepal/collections/dashain-edit',
-        align: 'center',
       },
     ],
     collectionTiles: [
@@ -169,6 +192,12 @@ async function seedHomePages(strapi: Core.Strapi) {
       { vendureCollectionSlug: 'accessories', label: 'Accessories', tagline: 'Totes, slings & caps', image: tileAccessories },
       { vendureCollectionSlug: 'the-essentials', label: 'The Essentials', tagline: 'The permanent collection', image: tileEssentials },
       { vendureCollectionSlug: 'dashain-edit', label: 'Dashain Edit', tagline: 'Festive capsule — Nepal exclusive', image: tileDashain },
+    ],
+    facetCategoryTiles: [
+      { vendureFacetValueId: '1', label: 'Tops', tagline: 'Tees, sweats, hoodies & overshirts', image: tileTops },
+      { vendureFacetValueId: '2', label: 'Bottoms', tagline: 'Utility pants, joggers & denim', image: tileBottoms },
+      { vendureFacetValueId: '3', label: 'Accessories', tagline: 'Totes, slings & caps', image: tileAccessories },
+      { vendureFacetValueId: '24', label: 'Sets', tagline: 'Matching pieces, worn together', image: tileEssentials },
     ],
     storyEyebrow: 'The Brand',
     storyHeading: 'Not made in a boardroom.',
@@ -191,31 +220,25 @@ async function seedHomePages(strapi: Core.Strapi) {
     heroSlides: [
       {
         image: heroBlockUp,
-        eyebrow: 'Hong Kong · SS26',
         heading: 'Built From The Block Up',
         subheading:
           'Streetwear made with the community, for the community — designed in Kathmandu, cut for Hong Kong humidity and harbour nights.',
         ctaLabel: 'Shop New Drop',
         ctaHref: '/hongkong/collections/new-drop',
-        align: 'start',
       },
       {
         image: heroEssentials,
-        eyebrow: 'The Essentials',
         heading: 'Worn Daily, Made To Last',
         subheading: 'The permanent collection — core pieces we cut in every drop and restock season after season.',
         ctaLabel: 'Shop Essentials',
         ctaHref: '/hongkong/collections/the-essentials',
-        align: 'start',
       },
       {
         image: heroHarbour,
-        eyebrow: 'Harbour Nights',
         heading: 'After Dark, On The Harbour',
         subheading: 'Sleek, city-after-dark pieces cut for humid nights on the water. Hong Kong exclusive.',
         ctaLabel: 'Shop Harbour Nights',
         ctaHref: '/hongkong/collections/harbour-nights',
-        align: 'center',
       },
     ],
     collectionTiles: [
@@ -225,6 +248,12 @@ async function seedHomePages(strapi: Core.Strapi) {
       { vendureCollectionSlug: 'accessories', label: 'Accessories', tagline: 'Totes, slings & caps', image: tileAccessories },
       { vendureCollectionSlug: 'the-essentials', label: 'The Essentials', tagline: 'The permanent collection', image: tileEssentials },
       { vendureCollectionSlug: 'harbour-nights', label: 'Harbour Nights', tagline: 'City-after-dark — Hong Kong exclusive', image: tileHarbour },
+    ],
+    facetCategoryTiles: [
+      { vendureFacetValueId: '1', label: 'Tops', tagline: 'Tees, sweats, hoodies & overshirts', image: tileTops },
+      { vendureFacetValueId: '2', label: 'Bottoms', tagline: 'Utility pants, joggers & denim', image: tileBottoms },
+      { vendureFacetValueId: '3', label: 'Accessories', tagline: 'Totes, slings & caps', image: tileAccessories },
+      { vendureFacetValueId: '24', label: 'Sets', tagline: 'Matching pieces, worn together', image: tileEssentials },
     ],
     storyEyebrow: 'The Brand',
     storyHeading: 'Not made in a boardroom.',
@@ -238,6 +267,37 @@ async function seedHomePages(strapi: Core.Strapi) {
   });
 
   console.log('Seeded home-page (nepal, hongkong)');
+}
+
+async function seedSiteNavs(strapi: Core.Strapi) {
+  const shopChildren = [
+    { label: 'Tops', href: '/collections/tops' },
+    { label: 'Bottoms', href: '/collections/bottoms' },
+    { label: 'Accessories', href: '/collections/accessories' },
+    { label: 'The Essentials', href: '/collections/the-essentials' },
+  ];
+
+  await upsertAndPublish(strapi, 'api::site-nav.site-nav', { channel: 'nepal' }, {
+    channel: 'nepal',
+    items: [
+      { label: 'New Drop', href: '/collections/new-drop' },
+      { label: 'Shop', href: '/collections/the-essentials', children: shopChildren },
+      { label: 'Dashain Edit', href: '/collections/dashain-edit' },
+      { label: 'Our Story', href: '/story' },
+    ],
+  });
+
+  await upsertAndPublish(strapi, 'api::site-nav.site-nav', { channel: 'hongkong' }, {
+    channel: 'hongkong',
+    items: [
+      { label: 'New Drop', href: '/collections/new-drop' },
+      { label: 'Shop', href: '/collections/the-essentials', children: shopChildren },
+      { label: 'Harbour Nights', href: '/collections/harbour-nights' },
+      { label: 'Our Story', href: '/story' },
+    ],
+  });
+
+  console.log('Seeded site-nav (nepal, hongkong)');
 }
 
 /**
@@ -361,6 +421,8 @@ async function main() {
 
   await seedSiteSetting(app);
   await seedHomePages(app);
+  await seedSiteNavs(app);
+  await seedSpotlight(app);
   await seedCollectionPages(app);
   console.log('Hakeems Strapi seed complete.');
 

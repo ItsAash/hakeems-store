@@ -1,0 +1,36 @@
+query PlpSearch($input: SearchInput!) {
+  search(input: $input) {
+    totalItems
+    items {
+      productId
+      productName
+      slug
+      productAsset {
+        preview
+      }
+      priceWithTax {
+        ... on PriceRange {
+          min
+          max
+        }
+        ... on SinglePrice {
+          value
+        }
+      }
+      currencyCode
+    }
+    facetValues {
+      count
+      facetValue {
+        id
+        code
+        name
+        facet {
+          id
+          code
+          name
+        }
+      }
+    }
+  }
+}

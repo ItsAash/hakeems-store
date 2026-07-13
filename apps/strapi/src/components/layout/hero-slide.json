@@ -21,9 +21,6 @@
     "alt": {
       "type": "string"
     },
-    "eyebrow": {
-      "type": "string"
-    },
     "heading": {
       "type": "string",
       "required": true
@@ -36,11 +33,6 @@
     },
     "ctaHref": {
       "type": "string"
-    },
-    "align": {
-      "type": "enumeration",
-      "enum": ["start", "center"],
-      "default": "start"
     }
   }
 }

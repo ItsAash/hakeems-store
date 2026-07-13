@@ -493,6 +493,8 @@ export interface ApiHomePageHomePage extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    announcementBarEnabled: Schema.Attribute.Boolean &
+      Schema.Attribute.DefaultTo<true>;
     announcements: Schema.Attribute.Component<'layout.announcement', true>;
     channel: Schema.Attribute.Enumeration<['nepal', 'hongkong']> &
       Schema.Attribute.Required;
@@ -513,7 +515,6 @@ export interface ApiHomePageHomePage extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
     seo: Schema.Attribute.Component<'shared.seo', false>;
-    spotlights: Schema.Attribute.Component<'layout.spotlight-block', true>;
     storyEyebrow: Schema.Attribute.String;
     storyHeading: Schema.Attribute.String;
     storyImage: Schema.Attribute.Media<'images'>;
@@ -591,6 +592,42 @@ export interface ApiSiteSettingSiteSetting extends Struct.SingleTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+  };
+}
+
+export interface ApiSpotlightSpotlight extends Struct.SingleTypeSchema {
+  collectionName: 'spotlights';
+  info: {
+    description: "The single, global product spotlight shown on every channel's home page \u2014 one curated Vendure collection, paired with an editorial statement. Not channel-specific: the same spotlight collection is featured everywhere, priced per-channel by Vendure at render time.";
+    displayName: 'Spotlight';
+    pluralName: 'spotlights';
+    singularName: 'spotlight';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    ctaHref: Schema.Attribute.String;
+    ctaLabel: Schema.Attribute.String;
+    eyebrow: Schema.Attribute.String;
+    heading: Schema.Attribute.String & Schema.Attribute.Required;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::spotlight.spotlight'
+    > &
+      Schema.Attribute.Private;
+    paragraphs: Schema.Attribute.Component<'shared.paragraph', true>;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    vendureCollectionSlug: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'spotlight'>;
   };
 }
 
@@ -1109,6 +1146,7 @@ declare module '@strapi/strapi' {
       'api::home-page.home-page': ApiHomePageHomePage;
       'api::site-nav.site-nav': ApiSiteNavSiteNav;
       'api::site-setting.site-setting': ApiSiteSettingSiteSetting;
+      'api::spotlight.spotlight': ApiSpotlightSpotlight;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

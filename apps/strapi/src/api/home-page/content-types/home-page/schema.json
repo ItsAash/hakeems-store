@@ -17,6 +17,10 @@
       "enum": ["nepal", "hongkong"],
       "required": true
     },
+    "announcementBarEnabled": {
+      "type": "boolean",
+      "default": true
+    },
     "announcements": {
       "type": "component",
       "repeatable": true,
@@ -36,11 +40,6 @@
       "type": "component",
       "repeatable": true,
       "component": "layout.facet-category-tile"
-    },
-    "spotlights": {
-      "type": "component",
-      "repeatable": true,
-      "component": "layout.spotlight-block"
     },
     "storyEyebrow": {
       "type": "string"

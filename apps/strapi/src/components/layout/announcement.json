@@ -3,26 +3,16 @@
   "info": {
     "displayName": "Announcement",
     "icon": "bullhorn",
-    "description": "One line in the top marquee. Optionally scheduled."
+    "description": "One line in the top marquee."
   },
   "options": {},
   "attributes": {
-    "enabled": {
-      "type": "boolean",
-      "default": true
-    },
     "text": {
       "type": "string",
       "required": true
     },
     "href": {
       "type": "string"
-    },
-    "startsAt": {
-      "type": "datetime"
-    },
-    "endsAt": {
-      "type": "datetime"
     }
   }
 }

@@ -1,0 +1,27 @@
+mutation AdjustOrderLine($orderLineId: ID!, $quantity: Int!) {
+  adjustOrderLine(orderLineId: $orderLineId, quantity: $quantity) {
+    __typename
+    ... on Order {
+      id
+      totalQuantity
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+
+mutation RemoveOrderLine($orderLineId: ID!) {
+  removeOrderLine(orderLineId: $orderLineId) {
+    __typename
+    ... on Order {
+      id
+      totalQuantity
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}

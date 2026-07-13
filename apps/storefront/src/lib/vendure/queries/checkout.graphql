@@ -1,0 +1,128 @@
+query Countries {
+  availableCountries {
+    id
+    code
+    name
+  }
+}
+
+mutation SetOrderShippingAddress($input: CreateAddressInput!) {
+  setOrderShippingAddress(input: $input) {
+    __typename
+    ... on Order {
+      id
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+
+mutation SetCustomerForOrder($input: CreateCustomerInput!) {
+  setCustomerForOrder(input: $input) {
+    __typename
+    ... on Order {
+      id
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+
+query EligibleShippingMethods {
+  eligibleShippingMethods {
+    id
+    code
+    name
+    description
+    price
+    priceWithTax
+  }
+}
+
+mutation SetOrderShippingMethod($shippingMethodId: [ID!]!) {
+  setOrderShippingMethod(shippingMethodId: $shippingMethodId) {
+    __typename
+    ... on Order {
+      id
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+
+mutation TransitionOrderToState($state: String!) {
+  transitionOrderToState(state: $state) {
+    __typename
+    ... on Order {
+      id
+      state
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+
+query EligiblePaymentMethods {
+  eligiblePaymentMethods {
+    id
+    code
+    name
+    description
+    isEligible
+    eligibilityMessage
+  }
+}
+
+mutation AddPaymentToOrder($input: PaymentInput!) {
+  addPaymentToOrder(input: $input) {
+    __typename
+    ... on Order {
+      id
+      code
+      state
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+
+mutation CreateStripePaymentIntent {
+  createStripePaymentIntent
+}
+
+query OrderByCode($code: String!) {
+  orderByCode(code: $code) {
+    id
+    code
+    state
+    totalWithTax
+    currencyCode
+    customer {
+      emailAddress
+    }
+    shippingAddress {
+      fullName
+      streetLine1
+      city
+      countryCode
+    }
+    lines {
+      id
+      quantity
+      linePriceWithTax
+      productVariant {
+        name
+      }
+    }
+  }
+}

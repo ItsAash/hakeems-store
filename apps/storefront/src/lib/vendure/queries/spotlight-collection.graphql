@@ -1,0 +1,34 @@
+query SpotlightCollection($slug: String!, $take: Int!) {
+  collection(slug: $slug) {
+    id
+    name
+    slug
+    productVariants(options: { take: $take }) {
+      items {
+        id
+        priceWithTax
+        currencyCode
+        stockLevel
+        product {
+          id
+          slug
+          name
+          featuredAsset {
+            preview
+          }
+        }
+        options {
+          id
+          code
+          groupId
+          group {
+            code
+          }
+          customFields {
+            swatch
+          }
+        }
+      }
+    }
+  }
+}

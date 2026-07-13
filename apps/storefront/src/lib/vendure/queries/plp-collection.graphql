@@ -1,0 +1,13 @@
+query PlpCollection($slug: String!) {
+  collection(slug: $slug) {
+    id
+    name
+    slug
+    description
+    breadcrumbs {
+      id
+      name
+      slug
+    }
+  }
+}

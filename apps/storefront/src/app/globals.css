@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+@theme {
+  /* Neutral-first palette: the storefront leans on tone and space, not color, for
+     hierarchy. A single accent exists for CTAs/links and is used sparingly. */
+  --color-ink: #14120f;
+  --color-ink-muted: #55524c;
+  --color-paper: #faf8f5;
+  --color-paper-raised: #ffffff;
+  --color-hairline: #e5e1da;
+  --color-accent: #b3441e;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
+
+  /* A generous, luxury-leaning spacing scale layered on top of Tailwind's default —
+     section rhythm should read as deliberate whitespace, not cramped defaults. */
+  --spacing-section: 6rem;
+  --spacing-section-sm: 3rem;
+
+  --tracking-eyebrow: 0.14em;
+}
+
+@layer base {
+  html {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+  }
+
+  body {
+    font-family: var(--font-sans);
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-paper);
+  }
+}
+
+@layer utilities {
+  .eyebrow {
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    color: var(--color-ink-muted);
+  }
+
+  .hairline {
+    border-color: var(--color-hairline);
+  }
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+  display: none;
+}
+
+/* Carousel tracks (e.g. the spotlight rail) scroll natively for touch/trackpad but
+   hide the scrollbar chrome — navigation is via the visible prev/next buttons. */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes hero-kenburns {
+  from {
+    transform: scale(1.08);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* animation-duration is set inline per-instance to stay in sync with the JS
+   autoplay timer (AUTOPLAY_MS in hero-slider.tsx) — one source of truth for timing. */
+.animate-hero-kenburns {
+  animation-name: hero-kenburns;
+  animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+  animation-fill-mode: forwards;
+}
+
+@keyframes hero-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.animate-hero-progress {
+  animation-name: hero-progress;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-hero-kenburns,
+  .animate-hero-progress {
+    animation: none;
+  }
+}
