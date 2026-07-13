@@ -1,6 +1,6 @@
 import { strapiFetch } from '@/lib/strapi/client';
 import type { StrapiListResponse, StrapiSingleResponse } from '@/lib/strapi/client';
-import type { CollectionPage, HomePage, SiteNav, SiteSetting, Spotlight } from '@/lib/strapi/types';
+import type { CollectionPage, HomePage, NewArrivals, SiteNav, SiteSetting, Spotlight } from '@/lib/strapi/types';
 import type { ChannelCode } from '@/lib/channel';
 
 const HOME_PAGE_POPULATE = [
@@ -40,6 +40,15 @@ export async function getSiteSetting(): Promise<SiteSetting | null> {
 /** Global singleton — the same spotlight collection is featured on every channel. */
 export async function getSpotlight(): Promise<Spotlight | null> {
   const response = await strapiFetch<StrapiSingleResponse<Spotlight>>('spotlight', {
+    populate: ['paragraphs'],
+  });
+  return response.data;
+}
+
+/** Global singleton — the same "New Arrivals" collection is shown on every channel.
+ * Single-type REST route is the content type's singularName ('new-arrival'). */
+export async function getNewArrivals(): Promise<NewArrivals | null> {
+  const response = await strapiFetch<StrapiSingleResponse<NewArrivals>>('new-arrival', {
     populate: ['paragraphs'],
   });
   return response.data;

@@ -26,6 +26,16 @@
       "@tanstack/router-core": "^1.168.19",
       "@tanstack/router-plugin": "^1.168.19",
       "@tanstack/react-store": "^0.11.0"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@apollo/protobufjs",
+      "@swc/core",
+      "bcrypt",
+      "better-sqlite3",
+      "core-js-pure",
+      "esbuild",
+      "msw",
+      "sharp"
+    ]
   }
 }

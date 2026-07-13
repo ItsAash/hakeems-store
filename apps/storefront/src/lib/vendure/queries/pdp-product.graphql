@@ -8,6 +8,8 @@ query PdpProduct($slug: String!) {
       enrichedDescription
       seoTitle
       seoDescription
+      fitAndFabric
+      shippingReturns
     }
     assets {
       id

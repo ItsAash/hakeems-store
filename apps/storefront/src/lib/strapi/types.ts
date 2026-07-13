@@ -61,6 +61,24 @@ export type Spotlight = {
   ctaHref: string | null;
 };
 
+/**
+ * Global, not per-channel — one curated Vendure collection of the latest pieces, shown
+ * in the home-page "New Arrivals" rail on every storefront (see the "new-arrival" single
+ * type in Strapi). Vendure prices/localizes the products per-channel at render time.
+ * Same editorial shape as {@link Spotlight}, so both feed the same product rail.
+ */
+export type NewArrivals = {
+  id: number;
+  vendureCollectionSlug: string;
+  eyebrow: string | null;
+  heading: string;
+  paragraphs: Array<{ id: number; text: string }>;
+  ctaLabel: string | null;
+  ctaHref: string | null;
+  /** Left-panel background of the banner (hex). Blush fallback in the component. */
+  backgroundColor: string | null;
+};
+
 export type Seo = {
   metaTitle: string | null;
   metaDescription: string | null;
@@ -111,6 +129,8 @@ export type SiteNav = {
   items: NavItem[];
 };
 
+export type SocialPlatform = 'instagram' | 'tiktok' | 'facebook' | 'youtube' | 'x' | 'whatsapp';
+
 export type SiteSetting = {
   id: number;
   siteName: string;
@@ -118,4 +138,6 @@ export type SiteSetting = {
   supportEmail: string | null;
   supportPhone: string | null;
   footerNote: string | null;
+  socialLinks: Array<{ id: number; platform: SocialPlatform; url: string }>;
+  legalLinks: Array<{ id: number; label: string; href: string }>;
 };

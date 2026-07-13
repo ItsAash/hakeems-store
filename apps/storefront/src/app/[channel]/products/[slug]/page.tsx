@@ -7,6 +7,7 @@ import { CONTAINER } from '@/lib/ui';
 import { Breadcrumbs } from '@/components/commerce/breadcrumbs';
 import { ProductGallery } from '@/components/commerce/product-gallery';
 import { VariantSelector } from '@/components/commerce/variant-selector';
+import { ProductDetailsTabs } from '@/components/commerce/product-details-tabs';
 
 type PdpParams = { channel: string; slug: string };
 
@@ -56,12 +57,13 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pd
 
           <VariantSelector matrix={matrix} channelCode={channel.code} />
 
-          {description && (
-            <div
-              className="prose prose-sm max-w-none border-t hairline pt-6 text-[var(--color-ink-muted)]"
-              dangerouslySetInnerHTML={{ __html: description }}
-            />
-          )}
+          <ProductDetailsTabs
+            tabs={[
+              { id: 'details', label: 'Details', content: description },
+              { id: 'fit-fabric', label: 'Fit & Fabric', content: product.customFields?.fitAndFabric },
+              { id: 'shipping-returns', label: 'Shipping & Returns', content: product.customFields?.shippingReturns },
+            ]}
+          />
         </div>
       </div>
     </main>

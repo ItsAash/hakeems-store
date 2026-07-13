@@ -7,6 +7,7 @@ const PUBLIC_READ_ACTIONS: Record<string, string[]> = {
   'api::site-setting.site-setting': ['find'],
   'api::site-nav.site-nav': ['find', 'findOne'],
   'api::spotlight.spotlight': ['find'],
+  'api::new-arrival.new-arrival': ['find'],
 };
 
 /**

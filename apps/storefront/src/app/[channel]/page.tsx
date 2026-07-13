@@ -1,9 +1,10 @@
 import { getChannel, isChannelCode } from '@/lib/channel';
-import { getHomePage, getSiteSetting, getSpotlight } from '@/lib/strapi/queries';
+import { getHomePage, getSpotlight, getNewArrivals } from '@/lib/strapi/queries';
 import { notFound } from 'next/navigation';
 import { HeroSlider } from '@/components/marketing/hero-slider';
 import { FacetCategoryGrid } from '@/components/marketing/facet-category-grid';
 import { SpotlightBlock } from '@/components/marketing/spotlight-block';
+import { NewArrivalsBlock } from '@/components/marketing/new-arrivals-block';
 import { CONTAINER } from '@/lib/ui';
 
 export default async function HomePage({ params }: { params: Promise<{ channel: string }> }) {
@@ -11,11 +12,13 @@ export default async function HomePage({ params }: { params: Promise<{ channel: 
   if (!isChannelCode(channelParam)) notFound();
   const channel = getChannel(channelParam);
 
-  const [homePage, siteSetting, spotlight] = await Promise.all([
+  const [homePage, spotlight, newArrivals] = await Promise.all([
     getHomePage(channel.code),
-    getSiteSetting(),
     getSpotlight(),
+    getNewArrivals(),
   ]);
+
+  const hasStory = Boolean(homePage?.storyHeading || homePage?.storyParagraphs?.length);
 
   return (
     <main className="flex flex-1 flex-col">
@@ -25,26 +28,29 @@ export default async function HomePage({ params }: { params: Promise<{ channel: 
 
       {spotlight && <SpotlightBlock spotlight={spotlight} channelCode={channel.code} />}
 
-      <div className={`flex flex-1 flex-col py-section-sm ${CONTAINER}`}>
-        {/* Narrower measure for prose, left-aligned (no mx-auto) so it shares the
-            same left edge as the nav/grid above instead of re-centering independently. */}
-        <div className="flex max-w-xl flex-col gap-6">
-          <p className="eyebrow">
-            {siteSetting?.siteName ?? 'Hakeems'} · {channel.countryName}
-          </p>
-          {homePage?.storyEyebrow && <p className="eyebrow">{homePage.storyEyebrow}</p>}
-          <h1 className="font-serif text-4xl text-[var(--color-ink)]">
-            {homePage?.storyHeading ?? 'Phase 0 scaffold is live.'}
-          </h1>
-          <p className="text-[var(--color-ink-muted)]">
-            {homePage?.storyParagraphs[0]?.text ??
-              'This homepage is fetching real data from both Strapi and the Vendure Shop API.'}
-          </p>
-          <div className="mt-2 flex gap-8 border-t hairline pt-6 text-sm text-[var(--color-ink-muted)]">
-            <span>Currency: {channel.currencyCode}</span>
+      {/* Brand story / writing section — sits directly below the Spotlight and shares the
+          site's standard section rhythm (py-section, like the rails above and below) so the
+          whitespace reads as deliberate instead of the cramped py-section-sm it used before.
+          Content is Strapi-authored (storyEyebrow / storyHeading / storyParagraphs). */}
+      {hasStory && (
+        <section className={`py-section ${CONTAINER}`}>
+          {/* Narrower measure for prose, left-aligned so it shares the same left edge as
+              the nav/grids above rather than re-centering independently. */}
+          <div className="flex max-w-xl flex-col gap-6">
+            {homePage?.storyEyebrow && <p className="eyebrow">{homePage.storyEyebrow}</p>}
+            {homePage?.storyHeading && (
+              <h2 className="font-serif text-4xl text-[var(--color-ink)]">{homePage.storyHeading}</h2>
+            )}
+            {homePage?.storyParagraphs.map((paragraph) => (
+              <p key={paragraph.id} className="text-[var(--color-ink-muted)]">
+                {paragraph.text}
+              </p>
+            ))}
           </div>
-        </div>
-      </div>
+        </section>
+      )}
+
+      {newArrivals && <NewArrivalsBlock newArrivals={newArrivals} channelCode={channel.code} />}
     </main>
   );
 }

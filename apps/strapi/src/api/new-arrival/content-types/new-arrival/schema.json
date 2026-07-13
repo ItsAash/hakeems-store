@@ -1,0 +1,43 @@
+{
+  "kind": "singleType",
+  "collectionName": "new_arrivals",
+  "info": {
+    "singularName": "new-arrival",
+    "pluralName": "new-arrivals",
+    "displayName": "New Arrivals",
+    "description": "The single, global \"New Arrivals\" rail shown on every channel's home page — one curated Vendure collection paired with an editorial statement. Not channel-specific: the same collection is featured everywhere, priced per-channel by Vendure at render time."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "vendureCollectionSlug": {
+      "type": "string",
+      "required": true,
+      "default": "new-arrivals"
+    },
+    "eyebrow": {
+      "type": "string"
+    },
+    "heading": {
+      "type": "string",
+      "required": true
+    },
+    "paragraphs": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.paragraph"
+    },
+    "ctaLabel": {
+      "type": "string"
+    },
+    "ctaHref": {
+      "type": "string"
+    },
+    "backgroundColor": {
+      "type": "string",
+      "default": "#f7e8e6"
+    }
+  }
+}
