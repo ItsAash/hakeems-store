@@ -5,6 +5,12 @@ import { getVendureClient } from '@/lib/vendure/client';
 import { getVendureSessionCookies } from '@/lib/session';
 import { CONTAINER } from '@/lib/ui';
 import { formatPrice } from '@/lib/format';
+import type { OrderByCodeQuery } from '@/lib/vendure/generated';
+import { ConfirmationPending } from '@/components/checkout/confirmation-pending';
+
+/** Orders sitting in one of these states haven't been settled yet — for a Stripe
+ * payment this means the webhook hasn't landed, not that anything went wrong. */
+const UNSETTLED_STATES = new Set(['ArrangingPayment', 'ArrangingAdditionalPayment']);
 
 export default async function CheckoutConfirmationPage({
   params,
@@ -20,9 +26,37 @@ export default async function CheckoutConfirmationPage({
   if (!code) notFound();
 
   const sessionCookies = await getVendureSessionCookies();
-  const { orderByCode: order } = await getVendureClient(channel.code, sessionCookies).OrderByCode({ code });
+
+  // Vendure's guest order-by-code access rule allows access only once `orderPlacedAt`
+  // is set (or the owning session still holds the order) — but that field, along with
+  // the state transition out of ArrangingPayment, isn't set until the Stripe webhook
+  // lands, which can arrive a moment after the browser's own redirect back here. Until
+  // then the query throws a FORBIDDEN error rather than returning null, so this has to
+  // be caught explicitly and treated the same as "still processing".
+  let order: OrderByCodeQuery['orderByCode'];
+  try {
+    ({ orderByCode: order } = await getVendureClient(channel.code, sessionCookies).OrderByCode({ code }));
+  } catch {
+    return (
+      <main className={`flex-1 py-section ${CONTAINER}`}>
+        <div className="mx-auto flex max-w-lg flex-col items-center gap-4">
+          <ConfirmationPending />
+        </div>
+      </main>
+    );
+  }
 
   if (!order) notFound();
+
+  if (UNSETTLED_STATES.has(order.state)) {
+    return (
+      <main className={`flex-1 py-section ${CONTAINER}`}>
+        <div className="mx-auto flex max-w-lg flex-col items-center gap-4">
+          <ConfirmationPending />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className={`flex-1 py-section ${CONTAINER}`}>
