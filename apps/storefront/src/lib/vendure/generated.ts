@@ -3719,6 +3719,88 @@ export type RemoveOrderLineMutation = { __typename?: 'Mutation', removeOrderLine
     | { __typename: 'OrderModificationError', errorCode: ErrorCode, message: string }
    };
 
+export type LoginMutationVariables = Exact<{
+  username: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+  rememberMe?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type LoginMutation = { __typename?: 'Mutation', login:
+    | { __typename: 'CurrentUser', id: string, identifier: string }
+    | { __typename: 'InvalidCredentialsError', errorCode: ErrorCode, message: string }
+    | { __typename: 'NativeAuthStrategyError', errorCode: ErrorCode, message: string }
+    | { __typename: 'NotVerifiedError', errorCode: ErrorCode, message: string }
+   };
+
+export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LogoutMutation = { __typename?: 'Mutation', logout: { __typename?: 'Success', success: boolean } };
+
+export type RegisterCustomerAccountMutationVariables = Exact<{
+  input: RegisterCustomerInput;
+}>;
+
+
+export type RegisterCustomerAccountMutation = { __typename?: 'Mutation', registerCustomerAccount:
+    | { __typename: 'MissingPasswordError', errorCode: ErrorCode, message: string }
+    | { __typename: 'NativeAuthStrategyError', errorCode: ErrorCode, message: string }
+    | { __typename: 'PasswordValidationError', errorCode: ErrorCode, message: string }
+    | { __typename: 'Success', success: boolean }
+   };
+
+export type VerifyCustomerAccountMutationVariables = Exact<{
+  token: Scalars['String']['input'];
+  password?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type VerifyCustomerAccountMutation = { __typename?: 'Mutation', verifyCustomerAccount:
+    | { __typename: 'CurrentUser', id: string, identifier: string }
+    | { __typename: 'MissingPasswordError', errorCode: ErrorCode, message: string }
+    | { __typename: 'NativeAuthStrategyError', errorCode: ErrorCode, message: string }
+    | { __typename: 'PasswordAlreadySetError', errorCode: ErrorCode, message: string }
+    | { __typename: 'PasswordValidationError', errorCode: ErrorCode, message: string }
+    | { __typename: 'VerificationTokenExpiredError', errorCode: ErrorCode, message: string }
+    | { __typename: 'VerificationTokenInvalidError', errorCode: ErrorCode, message: string }
+   };
+
+export type RefreshCustomerVerificationMutationVariables = Exact<{
+  emailAddress: Scalars['String']['input'];
+}>;
+
+
+export type RefreshCustomerVerificationMutation = { __typename?: 'Mutation', refreshCustomerVerification:
+    | { __typename: 'NativeAuthStrategyError', errorCode: ErrorCode, message: string }
+    | { __typename: 'Success', success: boolean }
+   };
+
+export type RequestPasswordResetMutationVariables = Exact<{
+  emailAddress: Scalars['String']['input'];
+}>;
+
+
+export type RequestPasswordResetMutation = { __typename?: 'Mutation', requestPasswordReset?:
+    | { __typename: 'NativeAuthStrategyError', errorCode: ErrorCode, message: string }
+    | { __typename: 'Success', success: boolean }
+   | null };
+
+export type ResetPasswordMutationVariables = Exact<{
+  token: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+}>;
+
+
+export type ResetPasswordMutation = { __typename?: 'Mutation', resetPassword:
+    | { __typename: 'CurrentUser', id: string, identifier: string }
+    | { __typename: 'NativeAuthStrategyError', errorCode: ErrorCode, message: string }
+    | { __typename: 'NotVerifiedError', errorCode: ErrorCode, message: string }
+    | { __typename: 'PasswordResetTokenExpiredError', errorCode: ErrorCode, message: string }
+    | { __typename: 'PasswordResetTokenInvalidError', errorCode: ErrorCode, message: string }
+    | { __typename: 'PasswordValidationError', errorCode: ErrorCode, message: string }
+   };
+
 export type CountriesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -3805,7 +3887,88 @@ export type OrderByCodeQueryVariables = Exact<{
 }>;
 
 
-export type OrderByCodeQuery = { __typename?: 'Query', orderByCode?: { __typename?: 'Order', id: string, code: string, state: string, totalWithTax: number, currencyCode: CurrencyCode, customer?: { __typename?: 'Customer', emailAddress: string } | null, shippingAddress?: { __typename?: 'OrderAddress', fullName?: string | null, streetLine1?: string | null, city?: string | null, countryCode?: string | null } | null, lines: Array<{ __typename?: 'OrderLine', id: string, quantity: number, linePriceWithTax: number, productVariant: { __typename?: 'ProductVariant', name: string } }> } | null };
+export type OrderByCodeQuery = { __typename?: 'Query', orderByCode?: { __typename?: 'Order', id: string, code: string, state: string, orderPlacedAt?: string | null, subTotalWithTax: number, shippingWithTax: number, totalWithTax: number, currencyCode: CurrencyCode, customer?: { __typename?: 'Customer', emailAddress: string } | null, shippingAddress?: { __typename?: 'OrderAddress', fullName?: string | null, streetLine1?: string | null, city?: string | null, countryCode?: string | null } | null, lines: Array<{ __typename?: 'OrderLine', id: string, quantity: number, linePriceWithTax: number, featuredAsset?: { __typename?: 'Asset', preview: string } | null, productVariant: { __typename?: 'ProductVariant', name: string, product: { __typename?: 'Product', slug: string } } }> } | null };
+
+export type CustomerAddressFieldsFragment = { __typename?: 'Address', id: string, fullName?: string | null, company?: string | null, streetLine1: string, streetLine2?: string | null, city?: string | null, province?: string | null, postalCode?: string | null, phoneNumber?: string | null, defaultShippingAddress?: boolean | null, defaultBillingAddress?: boolean | null, country: { __typename?: 'Country', code: string, name: string } };
+
+export type ActiveCustomerQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ActiveCustomerQuery = { __typename?: 'Query', activeCustomer?: { __typename?: 'Customer', id: string, firstName: string, lastName: string, emailAddress: string, phoneNumber?: string | null, addresses?: Array<{ __typename?: 'Address', id: string, fullName?: string | null, company?: string | null, streetLine1: string, streetLine2?: string | null, city?: string | null, province?: string | null, postalCode?: string | null, phoneNumber?: string | null, defaultShippingAddress?: boolean | null, defaultBillingAddress?: boolean | null, country: { __typename?: 'Country', code: string, name: string } }> | null } | null };
+
+export type CustomerOrdersQueryVariables = Exact<{
+  take: Scalars['Int']['input'];
+  skip: Scalars['Int']['input'];
+}>;
+
+
+export type CustomerOrdersQuery = { __typename?: 'Query', activeCustomer?: { __typename?: 'Customer', id: string, orders: { __typename?: 'OrderList', totalItems: number, items: Array<{ __typename?: 'Order', id: string, code: string, state: string, orderPlacedAt?: string | null, totalWithTax: number, currencyCode: CurrencyCode, totalQuantity: number }> } } | null };
+
+export type UpdateCustomerMutationVariables = Exact<{
+  input: UpdateCustomerInput;
+}>;
+
+
+export type UpdateCustomerMutation = { __typename?: 'Mutation', updateCustomer: { __typename?: 'Customer', id: string, firstName: string, lastName: string, phoneNumber?: string | null } };
+
+export type UpdateCustomerPasswordMutationVariables = Exact<{
+  currentPassword: Scalars['String']['input'];
+  newPassword: Scalars['String']['input'];
+}>;
+
+
+export type UpdateCustomerPasswordMutation = { __typename?: 'Mutation', updateCustomerPassword:
+    | { __typename: 'InvalidCredentialsError', errorCode: ErrorCode, message: string }
+    | { __typename: 'NativeAuthStrategyError', errorCode: ErrorCode, message: string }
+    | { __typename: 'PasswordValidationError', errorCode: ErrorCode, message: string }
+    | { __typename: 'Success', success: boolean }
+   };
+
+export type RequestUpdateCustomerEmailAddressMutationVariables = Exact<{
+  password: Scalars['String']['input'];
+  newEmailAddress: Scalars['String']['input'];
+}>;
+
+
+export type RequestUpdateCustomerEmailAddressMutation = { __typename?: 'Mutation', requestUpdateCustomerEmailAddress:
+    | { __typename: 'EmailAddressConflictError', errorCode: ErrorCode, message: string }
+    | { __typename: 'InvalidCredentialsError', errorCode: ErrorCode, message: string }
+    | { __typename: 'NativeAuthStrategyError', errorCode: ErrorCode, message: string }
+    | { __typename: 'Success', success: boolean }
+   };
+
+export type UpdateCustomerEmailAddressMutationVariables = Exact<{
+  token: Scalars['String']['input'];
+}>;
+
+
+export type UpdateCustomerEmailAddressMutation = { __typename?: 'Mutation', updateCustomerEmailAddress:
+    | { __typename: 'IdentifierChangeTokenExpiredError', errorCode: ErrorCode, message: string }
+    | { __typename: 'IdentifierChangeTokenInvalidError', errorCode: ErrorCode, message: string }
+    | { __typename: 'NativeAuthStrategyError', errorCode: ErrorCode, message: string }
+    | { __typename: 'Success', success: boolean }
+   };
+
+export type CreateCustomerAddressMutationVariables = Exact<{
+  input: CreateAddressInput;
+}>;
+
+
+export type CreateCustomerAddressMutation = { __typename?: 'Mutation', createCustomerAddress: { __typename?: 'Address', id: string, fullName?: string | null, company?: string | null, streetLine1: string, streetLine2?: string | null, city?: string | null, province?: string | null, postalCode?: string | null, phoneNumber?: string | null, defaultShippingAddress?: boolean | null, defaultBillingAddress?: boolean | null, country: { __typename?: 'Country', code: string, name: string } } };
+
+export type UpdateCustomerAddressMutationVariables = Exact<{
+  input: UpdateAddressInput;
+}>;
+
+
+export type UpdateCustomerAddressMutation = { __typename?: 'Mutation', updateCustomerAddress: { __typename?: 'Address', id: string, fullName?: string | null, company?: string | null, streetLine1: string, streetLine2?: string | null, city?: string | null, province?: string | null, postalCode?: string | null, phoneNumber?: string | null, defaultShippingAddress?: boolean | null, defaultBillingAddress?: boolean | null, country: { __typename?: 'Country', code: string, name: string } } };
+
+export type DeleteCustomerAddressMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteCustomerAddressMutation = { __typename?: 'Mutation', deleteCustomerAddress: { __typename?: 'Success', success: boolean } };
 
 export type FacetValueCountQueryVariables = Exact<{
   facetValueId: Scalars['ID']['input'];
@@ -3902,6 +4065,25 @@ export const ActiveOrderFieldsFragmentDoc = gql`
   }
 }
     `;
+export const CustomerAddressFieldsFragmentDoc = gql`
+    fragment CustomerAddressFields on Address {
+  id
+  fullName
+  company
+  streetLine1
+  streetLine2
+  city
+  province
+  postalCode
+  phoneNumber
+  defaultShippingAddress
+  defaultBillingAddress
+  country {
+    code
+    name
+  }
+}
+    `;
 export const ActiveOrderSummaryDocument = gql`
     query ActiveOrderSummary {
   activeOrder {
@@ -3957,6 +4139,100 @@ export const RemoveOrderLineDocument = gql`
     ... on Order {
       id
       totalQuantity
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+    `;
+export const LoginDocument = gql`
+    mutation Login($username: String!, $password: String!, $rememberMe: Boolean) {
+  login(username: $username, password: $password, rememberMe: $rememberMe) {
+    __typename
+    ... on CurrentUser {
+      id
+      identifier
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+    `;
+export const LogoutDocument = gql`
+    mutation Logout {
+  logout {
+    success
+  }
+}
+    `;
+export const RegisterCustomerAccountDocument = gql`
+    mutation RegisterCustomerAccount($input: RegisterCustomerInput!) {
+  registerCustomerAccount(input: $input) {
+    __typename
+    ... on Success {
+      success
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+    `;
+export const VerifyCustomerAccountDocument = gql`
+    mutation VerifyCustomerAccount($token: String!, $password: String) {
+  verifyCustomerAccount(token: $token, password: $password) {
+    __typename
+    ... on CurrentUser {
+      id
+      identifier
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+    `;
+export const RefreshCustomerVerificationDocument = gql`
+    mutation RefreshCustomerVerification($emailAddress: String!) {
+  refreshCustomerVerification(emailAddress: $emailAddress) {
+    __typename
+    ... on Success {
+      success
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+    `;
+export const RequestPasswordResetDocument = gql`
+    mutation RequestPasswordReset($emailAddress: String!) {
+  requestPasswordReset(emailAddress: $emailAddress) {
+    __typename
+    ... on Success {
+      success
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+    `;
+export const ResetPasswordDocument = gql`
+    mutation ResetPassword($token: String!, $password: String!) {
+  resetPassword(token: $token, password: $password) {
+    __typename
+    ... on CurrentUser {
+      id
+      identifier
     }
     ... on ErrorResult {
       errorCode
@@ -4082,6 +4358,9 @@ export const OrderByCodeDocument = gql`
     id
     code
     state
+    orderPlacedAt
+    subTotalWithTax
+    shippingWithTax
     totalWithTax
     currencyCode
     customer {
@@ -4097,10 +4376,128 @@ export const OrderByCodeDocument = gql`
       id
       quantity
       linePriceWithTax
+      featuredAsset {
+        preview
+      }
       productVariant {
         name
+        product {
+          slug
+        }
       }
     }
+  }
+}
+    `;
+export const ActiveCustomerDocument = gql`
+    query ActiveCustomer {
+  activeCustomer {
+    id
+    firstName
+    lastName
+    emailAddress
+    phoneNumber
+    addresses {
+      ...CustomerAddressFields
+    }
+  }
+}
+    ${CustomerAddressFieldsFragmentDoc}`;
+export const CustomerOrdersDocument = gql`
+    query CustomerOrders($take: Int!, $skip: Int!) {
+  activeCustomer {
+    id
+    orders(options: {take: $take, skip: $skip, sort: {orderPlacedAt: DESC}}) {
+      totalItems
+      items {
+        id
+        code
+        state
+        orderPlacedAt
+        totalWithTax
+        currencyCode
+        totalQuantity
+      }
+    }
+  }
+}
+    `;
+export const UpdateCustomerDocument = gql`
+    mutation UpdateCustomer($input: UpdateCustomerInput!) {
+  updateCustomer(input: $input) {
+    id
+    firstName
+    lastName
+    phoneNumber
+  }
+}
+    `;
+export const UpdateCustomerPasswordDocument = gql`
+    mutation UpdateCustomerPassword($currentPassword: String!, $newPassword: String!) {
+  updateCustomerPassword(
+    currentPassword: $currentPassword
+    newPassword: $newPassword
+  ) {
+    __typename
+    ... on Success {
+      success
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+    `;
+export const RequestUpdateCustomerEmailAddressDocument = gql`
+    mutation RequestUpdateCustomerEmailAddress($password: String!, $newEmailAddress: String!) {
+  requestUpdateCustomerEmailAddress(
+    password: $password
+    newEmailAddress: $newEmailAddress
+  ) {
+    __typename
+    ... on Success {
+      success
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+    `;
+export const UpdateCustomerEmailAddressDocument = gql`
+    mutation UpdateCustomerEmailAddress($token: String!) {
+  updateCustomerEmailAddress(token: $token) {
+    __typename
+    ... on Success {
+      success
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+    `;
+export const CreateCustomerAddressDocument = gql`
+    mutation CreateCustomerAddress($input: CreateAddressInput!) {
+  createCustomerAddress(input: $input) {
+    ...CustomerAddressFields
+  }
+}
+    ${CustomerAddressFieldsFragmentDoc}`;
+export const UpdateCustomerAddressDocument = gql`
+    mutation UpdateCustomerAddress($input: UpdateAddressInput!) {
+  updateCustomerAddress(input: $input) {
+    ...CustomerAddressFields
+  }
+}
+    ${CustomerAddressFieldsFragmentDoc}`;
+export const DeleteCustomerAddressDocument = gql`
+    mutation DeleteCustomerAddress($id: ID!) {
+  deleteCustomerAddress(id: $id) {
+    success
   }
 }
     `;
@@ -4280,6 +4677,27 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     RemoveOrderLine(variables: RemoveOrderLineMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<RemoveOrderLineMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<RemoveOrderLineMutation>({ document: RemoveOrderLineDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'RemoveOrderLine', 'mutation', variables);
     },
+    Login(variables: LoginMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<LoginMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<LoginMutation>({ document: LoginDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'Login', 'mutation', variables);
+    },
+    Logout(variables?: LogoutMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<LogoutMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<LogoutMutation>({ document: LogoutDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'Logout', 'mutation', variables);
+    },
+    RegisterCustomerAccount(variables: RegisterCustomerAccountMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<RegisterCustomerAccountMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<RegisterCustomerAccountMutation>({ document: RegisterCustomerAccountDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'RegisterCustomerAccount', 'mutation', variables);
+    },
+    VerifyCustomerAccount(variables: VerifyCustomerAccountMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<VerifyCustomerAccountMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<VerifyCustomerAccountMutation>({ document: VerifyCustomerAccountDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'VerifyCustomerAccount', 'mutation', variables);
+    },
+    RefreshCustomerVerification(variables: RefreshCustomerVerificationMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<RefreshCustomerVerificationMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<RefreshCustomerVerificationMutation>({ document: RefreshCustomerVerificationDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'RefreshCustomerVerification', 'mutation', variables);
+    },
+    RequestPasswordReset(variables: RequestPasswordResetMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<RequestPasswordResetMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<RequestPasswordResetMutation>({ document: RequestPasswordResetDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'RequestPasswordReset', 'mutation', variables);
+    },
+    ResetPassword(variables: ResetPasswordMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<ResetPasswordMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ResetPasswordMutation>({ document: ResetPasswordDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'ResetPassword', 'mutation', variables);
+    },
     Countries(variables?: CountriesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<CountriesQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<CountriesQuery>({ document: CountriesDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'Countries', 'query', variables);
     },
@@ -4309,6 +4727,33 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     OrderByCode(variables: OrderByCodeQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<OrderByCodeQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<OrderByCodeQuery>({ document: OrderByCodeDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'OrderByCode', 'query', variables);
+    },
+    ActiveCustomer(variables?: ActiveCustomerQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<ActiveCustomerQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ActiveCustomerQuery>({ document: ActiveCustomerDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'ActiveCustomer', 'query', variables);
+    },
+    CustomerOrders(variables: CustomerOrdersQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<CustomerOrdersQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<CustomerOrdersQuery>({ document: CustomerOrdersDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'CustomerOrders', 'query', variables);
+    },
+    UpdateCustomer(variables: UpdateCustomerMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<UpdateCustomerMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<UpdateCustomerMutation>({ document: UpdateCustomerDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'UpdateCustomer', 'mutation', variables);
+    },
+    UpdateCustomerPassword(variables: UpdateCustomerPasswordMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<UpdateCustomerPasswordMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<UpdateCustomerPasswordMutation>({ document: UpdateCustomerPasswordDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'UpdateCustomerPassword', 'mutation', variables);
+    },
+    RequestUpdateCustomerEmailAddress(variables: RequestUpdateCustomerEmailAddressMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<RequestUpdateCustomerEmailAddressMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<RequestUpdateCustomerEmailAddressMutation>({ document: RequestUpdateCustomerEmailAddressDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'RequestUpdateCustomerEmailAddress', 'mutation', variables);
+    },
+    UpdateCustomerEmailAddress(variables: UpdateCustomerEmailAddressMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<UpdateCustomerEmailAddressMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<UpdateCustomerEmailAddressMutation>({ document: UpdateCustomerEmailAddressDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'UpdateCustomerEmailAddress', 'mutation', variables);
+    },
+    CreateCustomerAddress(variables: CreateCustomerAddressMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<CreateCustomerAddressMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<CreateCustomerAddressMutation>({ document: CreateCustomerAddressDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'CreateCustomerAddress', 'mutation', variables);
+    },
+    UpdateCustomerAddress(variables: UpdateCustomerAddressMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<UpdateCustomerAddressMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<UpdateCustomerAddressMutation>({ document: UpdateCustomerAddressDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'UpdateCustomerAddress', 'mutation', variables);
+    },
+    DeleteCustomerAddress(variables: DeleteCustomerAddressMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<DeleteCustomerAddressMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<DeleteCustomerAddressMutation>({ document: DeleteCustomerAddressDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'DeleteCustomerAddress', 'mutation', variables);
     },
     FacetValueCount(variables: FacetValueCountQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<FacetValueCountQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<FacetValueCountQuery>({ document: FacetValueCountDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'FacetValueCount', 'query', variables);

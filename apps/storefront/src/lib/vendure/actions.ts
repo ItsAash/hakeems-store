@@ -1,7 +1,7 @@
 'use server';
 
 import type { ChannelCode } from '@/lib/channel';
-import { callVendureWithSession, toOrderMutationResult, type OrderMutationResult } from '@/lib/vendure/session-client';
+import { callVendureWithSession, toOrderMutationResult, type MutationResult } from '@/lib/vendure/session-client';
 import {
   AddItemToOrderDocument,
   AdjustOrderLineDocument,
@@ -46,7 +46,7 @@ export async function adjustOrderLineAction(
   channelCode: ChannelCode,
   orderLineId: string,
   quantity: number,
-): Promise<OrderMutationResult> {
+): Promise<MutationResult> {
   const data = await callVendureWithSession<AdjustOrderLineMutation, { orderLineId: string; quantity: number }>(
     channelCode,
     AdjustOrderLineDocument,
@@ -55,7 +55,7 @@ export async function adjustOrderLineAction(
   return toOrderMutationResult(data.adjustOrderLine);
 }
 
-export async function removeOrderLineAction(channelCode: ChannelCode, orderLineId: string): Promise<OrderMutationResult> {
+export async function removeOrderLineAction(channelCode: ChannelCode, orderLineId: string): Promise<MutationResult> {
   const data = await callVendureWithSession<RemoveOrderLineMutation, { orderLineId: string }>(
     channelCode,
     RemoveOrderLineDocument,
@@ -67,7 +67,7 @@ export async function removeOrderLineAction(channelCode: ChannelCode, orderLineI
 export async function setOrderShippingAddressAction(
   channelCode: ChannelCode,
   input: CreateAddressInput,
-): Promise<OrderMutationResult> {
+): Promise<MutationResult> {
   const data = await callVendureWithSession<SetOrderShippingAddressMutation, { input: CreateAddressInput }>(
     channelCode,
     SetOrderShippingAddressDocument,
@@ -79,7 +79,7 @@ export async function setOrderShippingAddressAction(
 export async function setCustomerForOrderAction(
   channelCode: ChannelCode,
   input: CreateCustomerInput,
-): Promise<OrderMutationResult> {
+): Promise<MutationResult> {
   const data = await callVendureWithSession<SetCustomerForOrderMutation, { input: CreateCustomerInput }>(
     channelCode,
     SetCustomerForOrderDocument,
@@ -91,7 +91,7 @@ export async function setCustomerForOrderAction(
 export async function setOrderShippingMethodAction(
   channelCode: ChannelCode,
   shippingMethodId: string,
-): Promise<OrderMutationResult> {
+): Promise<MutationResult> {
   const data = await callVendureWithSession<SetOrderShippingMethodMutation, { shippingMethodId: string[] }>(
     channelCode,
     SetOrderShippingMethodDocument,
@@ -100,7 +100,7 @@ export async function setOrderShippingMethodAction(
   return toOrderMutationResult(data.setOrderShippingMethod);
 }
 
-export async function transitionToArrangingPaymentAction(channelCode: ChannelCode): Promise<OrderMutationResult> {
+export async function transitionToArrangingPaymentAction(channelCode: ChannelCode): Promise<MutationResult> {
   const data = await callVendureWithSession<TransitionOrderToStateMutation, { state: string }>(
     channelCode,
     TransitionOrderToStateDocument,

@@ -26,6 +26,8 @@ export function CheckoutFlow({
   hasShippingMethod,
   countries,
   defaultCountryCode,
+  defaultEmail,
+  isLoggedIn,
   shippingMethods,
   currencyCode,
 }: {
@@ -36,6 +38,8 @@ export function CheckoutFlow({
   hasShippingMethod: boolean;
   countries: Country[];
   defaultCountryCode: string;
+  defaultEmail?: string;
+  isLoggedIn?: boolean;
   shippingMethods: ShippingMethodOption[];
   currencyCode: string;
 }) {
@@ -46,7 +50,13 @@ export function CheckoutFlow({
       <StepIndicator current={step} />
 
       {step === 'address' && (
-        <AddressForm channelCode={channelCode} countries={countries} defaultCountryCode={defaultCountryCode} />
+        <AddressForm
+          channelCode={channelCode}
+          countries={countries}
+          defaultCountryCode={defaultCountryCode}
+          defaultEmail={defaultEmail}
+          isLoggedIn={isLoggedIn}
+        />
       )}
       {step === 'shipping' && (
         <ShippingMethodStep methods={shippingMethods} currencyCode={currencyCode} channelCode={channelCode} />

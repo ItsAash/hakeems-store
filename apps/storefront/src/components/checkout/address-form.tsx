@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ChannelCode } from '@/lib/channel';
 import { setCustomerForOrderAction, setOrderShippingAddressAction } from '@/lib/vendure/actions';
+import { Field } from '@/components/ui/field';
 
 export type Country = { code: string; name: string };
 
@@ -37,13 +38,17 @@ export function AddressForm({
   channelCode,
   countries,
   defaultCountryCode,
+  defaultEmail,
+  isLoggedIn = false,
 }: {
   channelCode: ChannelCode;
   countries: Country[];
   defaultCountryCode: string;
+  defaultEmail?: string;
+  isLoggedIn?: boolean;
 }) {
   const router = useRouter();
-  const [form, setForm] = useState<FormState>({ ...emptyForm, countryCode: defaultCountryCode });
+  const [form, setForm] = useState<FormState>({ ...emptyForm, countryCode: defaultCountryCode, email: defaultEmail ?? '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,16 +61,20 @@ export function AddressForm({
     setIsSubmitting(true);
     setError(null);
 
-    const customerResult = await setCustomerForOrderAction(channelCode, {
-      emailAddress: form.email,
-      firstName: form.firstName,
-      lastName: form.lastName,
-      phoneNumber: form.phoneNumber || undefined,
-    });
-    if (!customerResult.success) {
-      setError(customerResult.message);
-      setIsSubmitting(false);
-      return;
+    // Vendure rejects setCustomerForOrder once the session is already authenticated —
+    // the order's customer is implicitly the logged-in user, so only guests need this call.
+    if (!isLoggedIn) {
+      const customerResult = await setCustomerForOrderAction(channelCode, {
+        emailAddress: form.email,
+        firstName: form.firstName,
+        lastName: form.lastName,
+        phoneNumber: form.phoneNumber || undefined,
+      });
+      if (!customerResult.success) {
+        setError(customerResult.message);
+        setIsSubmitting(false);
+        return;
+      }
     }
 
     const addressResult = await setOrderShippingAddressAction(channelCode, {
@@ -91,23 +100,31 @@ export function AddressForm({
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       <h2 className="font-serif text-xl text-[var(--color-ink)]">Contact &amp; Shipping Address</h2>
 
-      <Field label="Email" type="email" required value={form.email} onChange={setField('email')} />
+      <Field
+        idPrefix="address"
+        label="Email"
+        type="email"
+        required
+        disabled={isLoggedIn}
+        value={form.email}
+        onChange={setField('email')}
+      />
 
       <div className="grid grid-cols-2 gap-4">
-        <Field label="First name" required value={form.firstName} onChange={setField('firstName')} />
-        <Field label="Last name" required value={form.lastName} onChange={setField('lastName')} />
+        <Field idPrefix="address" label="First name" required value={form.firstName} onChange={setField('firstName')} />
+        <Field idPrefix="address" label="Last name" required value={form.lastName} onChange={setField('lastName')} />
       </div>
 
-      <Field label="Address" required value={form.streetLine1} onChange={setField('streetLine1')} />
-      <Field label="Apartment, suite, etc. (optional)" value={form.streetLine2} onChange={setField('streetLine2')} />
+      <Field idPrefix="address" label="Address" required value={form.streetLine1} onChange={setField('streetLine1')} />
+      <Field idPrefix="address" label="Apartment, suite, etc. (optional)" value={form.streetLine2} onChange={setField('streetLine2')} />
 
       <div className="grid grid-cols-2 gap-4">
-        <Field label="City" required value={form.city} onChange={setField('city')} />
-        <Field label="Province / State" required value={form.province} onChange={setField('province')} />
+        <Field idPrefix="address" label="City" required value={form.city} onChange={setField('city')} />
+        <Field idPrefix="address" label="Province / State" required value={form.province} onChange={setField('province')} />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <Field label="Postal code" required value={form.postalCode} onChange={setField('postalCode')} />
+        <Field idPrefix="address" label="Postal code" required value={form.postalCode} onChange={setField('postalCode')} />
         <div className="flex flex-col gap-1.5">
           <label htmlFor="address-country" className="text-xs text-[var(--color-ink-muted)]">
             Country
@@ -128,7 +145,7 @@ export function AddressForm({
         </div>
       </div>
 
-      <Field label="Phone (optional)" type="tel" value={form.phoneNumber} onChange={setField('phoneNumber')} />
+      <Field idPrefix="address" label="Phone (optional)" type="tel" value={form.phoneNumber} onChange={setField('phoneNumber')} />
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
@@ -140,36 +157,5 @@ export function AddressForm({
         {isSubmitting ? 'Saving…' : 'Continue to Shipping'}
       </button>
     </form>
-  );
-}
-
-function Field({
-  label,
-  type = 'text',
-  required,
-  value,
-  onChange,
-}: {
-  label: string;
-  type?: string;
-  required?: boolean;
-  value: string;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-}) {
-  const id = `address-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`;
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-xs text-[var(--color-ink-muted)]">
-        {label}
-      </label>
-      <input
-        id={id}
-        type={type}
-        required={required}
-        value={value}
-        onChange={onChange}
-        className="border border-[var(--color-hairline)] bg-[var(--color-paper)] px-3 py-2.5 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-ink)]"
-      />
-    </div>
   );
 }

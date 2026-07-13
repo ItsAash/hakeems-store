@@ -13,3 +13,8 @@ export function formatPriceRange(min: number, max: number, currencyCode: string,
   if (min === max) return formatPrice(min, currencyCode, locale);
   return `${formatPrice(min, currencyCode, locale)}–${formatPrice(max, currencyCode, locale)}`;
 }
+
+/** Vendure's Order.state is PascalCase (e.g. "PaymentSettled") — spaces it out for display. */
+export function formatOrderState(state: string): string {
+  return state.replace(/([a-z])([A-Z])/g, '$1 $2');
+}

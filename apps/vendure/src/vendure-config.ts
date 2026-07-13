@@ -6,7 +6,14 @@ import {
   LanguageCode,
   VendureConfig,
 } from '@vendure/core';
-import { defaultEmailHandlers, EmailPlugin, FileBasedTemplateLoader } from '@vendure/email-plugin';
+import {
+  emailAddressChangeHandler,
+  emailVerificationHandler,
+  EmailPlugin,
+  FileBasedTemplateLoader,
+  orderConfirmationHandler,
+  passwordResetHandler,
+} from '@vendure/email-plugin';
 import { AssetServerPlugin } from '@vendure/asset-server-plugin';
 import { DashboardPlugin } from '@vendure/dashboard/plugin';
 import { GraphiqlPlugin } from '@vendure/graphiql-plugin';
@@ -22,6 +29,20 @@ import { ProductOptionSwatchPlugin } from './plugins/product-option-swatch/produ
 
 const IS_DEV = process.env.APP_ENV === 'dev';
 const serverPort = +(process.env.PORT || 3000);
+const STOREFRONT_URL = process.env.STOREFRONT_URL || 'http://localhost:3001';
+
+// The storefront routes every page under /{channel}/..., so account-flow emails (which
+// fire from a channel-scoped request) must carry the channel in the link — otherwise the
+// storefront has no way to know which Shop API channel to verify/reset the token against.
+const channelAwareEmailVerificationHandler = emailVerificationHandler.setTemplateVars(event => ({
+  verifyUrl: `${STOREFRONT_URL}/${event.ctx.channel.code}/verify?token=${event.user.getNativeAuthenticationMethod().verificationToken}`,
+}));
+const channelAwarePasswordResetHandler = passwordResetHandler.setTemplateVars(event => ({
+  resetUrl: `${STOREFRONT_URL}/${event.ctx.channel.code}/password-reset?token=${event.user.getNativeAuthenticationMethod().passwordResetToken}`,
+}));
+const channelAwareEmailAddressChangeHandler = emailAddressChangeHandler.setTemplateVars(event => ({
+  changeUrl: `${STOREFRONT_URL}/${event.ctx.channel.code}/verify-email-address-change?token=${event.user.getNativeAuthenticationMethod().identifierChangeToken}`,
+}));
 
 export const config: VendureConfig = {
   apiOptions: {
@@ -86,13 +107,15 @@ export const config: VendureConfig = {
       devMode: true,
       outputPath: path.join(__dirname, '../static/email/test-emails'),
       route: 'mailbox',
-      handlers: defaultEmailHandlers,
+      handlers: [
+        orderConfirmationHandler,
+        channelAwareEmailVerificationHandler,
+        channelAwarePasswordResetHandler,
+        channelAwareEmailAddressChangeHandler,
+      ],
       templateLoader: new FileBasedTemplateLoader(path.join(__dirname, '../static/email/templates')),
       globalTemplateVars: {
         fromAddress: '"Hakeems" <noreply@hakeems.local>',
-        verifyEmailAddressUrl: `${process.env.STOREFRONT_URL || 'http://localhost:3001'}/verify`,
-        passwordResetUrl: `${process.env.STOREFRONT_URL || 'http://localhost:3001'}/password-reset`,
-        changeEmailAddressUrl: `${process.env.STOREFRONT_URL || 'http://localhost:3001'}/verify-email-address-change`,
       },
     }),
     StripePlugin.init({

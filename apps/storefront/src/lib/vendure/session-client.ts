@@ -63,12 +63,21 @@ export async function callVendureWithSession<TData, TVariables extends Record<st
   return data;
 }
 
-/** Shared shape for the `Order | ErrorResult` unions almost every checkout mutation returns. */
-export type OrderMutationResult = { success: true } | { success: false; message: string };
+/** Shared shape for the `<Success-ish> | ErrorResult` unions most Shop API mutations return. */
+export type MutationResult = { success: true } | { success: false; message: string };
+
+/** `successTypenames` lists which `__typename`(s) count as success — e.g. `['Order']` for
+ * checkout mutations, `['CurrentUser']` for login/verify, `['Success']` for the rest. */
+export function toMutationResult(
+  result: { __typename?: string; message?: string } | null | undefined,
+  successTypenames: string[],
+): MutationResult {
+  if (result && successTypenames.includes(result.__typename ?? '')) return { success: true };
+  return { success: false, message: result?.message ?? 'Something went wrong. Please try again.' };
+}
 
 export function toOrderMutationResult(
   result: { __typename?: string; message?: string } | null | undefined,
-): OrderMutationResult {
-  if (result?.__typename === 'Order') return { success: true };
-  return { success: false, message: result?.message ?? 'Something went wrong. Please try again.' };
+): MutationResult {
+  return toMutationResult(result, ['Order']);
 }

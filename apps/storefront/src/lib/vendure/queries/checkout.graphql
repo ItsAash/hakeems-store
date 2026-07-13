@@ -105,6 +105,9 @@ query OrderByCode($code: String!) {
     id
     code
     state
+    orderPlacedAt
+    subTotalWithTax
+    shippingWithTax
     totalWithTax
     currencyCode
     customer {
@@ -120,8 +123,14 @@ query OrderByCode($code: String!) {
       id
       quantity
       linePriceWithTax
+      featuredAsset {
+        preview
+      }
       productVariant {
         name
+        product {
+          slug
+        }
       }
     }
   }
