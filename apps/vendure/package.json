@@ -15,7 +15,8 @@
     "start:server": "node ./dist/index.js",
     "start:worker": "node ./dist/index-worker.js",
     "start": "vendure start all",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "stripe:listen": "bash -c 'set -a; source .env; set +a; export STRIPE_API_KEY=\"$STRIPE_SECRET_KEY\"; exec stripe listen --forward-to localhost:3000/payments/stripe'"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.12",

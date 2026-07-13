@@ -428,23 +428,34 @@ async function ensurePaymentMethod(input: {
     paymentMethods: { items: Array<{ id: string; code: string }> };
   }>(`query PaymentMethods { paymentMethods(options: { take: 50 }) { items { id code } } }`);
   const existing = paymentMethods.items.find((method) => method.code === input.code);
-  const method =
-    existing ||
-    (
-      await adminFetch<{ createPaymentMethod: { id: string; code: string } }>(
-        `mutation CreatePayment($input: CreatePaymentMethodInput!) {
-          createPaymentMethod(input: $input) { id code }
-        }`,
-        {
-          input: {
-            code: input.code,
-            enabled: true,
-            handler: { code: input.handlerCode, arguments: input.args },
-            translations: [{ languageCode: 'en', name: input.name, description: input.name }],
+
+  const method = existing
+    ? (
+        // Re-sync handler args (e.g. Stripe API/webhook secrets) on every run — env vars
+        // changing after the method was first created should always take effect, not
+        // just on initial creation.
+        await adminFetch<{ updatePaymentMethod: { id: string; code: string } }>(
+          `mutation UpdatePayment($input: UpdatePaymentMethodInput!) {
+            updatePaymentMethod(input: $input) { id code }
+          }`,
+          { input: { id: existing.id, handler: { code: input.handlerCode, arguments: input.args } } },
+        )
+      ).updatePaymentMethod
+    : (
+        await adminFetch<{ createPaymentMethod: { id: string; code: string } }>(
+          `mutation CreatePayment($input: CreatePaymentMethodInput!) {
+            createPaymentMethod(input: $input) { id code }
+          }`,
+          {
+            input: {
+              code: input.code,
+              enabled: true,
+              handler: { code: input.handlerCode, arguments: input.args },
+              translations: [{ languageCode: 'en', name: input.name, description: input.name }],
+            },
           },
-        },
-      )
-    ).createPaymentMethod;
+        )
+      ).createPaymentMethod;
 
   await adminFetch(
     `mutation AssignPayment($input: AssignPaymentMethodsToChannelInput!) {

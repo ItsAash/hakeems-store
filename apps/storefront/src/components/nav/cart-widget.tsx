@@ -3,16 +3,24 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import type { ChannelCode } from '@/lib/channel';
+import { formatPrice } from '@/lib/format';
 import { BagIcon, CloseIcon } from '@/components/ui/icons';
 import { Portal } from '@/components/ui/portal';
+import { CartLineItem, type CartLine } from '@/components/commerce/cart-line-item';
 
-/**
- * Phase 2 owns the icon, live count, and open/close shell. The drawer body here is a
- * placeholder — Phase 6 replaces it with real line items, quantity controls, and the
- * addItemToOrder/adjustOrderLine mutations wired to the same activeOrder this count
- * comes from.
- */
-export function CartWidget({ initialCount, channelCode }: { initialCount: number; channelCode: ChannelCode }) {
+export function CartWidget({
+  initialCount,
+  initialLines,
+  subTotalWithTax,
+  currencyCode,
+  channelCode,
+}: {
+  initialCount: number;
+  initialLines: CartLine[];
+  subTotalWithTax: number;
+  currencyCode: string;
+  channelCode: ChannelCode;
+}) {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -56,10 +64,26 @@ export function CartWidget({ initialCount, channelCode }: { initialCount: number
                   <CloseIcon className="h-5 w-5" />
                 </button>
               </div>
-              <div className="flex flex-1 items-center justify-center px-6 text-center text-sm text-[var(--color-ink-muted)]">
-                {initialCount > 0 ? 'Your cart — full line items are coming in the next phase.' : 'Your cart is empty.'}
-              </div>
+
+              {initialLines.length === 0 ? (
+                <div className="flex flex-1 items-center justify-center px-6 text-center text-sm text-[var(--color-ink-muted)]">
+                  Your cart is empty.
+                </div>
+              ) : (
+                <div className="flex-1 overflow-y-auto px-6">
+                  {initialLines.map((line) => (
+                    <CartLineItem key={line.id} line={line} channelCode={channelCode} />
+                  ))}
+                </div>
+              )}
+
               <div className="border-t hairline p-6">
+                {initialLines.length > 0 && (
+                  <div className="mb-4 flex items-center justify-between text-sm">
+                    <span className="text-[var(--color-ink-muted)]">Subtotal</span>
+                    <span className="text-[var(--color-ink)]">{formatPrice(subTotalWithTax, currencyCode)}</span>
+                  </div>
+                )}
                 <Link
                   href={`/${channelCode}/cart`}
                   onClick={() => setIsOpen(false)}

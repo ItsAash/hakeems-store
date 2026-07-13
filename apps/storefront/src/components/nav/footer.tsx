@@ -4,7 +4,7 @@ import { withChannel } from '@/lib/channel';
 import { getSiteNav, getSiteSetting } from '@/lib/strapi/queries';
 import { CONTAINER } from '@/lib/ui';
 import { SocialIcon, socialLabel } from '@/components/ui/social-icons';
-import { NewsletterSignup } from '@/components/nav/newsletter-signup';
+import { ChannelSwitcher } from '@/components/nav/channel-switcher';
 
 /** Shared column heading: the site's eyebrow treatment, recoloured for the dark footer. */
 function ColumnHeading({ children }: { children: React.ReactNode }) {
@@ -43,20 +43,6 @@ export async function Footer({ channel }: { channel: ChannelDefinition }) {
 
   return (
     <footer className="mt-auto bg-[var(--color-ink)] text-[var(--color-paper)]">
-      {/* Newsletter band */}
-      <div className={`${CONTAINER} border-b border-[var(--color-paper)]/10 py-14 md:py-16`}>
-        <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
-          <div className="max-w-md">
-            <p className="text-xs tracking-[0.14em] text-[var(--color-paper)]/45 uppercase">Newsletter</p>
-            <p className="mt-4 font-serif text-3xl md:text-4xl">Join the Hakeems list</p>
-            <p className="mt-3 text-sm text-[var(--color-paper)]/60">
-              Early access to drops, restocks, and pop-ups — in Kathmandu and Hong Kong. No noise.
-            </p>
-          </div>
-          <NewsletterSignup />
-        </div>
-      </div>
-
       {/* Main columns */}
       <div className={`${CONTAINER} grid grid-cols-2 gap-x-8 gap-y-12 py-14 md:grid-cols-12 md:py-16`}>
         {/* Brand */}
@@ -146,9 +132,7 @@ export async function Footer({ channel }: { channel: ChannelDefinition }) {
         >
           <p>© {year} {siteName}. All rights reserved.</p>
           {siteSetting?.footerNote && <p className="max-w-md md:text-center">{siteSetting.footerNote}</p>}
-          <p className="tracking-wide">
-            {channel.countryName} · {channel.currencyCode}
-          </p>
+          <ChannelSwitcher channelCode={channel.code} />
         </div>
       </div>
     </footer>

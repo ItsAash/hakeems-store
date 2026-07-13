@@ -6,6 +6,7 @@ import { getSiteNav } from '@/lib/strapi/queries';
 import { getVendureClient } from '@/lib/vendure/client';
 import { getVendureSessionCookies } from '@/lib/session';
 import { CartWidget } from '@/components/nav/cart-widget';
+import type { CartLine } from '@/components/commerce/cart-line-item';
 import { MobileMenu } from '@/components/nav/mobile-menu';
 import { SearchOverlay } from '@/components/nav/search-overlay';
 import { UserIcon } from '@/components/ui/icons';
@@ -43,13 +44,24 @@ function DesktopNavItem({ item, channelCode }: { item: NavItem; channelCode: Cha
 export async function NavBar({ channel }: { channel: ChannelDefinition }) {
   const sessionCookies = await getVendureSessionCookies();
 
-  const [siteNav, activeOrder] = await Promise.all([
+  const [siteNav, { activeOrder }] = await Promise.all([
     getSiteNav(channel.code),
-    getVendureClient(channel.code, sessionCookies).ActiveOrderSummary(),
+    getVendureClient(channel.code, sessionCookies).ActiveOrderFull(),
   ]);
 
   const items = siteNav?.items ?? [];
-  const cartCount = activeOrder.activeOrder?.totalQuantity ?? 0;
+  const cartCount = activeOrder?.totalQuantity ?? 0;
+  const cartLines: CartLine[] =
+    activeOrder?.lines.map((line) => ({
+      id: line.id,
+      quantity: line.quantity,
+      linePriceWithTax: line.linePriceWithTax,
+      currencyCode: activeOrder.currencyCode,
+      imageUrl: line.featuredAsset?.preview ?? null,
+      productName: line.productVariant.name,
+      productSlug: line.productVariant.product.slug,
+      variantLabel: line.productVariant.options.map((option) => option.name).join(' / ') || null,
+    })) ?? [];
 
   return (
     <header>
@@ -68,11 +80,17 @@ export async function NavBar({ channel }: { channel: ChannelDefinition }) {
         </nav>
 
         <div className="flex items-center gap-5">
-          <SearchOverlay />
+          <SearchOverlay channelCode={channel.code} />
           <Link href={`/${channel.code}/account`} aria-label="Account" className="hidden text-[var(--nav-fg)] sm:block">
             <UserIcon className="h-5 w-5" />
           </Link>
-          <CartWidget initialCount={cartCount} channelCode={channel.code} />
+          <CartWidget
+            initialCount={cartCount}
+            initialLines={cartLines}
+            subTotalWithTax={activeOrder?.subTotalWithTax ?? 0}
+            currencyCode={activeOrder?.currencyCode ?? channel.currencyCode}
+            channelCode={channel.code}
+          />
         </div>
       </div>
     </header>
