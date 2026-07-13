@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_shared_medias",
+  "info": {
+    "displayName": "Media",
+    "icon": "picture",
+    "description": "A single responsive image with an optional mobile variant and alt text. Standardizes image handling across blocks."
+  },
+  "options": {},
+  "attributes": {
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": ["images"]
+    },
+    "imageMobile": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
+    "alt": {
+      "type": "string"
+    }
+  }
+}

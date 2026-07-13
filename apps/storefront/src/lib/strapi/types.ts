@@ -1,143 +1,64 @@
-type StrapiMediaFormat = { url: string; width: number; height: number };
-
-export type StrapiMedia = {
-  url: string;
-  width: number;
-  height: number;
-  alternativeText: string | null;
-  formats: {
-    thumbnail?: StrapiMediaFormat;
-    small?: StrapiMediaFormat;
-    medium?: StrapiMediaFormat;
-    large?: StrapiMediaFormat;
-  } | null;
-};
-
-export type Announcement = {
-  id: number;
-  text: string;
-  href: string | null;
-};
-
-export type HeroSlide = {
-  id: number;
-  image: StrapiMedia;
-  imageMobile: StrapiMedia | null;
-  alt: string | null;
-  heading: string;
-  subheading: string | null;
-  ctaLabel: string | null;
-  ctaHref: string | null;
-};
-
-export type CollectionTile = {
-  id: number;
-  vendureCollectionSlug: string;
-  label: string;
-  tagline: string | null;
-  image: StrapiMedia | null;
-};
-
-export type FacetCategoryTile = {
-  id: number;
-  vendureFacetValueId: string;
-  label: string;
-  tagline: string | null;
-  image: StrapiMedia | null;
-};
-
 /**
- * Global, not per-channel — one curated Vendure collection is spotlighted
- * identically on every storefront (see the "spotlight" single type in Strapi).
- * Vendure still prices/localizes the products per-channel at render time.
+ * Content types for Strapi payloads. These are now **derived** from the runtime Zod
+ * schemas in `./schemas` (single source of truth) via `z.infer`, so the compile-time
+ * types and the runtime validation can never drift apart. Import sites are unchanged.
  */
-export type Spotlight = {
-  id: number;
-  vendureCollectionSlug: string;
-  eyebrow: string | null;
-  heading: string;
-  paragraphs: Array<{ id: number; text: string }>;
-  ctaLabel: string | null;
-  ctaHref: string | null;
-};
+import type { z } from 'zod';
+import type {
+  announcementSchema,
+  brandStorySchema,
+  collectionPageSchema,
+  collectionTileSchema,
+  ctaSchema,
+  facetCategoryTileSchema,
+  heroSlideSchema,
+  homePageSchema,
+  mediaBlockSchema,
+  mediaSchema,
+  navItemSchema,
+  navLinkSchema,
+  pageSchema,
+  pageSectionSchema,
+  sectionHeaderSchema,
+  seoSchema,
+  siteNavSchema,
+  siteSettingSchema,
+  socialPlatformSchema,
+} from '@/lib/strapi/schemas';
 
-/**
- * Global, not per-channel — one curated Vendure collection of the latest pieces, shown
- * in the home-page "New Arrivals" rail on every storefront (see the "new-arrival" single
- * type in Strapi). Vendure prices/localizes the products per-channel at render time.
- * Same editorial shape as {@link Spotlight}, so both feed the same product rail.
- */
-export type NewArrivals = {
-  id: number;
-  vendureCollectionSlug: string;
-  eyebrow: string | null;
-  heading: string;
-  paragraphs: Array<{ id: number; text: string }>;
-  ctaLabel: string | null;
-  ctaHref: string | null;
-  /** Left-panel background of the banner (hex). Blush fallback in the component. */
-  backgroundColor: string | null;
-};
+export type StrapiMedia = z.infer<typeof mediaSchema>;
+export type Announcement = z.infer<typeof announcementSchema>;
+export type HeroSlide = z.infer<typeof heroSlideSchema>;
+export type CollectionTile = z.infer<typeof collectionTileSchema>;
+export type FacetCategoryTile = z.infer<typeof facetCategoryTileSchema>;
 
-export type Seo = {
-  metaTitle: string | null;
-  metaDescription: string | null;
-  ogImage: StrapiMedia | null;
-};
+export type SocialPlatform = z.infer<typeof socialPlatformSchema>;
+export type SiteSetting = z.infer<typeof siteSettingSchema>;
+export type Seo = z.infer<typeof seoSchema>;
+
+/** Global shared brand story (Phase 4). */
+export type BrandStory = z.infer<typeof brandStorySchema>;
 
 /**
  * One per Vendure collection, created and kept in sync automatically by Vendure's
  * collection-sync plugin (matched by vendureCollectionSlug) — editors only add the
- * banner/tagline/description/SEO on top of what Vendure already owns (name, slug,
- * which products belong to it).
+ * banner/tagline/description/SEO on top of what Vendure owns.
  */
-export type CollectionPage = {
-  id: number;
-  vendureId: string;
-  vendureCollectionSlug: string;
-  title: string;
-  tagline: string | null;
-  description: string | null;
-  heroImage: StrapiMedia | null;
-  seo: Seo | null;
-};
+export type CollectionPage = z.infer<typeof collectionPageSchema>;
 
-export type HomePage = {
-  id: number;
-  channel: 'nepal' | 'hongkong';
-  /** Single on/off switch for the whole marquee — null on rows created before this
-   * field existed, which must read as "on" the same way the rest of the boolean
-   * toggles in this schema do. */
-  announcementBarEnabled: boolean | null;
-  announcements: Announcement[];
-  heroSlides: HeroSlide[];
-  collectionTiles: CollectionTile[];
-  facetCategoryTiles: FacetCategoryTile[];
-  storyEyebrow: string | null;
-  storyHeading: string | null;
-  storyParagraphs: Array<{ id: number; text: string }>;
-  storyImage: StrapiMedia | null;
-  values: Array<{ id: number; heading: string; body: string }>;
-};
+export type HomePage = z.infer<typeof homePageSchema>;
 
-export type NavLink = { id: number; label: string; href: string };
-export type NavItem = NavLink & { children: NavLink[] };
+export type NavLink = z.infer<typeof navLinkSchema>;
+export type NavItem = z.infer<typeof navItemSchema>;
+export type SiteNav = z.infer<typeof siteNavSchema>;
 
-export type SiteNav = {
-  id: number;
-  channel: 'nepal' | 'hongkong';
-  items: NavItem[];
-};
+// Shared primitive components (Phase 1) — consumed by dynamic-zone blocks in Phase 3.
+export type Cta = z.infer<typeof ctaSchema>;
+export type SectionHeader = z.infer<typeof sectionHeaderSchema>;
+export type MediaBlock = z.infer<typeof mediaBlockSchema>;
 
-export type SocialPlatform = 'instagram' | 'tiktok' | 'facebook' | 'youtube' | 'x' | 'whatsapp';
-
-export type SiteSetting = {
-  id: number;
-  siteName: string;
-  tagline: string | null;
-  supportEmail: string | null;
-  supportPhone: string | null;
-  footerNote: string | null;
-  socialLinks: Array<{ id: number; platform: SocialPlatform; url: string }>;
-  legalLinks: Array<{ id: number; label: string; href: string }>;
-};
+// Composable page (Phase 3) — a dynamic zone of section blocks.
+export type Page = z.infer<typeof pageSchema>;
+export type PageSection = z.infer<typeof pageSectionSchema>;
+/** Narrow a section by its Strapi `__component` discriminant. */
+export type SectionOf<T extends PageSection['__component']> = Extract<PageSection, { __component: T }>;

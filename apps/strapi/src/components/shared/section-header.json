@@ -1,0 +1,27 @@
+{
+  "collectionName": "components_shared_section_headers",
+  "info": {
+    "displayName": "Section Header",
+    "icon": "heading",
+    "description": "Reusable section header: eyebrow, heading, optional subheading and alignment. Replaces the repeated eyebrow/heading/paragraph triples across sections."
+  },
+  "options": {},
+  "attributes": {
+    "eyebrow": {
+      "type": "string"
+    },
+    "heading": {
+      "type": "string",
+      "required": true
+    },
+    "subheading": {
+      "type": "text"
+    },
+    "align": {
+      "type": "enumeration",
+      "enum": ["left", "center"],
+      "default": "left",
+      "required": true
+    }
+  }
+}

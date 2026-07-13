@@ -31,7 +31,7 @@ export interface LayoutCollectionTile extends Struct.ComponentSchema {
 export interface LayoutFacetCategoryTile extends Struct.ComponentSchema {
   collectionName: 'components_layout_facet_category_tiles';
   info: {
-    description: "A visual category grid tile linking to a Vendure facet value (e.g. a 'Category' facet), independent of collection structure.";
+    description: "A visual category grid tile linking to a Vendure facet value by its stable code (e.g. 'categories:tops'), not a brittle database id.";
     displayName: 'Facet Category Tile';
     icon: 'grid';
   };
@@ -39,7 +39,7 @@ export interface LayoutFacetCategoryTile extends Struct.ComponentSchema {
     image: Schema.Attribute.Media<'images'>;
     label: Schema.Attribute.String & Schema.Attribute.Required;
     tagline: Schema.Attribute.String;
-    vendureFacetValueId: Schema.Attribute.String & Schema.Attribute.Required;
+    vendureFacetValueCode: Schema.Attribute.String & Schema.Attribute.Required;
   };
 }
 
@@ -69,20 +69,7 @@ export interface LayoutNavItem extends Struct.ComponentSchema {
     icon: 'bulletList';
   };
   attributes: {
-    children: Schema.Attribute.Component<'layout.nav-link', true>;
-    href: Schema.Attribute.String & Schema.Attribute.Required;
-    label: Schema.Attribute.String & Schema.Attribute.Required;
-  };
-}
-
-export interface LayoutNavLink extends Struct.ComponentSchema {
-  collectionName: 'components_layout_nav_links';
-  info: {
-    description: 'A single flyout link under a top-level Nav Item.';
-    displayName: 'Nav Link';
-    icon: 'link';
-  };
-  attributes: {
+    children: Schema.Attribute.Component<'shared.link', true>;
     href: Schema.Attribute.String & Schema.Attribute.Required;
     label: Schema.Attribute.String & Schema.Attribute.Required;
   };
@@ -101,6 +88,94 @@ export interface LayoutValueItem extends Struct.ComponentSchema {
   };
 }
 
+export interface SectionBrandStory extends Struct.ComponentSchema {
+  collectionName: 'components_section_brand_stories';
+  info: {
+    description: 'Editorial brand-story block: header, prose paragraphs, and an optional image.';
+    displayName: 'Section: Brand Story';
+    icon: 'quote';
+  };
+  attributes: {
+    header: Schema.Attribute.Component<'shared.section-header', false>;
+    image: Schema.Attribute.Media<'images'>;
+    paragraphs: Schema.Attribute.Component<'shared.paragraph', true>;
+  };
+}
+
+export interface SectionCategoryGrid extends Struct.ComponentSchema {
+  collectionName: 'components_section_category_grids';
+  info: {
+    description: '"Shop by category" grid of facet-value tiles.';
+    displayName: 'Section: Category Grid';
+    icon: 'grid';
+  };
+  attributes: {
+    header: Schema.Attribute.Component<'shared.section-header', false>;
+    tiles: Schema.Attribute.Component<'layout.facet-category-tile', true>;
+  };
+}
+
+export interface SectionEditorialBanner extends Struct.ComponentSchema {
+  collectionName: 'components_section_editorial_banners';
+  info: {
+    description: 'Full-bleed split banner: editorial text panel + product-image montage for a Vendure collection (by slug).';
+    displayName: 'Section: Editorial Banner';
+    icon: 'layout';
+  };
+  attributes: {
+    backgroundToken: Schema.Attribute.Enumeration<
+      ['paper', 'paper-raised', 'blush', 'sand', 'hairline']
+    > &
+      Schema.Attribute.DefaultTo<'blush'>;
+    cta: Schema.Attribute.Component<'shared.cta', false>;
+    header: Schema.Attribute.Component<'shared.section-header', false>;
+    vendureCollectionSlug: Schema.Attribute.String & Schema.Attribute.Required;
+  };
+}
+
+export interface SectionHeroSlider extends Struct.ComponentSchema {
+  collectionName: 'components_section_hero_sliders';
+  info: {
+    description: "Full-bleed hero image slider block for a page's dynamic zone.";
+    displayName: 'Section: Hero Slider';
+    icon: 'images';
+  };
+  attributes: {
+    slides: Schema.Attribute.Component<'layout.hero-slide', true>;
+  };
+}
+
+export interface SectionProductRail extends Struct.ComponentSchema {
+  collectionName: 'components_section_product_rails';
+  info: {
+    description: 'Horizontal product carousel for a Vendure collection (referenced by slug), with an editorial header and CTA.';
+    displayName: 'Section: Product Rail';
+    icon: 'bulletList';
+  };
+  attributes: {
+    cta: Schema.Attribute.Component<'shared.cta', false>;
+    header: Schema.Attribute.Component<'shared.section-header', false>;
+    vendureCollectionSlug: Schema.Attribute.String & Schema.Attribute.Required;
+  };
+}
+
+export interface SharedCta extends Struct.ComponentSchema {
+  collectionName: 'components_shared_ctas';
+  info: {
+    description: 'A standardized call-to-action: label, href, visual variant, and target. The single, reusable way to model any button/link across pages and blocks.';
+    displayName: 'CTA';
+    icon: 'cursor';
+  };
+  attributes: {
+    href: Schema.Attribute.String & Schema.Attribute.Required;
+    label: Schema.Attribute.String & Schema.Attribute.Required;
+    openInNewTab: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    variant: Schema.Attribute.Enumeration<['primary', 'secondary', 'link']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'primary'>;
+  };
+}
+
 export interface SharedLink extends Struct.ComponentSchema {
   collectionName: 'components_shared_links';
   info: {
@@ -113,6 +188,20 @@ export interface SharedLink extends Struct.ComponentSchema {
   };
 }
 
+export interface SharedMedia extends Struct.ComponentSchema {
+  collectionName: 'components_shared_medias';
+  info: {
+    description: 'A single responsive image with an optional mobile variant and alt text. Standardizes image handling across blocks.';
+    displayName: 'Media';
+    icon: 'picture';
+  };
+  attributes: {
+    alt: Schema.Attribute.String;
+    image: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
+    imageMobile: Schema.Attribute.Media<'images'>;
+  };
+}
+
 export interface SharedParagraph extends Struct.ComponentSchema {
   collectionName: 'components_shared_paragraphs';
   info: {
@@ -121,6 +210,23 @@ export interface SharedParagraph extends Struct.ComponentSchema {
   };
   attributes: {
     text: Schema.Attribute.Text & Schema.Attribute.Required;
+  };
+}
+
+export interface SharedSectionHeader extends Struct.ComponentSchema {
+  collectionName: 'components_shared_section_headers';
+  info: {
+    description: 'Reusable section header: eyebrow, heading, optional subheading and alignment. Replaces the repeated eyebrow/heading/paragraph triples across sections.';
+    displayName: 'Section Header';
+    icon: 'heading';
+  };
+  attributes: {
+    align: Schema.Attribute.Enumeration<['left', 'center']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'left'>;
+    eyebrow: Schema.Attribute.String;
+    heading: Schema.Attribute.String & Schema.Attribute.Required;
+    subheading: Schema.Attribute.Text;
   };
 }
 
@@ -167,10 +273,17 @@ declare module '@strapi/strapi' {
       'layout.facet-category-tile': LayoutFacetCategoryTile;
       'layout.hero-slide': LayoutHeroSlide;
       'layout.nav-item': LayoutNavItem;
-      'layout.nav-link': LayoutNavLink;
       'layout.value-item': LayoutValueItem;
+      'section.brand-story': SectionBrandStory;
+      'section.category-grid': SectionCategoryGrid;
+      'section.editorial-banner': SectionEditorialBanner;
+      'section.hero-slider': SectionHeroSlider;
+      'section.product-rail': SectionProductRail;
+      'shared.cta': SharedCta;
       'shared.link': SharedLink;
+      'shared.media': SharedMedia;
       'shared.paragraph': SharedParagraph;
+      'shared.section-header': SharedSectionHeader;
       'shared.seo': SharedSeo;
       'shared.social-link': SharedSocialLink;
     }

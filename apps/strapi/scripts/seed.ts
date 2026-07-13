@@ -99,65 +99,6 @@ async function seedSiteSetting(strapi: Core.Strapi) {
   console.log('Seeded site-setting');
 }
 
-/**
- * The spotlight is global, not per-channel: one curated Vendure collection (see
- * apps/vendure — the "spotlight" collection) featured identically on every
- * storefront, priced per-channel by Vendure at render time. A single type, so there
- * is exactly one document — no filters needed to find it.
- */
-async function seedSpotlight(strapi: Core.Strapi) {
-  const existing = await strapi.documents('api::spotlight.spotlight').findFirst({});
-  const data: any = {
-    vendureCollectionSlug: 'spotlight',
-    eyebrow: 'The Spotlight',
-    heading: 'This Week, Front Row',
-    paragraphs: [
-      {
-        text: 'A rotating edit of the pieces we’re wearing most right now — pulled from every drop, restocked while they last.',
-      },
-    ],
-    ctaLabel: 'Shop The Spotlight',
-    ctaHref: '/collections/spotlight',
-  };
-
-  if (existing) {
-    await strapi.documents('api::spotlight.spotlight').update({ documentId: existing.documentId, data });
-  } else {
-    await strapi.documents('api::spotlight.spotlight').create({ data });
-  }
-  console.log('Seeded spotlight');
-}
-
-/**
- * New Arrivals is global, not per-channel — the same curated Vendure collection (see
- * apps/vendure — the "new-arrivals" collection) is shown in the home-page rail on every
- * storefront, priced per-channel by Vendure at render time. A single type, so there is
- * exactly one document. Same editorial shape as the spotlight above.
- */
-async function seedNewArrivals(strapi: Core.Strapi) {
-  const existing = await strapi.documents('api::new-arrival.new-arrival').findFirst({});
-  const data: any = {
-    vendureCollectionSlug: 'new-arrivals',
-    eyebrow: 'New Arrivals',
-    heading: 'Just Landed',
-    paragraphs: [
-      {
-        text: 'The latest pieces to land in the studio — small-batch cuts and restocks, gone before you know it.',
-      },
-    ],
-    ctaLabel: 'Shop New Arrivals',
-    ctaHref: '/collections/new-arrivals',
-    backgroundColor: '#f7e8e6',
-  };
-
-  if (existing) {
-    await strapi.documents('api::new-arrival.new-arrival').update({ documentId: existing.documentId, data });
-  } else {
-    await strapi.documents('api::new-arrival.new-arrival').create({ data });
-  }
-  console.log('Seeded new-arrivals');
-}
-
 async function seedHomePages(strapi: Core.Strapi) {
   const storyImage = await uploadImage(strapi, unsplash('photo-1441986300917-64674bd600d8', 'w=1400&h=1120&fit=crop&q=80'), 'brand-story.jpg');
   const tileTops = await uploadImage(strapi, unsplash('photo-1445205170230-053b83016050', 'w=1200&h=1500&fit=crop&q=80'), 'tile-tops.jpg');
@@ -213,10 +154,10 @@ async function seedHomePages(strapi: Core.Strapi) {
       },
     ],
     facetCategoryTiles: [
-      { vendureFacetValueId: '1', label: 'Tops', tagline: 'Tees, sweats, hoodies & overshirts', image: tileTops },
-      { vendureFacetValueId: '2', label: 'Bottoms', tagline: 'Utility pants, joggers & denim', image: tileBottoms },
-      { vendureFacetValueId: '3', label: 'Accessories', tagline: 'Totes, slings & caps', image: tileAccessories },
-      { vendureFacetValueId: '24', label: 'Sets', tagline: 'Matching pieces, worn together', image: tileEssentials },
+      { vendureFacetValueCode: 'categories:tops', label: 'Tops', tagline: 'Tees, sweats, hoodies & overshirts', image: tileTops },
+      { vendureFacetValueCode: 'categories:bottoms', label: 'Bottoms', tagline: 'Utility pants, joggers & denim', image: tileBottoms },
+      { vendureFacetValueCode: 'categories:accessories', label: 'Accessories', tagline: 'Totes, slings & caps', image: tileAccessories },
+      { vendureFacetValueCode: 'categories:sets', label: 'Sets', tagline: 'Matching pieces, worn together', image: tileEssentials },
     ],
     storyEyebrow: 'The Brand',
     storyHeading: 'Not made in a boardroom.',
@@ -261,10 +202,10 @@ async function seedHomePages(strapi: Core.Strapi) {
       },
     ],
     facetCategoryTiles: [
-      { vendureFacetValueId: '1', label: 'Tops', tagline: 'Tees, sweats, hoodies & overshirts', image: tileTops },
-      { vendureFacetValueId: '2', label: 'Bottoms', tagline: 'Utility pants, joggers & denim', image: tileBottoms },
-      { vendureFacetValueId: '3', label: 'Accessories', tagline: 'Totes, slings & caps', image: tileAccessories },
-      { vendureFacetValueId: '24', label: 'Sets', tagline: 'Matching pieces, worn together', image: tileEssentials },
+      { vendureFacetValueCode: 'categories:tops', label: 'Tops', tagline: 'Tees, sweats, hoodies & overshirts', image: tileTops },
+      { vendureFacetValueCode: 'categories:bottoms', label: 'Bottoms', tagline: 'Utility pants, joggers & denim', image: tileBottoms },
+      { vendureFacetValueCode: 'categories:accessories', label: 'Accessories', tagline: 'Totes, slings & caps', image: tileAccessories },
+      { vendureFacetValueCode: 'categories:sets', label: 'Sets', tagline: 'Matching pieces, worn together', image: tileEssentials },
     ],
     storyEyebrow: 'The Brand',
     storyHeading: 'Not made in a boardroom.',
@@ -390,6 +331,113 @@ async function seedCollectionPages(strapi: Core.Strapi) {
   console.log(`Enriched ${enriched}/${enrichments.length} collection-page entries`);
 }
 
+/**
+ * Phase 4 — the global, channel-agnostic brand story, authored once here (read from the
+ * nepal home-page's story fields, which were identical across channels). Section blocks
+ * render this shared story by default, so it's no longer duplicated per channel.
+ */
+async function seedBrandStory(strapi: Core.Strapi) {
+  const home: any = await strapi.documents('api::home-page.home-page').findFirst({
+    filters: { channel: 'nepal' },
+    status: 'draft',
+    populate: { storyParagraphs: true, storyImage: true },
+  });
+  const data: any = {
+    eyebrow: home?.storyEyebrow ?? 'The Brand',
+    heading: home?.storyHeading ?? 'Not made in a boardroom.',
+    paragraphs: (home?.storyParagraphs ?? []).map((p: any) => ({ text: p.text })),
+    image: home?.storyImage ? (typeof home.storyImage === 'object' ? home.storyImage.id : home.storyImage) : null,
+  };
+  const existing = await strapi.documents('api::brand-story.brand-story').findFirst({});
+  if (existing) {
+    await strapi.documents('api::brand-story.brand-story').update({ documentId: existing.documentId, data });
+  } else {
+    await strapi.documents('api::brand-story.brand-story').create({ data });
+  }
+  console.log('Seeded brand-story (global)');
+}
+
+/**
+ * Phase 3 migration — composes a Page (dynamic zone) per channel from the content already
+ * seeded into home-page / spotlight / new-arrival, in the current homepage order. Reads the
+ * seeded docs (single source of truth) and maps them into section blocks, so there's no
+ * duplicated content here. Must run AFTER the seeders it reads from.
+ */
+async function seedPages(strapi: Core.Strapi) {
+  const mediaId = (m: any): number | null => (m && typeof m === 'object' ? (m.id ?? null) : (m ?? null));
+
+  for (const channel of ['nepal', 'hongkong'] as const) {
+    const home: any = await strapi.documents('api::home-page.home-page').findFirst({
+      filters: { channel },
+      status: 'draft',
+      populate: {
+        heroSlides: { populate: '*' },
+        facetCategoryTiles: { populate: '*' },
+        storyParagraphs: true,
+        storyImage: true,
+      },
+    });
+    if (!home) continue;
+
+    const sections: any[] = [
+      {
+        __component: 'section.hero-slider',
+        slides: (home.heroSlides ?? []).map((s: any) => ({
+          image: mediaId(s.image),
+          imageMobile: mediaId(s.imageMobile),
+          alt: s.alt ?? null,
+          heading: s.heading,
+          subheading: s.subheading ?? null,
+          ctaLabel: s.ctaLabel ?? null,
+          ctaHref: s.ctaHref ?? null,
+        })),
+      },
+      {
+        __component: 'section.category-grid',
+        header: { eyebrow: 'Shop By Category', heading: 'Shop The Edit', align: 'left' },
+        tiles: (home.facetCategoryTiles ?? []).map((t: any) => ({
+          vendureFacetValueCode: t.vendureFacetValueCode,
+          label: t.label,
+          tagline: t.tagline ?? null,
+          image: mediaId(t.image),
+        })),
+      },
+      {
+        __component: 'section.product-rail',
+        header: { eyebrow: 'The Spotlight', heading: 'This Week, Front Row', align: 'left' },
+        vendureCollectionSlug: 'spotlight',
+        cta: { label: 'Shop The Spotlight', href: '/collections/spotlight', variant: 'link', openInNewTab: false },
+      },
+      {
+        // Content-less marker — renders the shared global brand story (Phase 4). Set header /
+        // paragraphs on this block to override the shared story for this channel only.
+        __component: 'section.brand-story',
+      },
+      {
+        __component: 'section.editorial-banner',
+        header: { eyebrow: 'New Arrivals', heading: 'Just Landed', align: 'left' },
+        vendureCollectionSlug: 'new-arrivals',
+        cta: { label: 'Shop New Arrivals', href: '/collections/new-arrivals', variant: 'primary', openInNewTab: false },
+        backgroundToken: 'blush',
+      },
+    ];
+
+    const existing: any = await strapi
+      .documents('api::page.page')
+      .findFirst({ filters: { slug: 'home', channel }, status: 'draft' });
+
+    if (existing) {
+      await strapi.documents('api::page.page').update({ documentId: existing.documentId, data: { sections } as any });
+      await strapi.documents('api::page.page').publish({ documentId: existing.documentId });
+    } else {
+      const created = await strapi.documents('api::page.page').create({ data: { slug: 'home', channel, sections } as any });
+      await strapi.documents('api::page.page').publish({ documentId: created.documentId });
+    }
+  }
+
+  console.log('Seeded pages (home: nepal, hongkong)');
+}
+
 async function main() {
   const { distDir } = await compileStrapi();
   const app = await createStrapi({ distDir }).load();
@@ -400,9 +448,9 @@ async function main() {
   await seedSiteSetting(app);
   await seedHomePages(app);
   await seedSiteNavs(app);
-  await seedSpotlight(app);
-  await seedNewArrivals(app);
+  await seedBrandStory(app);
   await seedCollectionPages(app);
+  await seedPages(app);
   console.log('Hakeems Strapi seed complete.');
 
   fs.rmSync(tmpDir, { recursive: true, force: true });

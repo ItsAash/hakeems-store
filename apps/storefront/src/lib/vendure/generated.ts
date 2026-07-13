@@ -3983,6 +3983,11 @@ export type FacetValueCountQueryVariables = Exact<{
 
 export type FacetValueCountQuery = { __typename?: 'Query', search: { __typename?: 'SearchResponse', totalItems: number } };
 
+export type FacetValuesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type FacetValuesQuery = { __typename?: 'Query', facets: { __typename?: 'FacetList', items: Array<{ __typename?: 'Facet', id: string, code: string, values: Array<{ __typename?: 'FacetValue', id: string, code: string }> }> } };
+
 export type NewArrivalsCollectionQueryVariables = Exact<{
   slug: Scalars['String']['input'];
   take: Scalars['Int']['input'];
@@ -4524,6 +4529,20 @@ export const FacetValueCountDocument = gql`
   }
 }
     `;
+export const FacetValuesDocument = gql`
+    query FacetValues {
+  facets(options: {take: 100}) {
+    items {
+      id
+      code
+      values {
+        id
+        code
+      }
+    }
+  }
+}
+    `;
 export const NewArrivalsCollectionDocument = gql`
     query NewArrivalsCollection($slug: String!, $take: Int!) {
   collection(slug: $slug) {
@@ -4813,6 +4832,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     FacetValueCount(variables: FacetValueCountQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<FacetValueCountQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<FacetValueCountQuery>({ document: FacetValueCountDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'FacetValueCount', 'query', variables);
+    },
+    FacetValues(variables?: FacetValuesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<FacetValuesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<FacetValuesQuery>({ document: FacetValuesDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'FacetValues', 'query', variables);
     },
     NewArrivalsCollection(variables: NewArrivalsCollectionQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<NewArrivalsCollectionQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<NewArrivalsCollectionQuery>({ document: NewArrivalsCollectionDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'NewArrivalsCollection', 'query', variables);

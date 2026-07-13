@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "pages",
+  "info": {
+    "singularName": "page",
+    "pluralName": "pages",
+    "displayName": "Page",
+    "description": "A composable page built from a dynamic zone of section blocks. One entry per (slug, channel) — e.g. slug 'home' for nepal and hongkong. Marketing reorders/adds/removes sections here without code changes."
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "slug": {
+      "type": "string",
+      "required": true
+    },
+    "channel": {
+      "type": "enumeration",
+      "enum": ["nepal", "hongkong"],
+      "required": true
+    },
+    "sections": {
+      "type": "dynamiczone",
+      "components": [
+        "section.hero-slider",
+        "section.category-grid",
+        "section.product-rail",
+        "section.editorial-banner",
+        "section.brand-story"
+      ]
+    },
+    "seo": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.seo"
+    }
+  }
+}
