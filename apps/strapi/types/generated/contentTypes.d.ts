@@ -526,6 +526,44 @@ export interface ApiHomePageHomePage extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiNewArrivalNewArrival extends Struct.SingleTypeSchema {
+  collectionName: 'new_arrivals';
+  info: {
+    description: 'The single, global "New Arrivals" rail shown on every channel\'s home page \u2014 one curated Vendure collection paired with an editorial statement. Not channel-specific: the same collection is featured everywhere, priced per-channel by Vendure at render time.';
+    displayName: 'New Arrivals';
+    pluralName: 'new-arrivals';
+    singularName: 'new-arrival';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    backgroundColor: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'#f7e8e6'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    ctaHref: Schema.Attribute.String;
+    ctaLabel: Schema.Attribute.String;
+    eyebrow: Schema.Attribute.String;
+    heading: Schema.Attribute.String & Schema.Attribute.Required;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::new-arrival.new-arrival'
+    > &
+      Schema.Attribute.Private;
+    paragraphs: Schema.Attribute.Component<'shared.paragraph', true>;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    vendureCollectionSlug: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'new-arrivals'>;
+  };
+}
+
 export interface ApiSiteNavSiteNav extends Struct.CollectionTypeSchema {
   collectionName: 'site_navs';
   info: {
@@ -1144,6 +1182,7 @@ declare module '@strapi/strapi' {
       'admin::user': AdminUser;
       'api::collection-page.collection-page': ApiCollectionPageCollectionPage;
       'api::home-page.home-page': ApiHomePageHomePage;
+      'api::new-arrival.new-arrival': ApiNewArrivalNewArrival;
       'api::site-nav.site-nav': ApiSiteNavSiteNav;
       'api::site-setting.site-setting': ApiSiteSettingSiteSetting;
       'api::spotlight.spotlight': ApiSpotlightSpotlight;

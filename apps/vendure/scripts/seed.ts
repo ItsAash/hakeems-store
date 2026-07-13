@@ -291,6 +291,32 @@ function optionCode(value: string) {
   return value.toLowerCase().replace(/\s+/g, '-');
 }
 
+/** Hex swatch per colour option code (see optionCode()). The storefront renders these
+ * as the colour dots on product cards via ProductOption.customFields.swatch (added by
+ * the product-option-swatch plugin); without them the dots render as empty circles. */
+const COLOR_SWATCHES: Record<string, string> = {
+  black: '#1c1c1c',
+  white: '#ffffff',
+  olive: '#6b6f4e',
+  sand: '#d8c6a5',
+  clay: '#b0654a',
+  charcoal: '#3f4042',
+};
+
+async function ensureColorSwatches(colorGroup: { options: Array<{ id: string; code: string }> }) {
+  for (const option of colorGroup.options) {
+    const swatch = COLOR_SWATCHES[option.code];
+    if (!swatch) continue;
+    await adminFetch(
+      `mutation UpdateProductOption($input: UpdateProductOptionInput!) {
+        updateProductOption(input: $input) { id }
+      }`,
+      { input: { id: option.id, customFields: { swatch } } },
+    );
+  }
+  console.log('Set colour swatches');
+}
+
 async function assignOptionGroupsToChannels(optionGroupIds: string[], channelIds: string[]) {
   for (const channelId of channelIds) {
     await adminFetch(
@@ -627,6 +653,8 @@ type CatalogProduct = {
   slug: string;
   skuCode: string;
   description: string;
+  /** PDP "Fit & Fabric" tab content (HTML). */
+  fitAndFabric: string;
   facetValueIds: string[];
   sizes: string[];
   colors: string[];
@@ -636,6 +664,22 @@ type CatalogProduct = {
   nepalStock: number;
   hongKongStock: number;
 };
+
+/** "Fit & Fabric" copy keyed by category — populates the PDP tab, per product, in Vendure. */
+const FIT_AND_FABRIC: Record<string, string> = {
+  tops: '<p><strong>Fabric.</strong> Midweight combed-cotton jersey, pre-shrunk so it keeps its shape wash after wash.</p><p><strong>Fit.</strong> Unisex and true to size with a relaxed, drop-shoulder cut. Size up for an oversized look.</p>',
+  bottoms:
+    '<p><strong>Fabric.</strong> Durable cotton-twill blend with a touch of stretch for all-day movement.</p><p><strong>Fit.</strong> Relaxed through the hip and thigh with a tapered leg. Sits at the natural waist.</p>',
+  accessories:
+    '<p><strong>Material.</strong> Heavyweight cotton canvas with reinforced stitching at every stress point.</p><p><strong>Details.</strong> One size. Built to carry the everyday — and take a beating.</p>',
+  sets: '<p><strong>Fabric.</strong> Soft, breathable knit designed to be worn together or apart.</p><p><strong>Fit.</strong> Unisex and relaxed. True to size.</p>',
+  default:
+    '<p><strong>Fabric.</strong> Small-batch materials chosen for feel and longevity.</p><p><strong>Fit.</strong> Unisex, true to size.</p>',
+};
+
+/** Shared "Shipping & Returns" policy — the same for every product, stored on each in Vendure. */
+const SHIPPING_RETURNS =
+  '<p><strong>Shipping.</strong> Dispatched within 1–2 business days. Free shipping within Kathmandu Valley on orders over NPR 5,000, and free Hong Kong Island delivery over HKD 800. Duties are calculated at checkout for international orders.</p><p><strong>Returns.</strong> Unworn items with tags can be returned within 14 days of delivery. Final-sale pieces are marked at checkout.</p>';
 
 /**
  * Creates (or repairs) a product sold in BOTH channels with a full size x color
@@ -706,6 +750,16 @@ async function ensureProduct(ctx: SeedContext, input: CatalogProduct) {
       'nepal',
     );
   }
+
+  // Editorial custom fields shown in the PDP "Fit & Fabric" / "Shipping & Returns" tabs.
+  // Run every time so existing products are backfilled on re-seed.
+  await adminFetch(
+    `mutation UpdateProductCustomFields($input: UpdateProductInput!) {
+      updateProduct(input: $input) { id }
+    }`,
+    { input: { id: productId, customFields: { fitAndFabric: input.fitAndFabric, shippingReturns: SHIPPING_RETURNS } } },
+    'nepal',
+  );
 
   for (const optionGroupId of [ctx.sizeGroup.id, ctx.colorGroup.id]) {
     await adminFetch(
@@ -877,6 +931,7 @@ async function main() {
 
   const size = await ensureOptionGroup('size', 'Size', ['S', 'M', 'L', 'One Size']);
   const color = await ensureOptionGroup('color', 'Color', ['Black', 'White', 'Olive', 'Sand', 'Clay', 'Charcoal']);
+  await ensureColorSwatches(color);
 
   await assignOptionGroupsToChannels([size.id, color.id], [nepalChannel.id, hongKongChannel.id]);
 
@@ -950,7 +1005,7 @@ async function main() {
   const APPAREL = ['S', 'M', 'L'];
   const ONE_SIZE = ['One Size'];
 
-  const catalog: Array<Omit<CatalogProduct, 'facetValueIds'> & { category: string }> = [
+  const catalog: Array<Omit<CatalogProduct, 'facetValueIds' | 'fitAndFabric'> & { category: string }> = [
     {
       name: 'Hakeems Box Tee',
       slug: 'hakeems-box-tee',
@@ -1122,6 +1177,7 @@ async function main() {
     await ensureProduct(ctx, {
       ...productInput,
       facetValueIds: [facetValue(categories, category)],
+      fitAndFabric: FIT_AND_FABRIC[category] ?? FIT_AND_FABRIC.default,
     });
     console.log(`Seeded product: ${item.slug}`);
   }
@@ -1162,6 +1218,31 @@ async function main() {
     slug: 'spotlight', name: 'Spotlight',
     description: '',
     filters: productIdFilter(spotlightProductIds), channelIds,
+  });
+
+  // New Arrivals — a hand-curated capsule of the latest pieces (product-id filter, like
+  // the Spotlight), shown in the home-page rail below the brand story. Vendure owns which
+  // products belong here and prices them per channel; the copy shown alongside lives in
+  // apps/strapi's "new-arrival" singleton.
+  const newArrivalSlugs = [
+    'studio-tee',
+    'harbour-overshirt',
+    'kathmandu-utility-pant',
+    'valley-jogger',
+    'summit-denim-pant',
+    'market-tote',
+    'city-sling-pack',
+    'hakeems-box-tee',
+  ];
+  const newArrivalProductIds: string[] = [];
+  for (const slug of newArrivalSlugs) {
+    const product = await productExists(slug);
+    if (product) newArrivalProductIds.push(product.id);
+  }
+  await ensureCollection({
+    slug: 'new-arrivals', name: 'New Arrivals',
+    description: 'The latest pieces to land — fresh cuts and restocks, ready before they’re gone.',
+    filters: productIdFilter(newArrivalProductIds), channelIds,
   });
 
   // Rebuild the per-channel search index so search/filters see everything above.

@@ -2758,8 +2758,10 @@ export type ProductVariantListArgs = {
 export type ProductCustomFields = {
   __typename?: 'ProductCustomFields';
   enrichedDescription?: Maybe<Scalars['String']['output']>;
+  fitAndFabric?: Maybe<Scalars['String']['output']>;
   seoDescription?: Maybe<Scalars['String']['output']>;
   seoTitle?: Maybe<Scalars['String']['output']>;
+  shippingReturns?: Maybe<Scalars['String']['output']>;
 };
 
 export type ProductFilterParameter = {
@@ -2769,11 +2771,13 @@ export type ProductFilterParameter = {
   description?: InputMaybe<StringOperators>;
   enabled?: InputMaybe<BooleanOperators>;
   enrichedDescription?: InputMaybe<StringOperators>;
+  fitAndFabric?: InputMaybe<StringOperators>;
   id?: InputMaybe<IdOperators>;
   languageCode?: InputMaybe<StringOperators>;
   name?: InputMaybe<StringOperators>;
   seoDescription?: InputMaybe<StringOperators>;
   seoTitle?: InputMaybe<StringOperators>;
+  shippingReturns?: InputMaybe<StringOperators>;
   slug?: InputMaybe<StringOperators>;
   updatedAt?: InputMaybe<DateOperators>;
 };
@@ -2853,10 +2857,12 @@ export type ProductSortParameter = {
   createdAt?: InputMaybe<SortOrder>;
   description?: InputMaybe<SortOrder>;
   enrichedDescription?: InputMaybe<SortOrder>;
+  fitAndFabric?: InputMaybe<SortOrder>;
   id?: InputMaybe<SortOrder>;
   name?: InputMaybe<SortOrder>;
   seoDescription?: InputMaybe<SortOrder>;
   seoTitle?: InputMaybe<SortOrder>;
+  shippingReturns?: InputMaybe<SortOrder>;
   slug?: InputMaybe<SortOrder>;
   updatedAt?: InputMaybe<SortOrder>;
 };
@@ -3814,12 +3820,20 @@ export type FacetValueCountQueryVariables = Exact<{
 
 export type FacetValueCountQuery = { __typename?: 'Query', search: { __typename?: 'SearchResponse', totalItems: number } };
 
+export type NewArrivalsCollectionQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+  take: Scalars['Int']['input'];
+}>;
+
+
+export type NewArrivalsCollectionQuery = { __typename?: 'Query', collection?: { __typename?: 'Collection', id: string, name: string, slug: string, productVariants: { __typename?: 'ProductVariantList', items: Array<{ __typename?: 'ProductVariant', id: string, priceWithTax: number, currencyCode: CurrencyCode, stockLevel: string, product: { __typename?: 'Product', id: string, slug: string, name: string, featuredAsset?: { __typename?: 'Asset', preview: string } | null, assets: Array<{ __typename?: 'Asset', id: string, preview: string }> }, options: Array<{ __typename?: 'ProductOption', id: string, code: string, groupId: string, group: { __typename?: 'ProductOptionGroup', code: string }, customFields?: { __typename?: 'ProductOptionCustomFields', swatch?: string | null } | null }> }> } } | null };
+
 export type PdpProductQueryVariables = Exact<{
   slug: Scalars['String']['input'];
 }>;
 
 
-export type PdpProductQuery = { __typename?: 'Query', product?: { __typename?: 'Product', id: string, name: string, slug: string, description: string, customFields?: { __typename?: 'ProductCustomFields', enrichedDescription?: string | null, seoTitle?: string | null, seoDescription?: string | null } | null, assets: Array<{ __typename?: 'Asset', id: string, preview: string, width: number, height: number }>, collections: Array<{ __typename?: 'Collection', id: string, name: string, slug: string, breadcrumbs: Array<{ __typename?: 'CollectionBreadcrumb', id: string, name: string, slug: string }> }>, variants: Array<{ __typename?: 'ProductVariant', id: string, name: string, sku: string, priceWithTax: number, currencyCode: CurrencyCode, stockLevel: string, featuredAsset?: { __typename?: 'Asset', preview: string } | null, options: Array<{ __typename?: 'ProductOption', id: string, code: string, name: string, groupId: string, group: { __typename?: 'ProductOptionGroup', code: string, name: string }, customFields?: { __typename?: 'ProductOptionCustomFields', swatch?: string | null } | null }> }> } | null };
+export type PdpProductQuery = { __typename?: 'Query', product?: { __typename?: 'Product', id: string, name: string, slug: string, description: string, customFields?: { __typename?: 'ProductCustomFields', enrichedDescription?: string | null, seoTitle?: string | null, seoDescription?: string | null, fitAndFabric?: string | null, shippingReturns?: string | null } | null, assets: Array<{ __typename?: 'Asset', id: string, preview: string, width: number, height: number }>, collections: Array<{ __typename?: 'Collection', id: string, name: string, slug: string, breadcrumbs: Array<{ __typename?: 'CollectionBreadcrumb', id: string, name: string, slug: string }> }>, variants: Array<{ __typename?: 'ProductVariant', id: string, name: string, sku: string, priceWithTax: number, currencyCode: CurrencyCode, stockLevel: string, featuredAsset?: { __typename?: 'Asset', preview: string } | null, options: Array<{ __typename?: 'ProductOption', id: string, code: string, name: string, groupId: string, group: { __typename?: 'ProductOptionGroup', code: string, name: string }, customFields?: { __typename?: 'ProductOptionCustomFields', swatch?: string | null } | null }> }> } | null };
 
 export type PlpCollectionQueryVariables = Exact<{
   slug: Scalars['String']['input'];
@@ -4113,6 +4127,46 @@ export const FacetValueCountDocument = gql`
   }
 }
     `;
+export const NewArrivalsCollectionDocument = gql`
+    query NewArrivalsCollection($slug: String!, $take: Int!) {
+  collection(slug: $slug) {
+    id
+    name
+    slug
+    productVariants(options: {take: $take}) {
+      items {
+        id
+        priceWithTax
+        currencyCode
+        stockLevel
+        product {
+          id
+          slug
+          name
+          featuredAsset {
+            preview
+          }
+          assets {
+            id
+            preview
+          }
+        }
+        options {
+          id
+          code
+          groupId
+          group {
+            code
+          }
+          customFields {
+            swatch
+          }
+        }
+      }
+    }
+  }
+}
+    `;
 export const PdpProductDocument = gql`
     query PdpProduct($slug: String!) {
   product(slug: $slug) {
@@ -4124,6 +4178,8 @@ export const PdpProductDocument = gql`
       enrichedDescription
       seoTitle
       seoDescription
+      fitAndFabric
+      shippingReturns
     }
     assets {
       id
@@ -4312,6 +4368,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     FacetValueCount(variables: FacetValueCountQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<FacetValueCountQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<FacetValueCountQuery>({ document: FacetValueCountDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'FacetValueCount', 'query', variables);
+    },
+    NewArrivalsCollection(variables: NewArrivalsCollectionQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<NewArrivalsCollectionQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<NewArrivalsCollectionQuery>({ document: NewArrivalsCollectionDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'NewArrivalsCollection', 'query', variables);
     },
     PdpProduct(variables: PdpProductQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<PdpProductQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<PdpProductQuery>({ document: PdpProductDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'PdpProduct', 'query', variables);

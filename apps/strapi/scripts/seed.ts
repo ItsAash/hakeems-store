@@ -128,6 +128,36 @@ async function seedSpotlight(strapi: Core.Strapi) {
   console.log('Seeded spotlight');
 }
 
+/**
+ * New Arrivals is global, not per-channel — the same curated Vendure collection (see
+ * apps/vendure — the "new-arrivals" collection) is shown in the home-page rail on every
+ * storefront, priced per-channel by Vendure at render time. A single type, so there is
+ * exactly one document. Same editorial shape as the spotlight above.
+ */
+async function seedNewArrivals(strapi: Core.Strapi) {
+  const existing = await strapi.documents('api::new-arrival.new-arrival').findFirst({});
+  const data: any = {
+    vendureCollectionSlug: 'new-arrivals',
+    eyebrow: 'New Arrivals',
+    heading: 'Just Landed',
+    paragraphs: [
+      {
+        text: 'The latest pieces to land in the studio — small-batch cuts and restocks, gone before you know it.',
+      },
+    ],
+    ctaLabel: 'Shop New Arrivals',
+    ctaHref: '/collections/new-arrivals',
+    backgroundColor: '#f7e8e6',
+  };
+
+  if (existing) {
+    await strapi.documents('api::new-arrival.new-arrival').update({ documentId: existing.documentId, data });
+  } else {
+    await strapi.documents('api::new-arrival.new-arrival').create({ data });
+  }
+  console.log('Seeded new-arrivals');
+}
+
 async function seedHomePages(strapi: Core.Strapi) {
   const storyImage = await uploadImage(strapi, unsplash('photo-1441986300917-64674bd600d8', 'w=1400&h=1120&fit=crop&q=80'), 'brand-story.jpg');
   const tileTops = await uploadImage(strapi, unsplash('photo-1445205170230-053b83016050', 'w=1200&h=1500&fit=crop&q=80'), 'tile-tops.jpg');
@@ -371,6 +401,7 @@ async function main() {
   await seedHomePages(app);
   await seedSiteNavs(app);
   await seedSpotlight(app);
+  await seedNewArrivals(app);
   await seedCollectionPages(app);
   console.log('Hakeems Strapi seed complete.');
 
