@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
 import { getChannel, isChannelCode } from '@/lib/channel';
 import { routes } from '@/lib/routes';
+import { buildMetadata } from '@/lib/seo/metadata';
 import { getVendureClient } from '@/lib/vendure/client';
 import {
   groupFacetValuesByFacet,
@@ -19,7 +20,17 @@ import { Pagination } from '@/components/commerce/pagination';
 
 type ShopSearchParams = { facetValueId?: string; facets?: string; sort?: string; page?: string };
 
-export const metadata: Metadata = { title: 'Shop' };
+export async function generateMetadata({ params }: { params: Promise<{ channel: string }> }): Promise<Metadata> {
+  const { channel: channelParam } = await params;
+  if (!isChannelCode(channelParam)) return {};
+  return buildMetadata({
+    title: 'Shop All',
+    description: 'Browse the full Hakeems catalogue — tops, bottoms, accessories and sets.',
+    // Facet/sort/page variants all canonicalize to the clean /shop URL.
+    path: routes.shop(channelParam),
+    channel: channelParam,
+  });
+}
 
 /**
  * The channel-wide catalog browse, filtered by facet (not scoped to a single Vendure

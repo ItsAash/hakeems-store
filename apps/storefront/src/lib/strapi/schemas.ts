@@ -99,6 +99,8 @@ export const siteSettingSchema = z.object({
   id: z.number(),
   siteName: z.string(),
   tagline: z.string().nullable(),
+  /** Site-wide SEO defaults (title/description/OG) — the fallback for any page without its own. */
+  defaultSeo: seoSchema.nullable(),
   supportEmail: z.string().nullable(),
   supportPhone: z.string().nullable(),
   footerNote: z.string().nullable(),

@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { isChannelCode } from '@/lib/channel';
 import { getLegalPage } from '@/lib/strapi/queries';
+import { buildMetadata } from '@/lib/seo/metadata';
+import { toMetaDescription } from '@/lib/seo/site';
 import { CONTAINER } from '@/lib/ui';
 import { Markdown } from '@/components/legal/markdown';
 
@@ -18,16 +20,18 @@ function formatUpdated(iso: string | null): string | null {
  * SEO metadata for a legal page — prefers the Strapi SEO component, falls back to the title.
  * Legal copy is channel-agnostic, so the channel param isn't needed here.
  */
-export async function legalPageMetadata(slug: string): Promise<Metadata> {
+export async function legalPageMetadata(slug: string, params: LegalParams): Promise<Metadata> {
+  const { channel } = await params;
+  if (!isChannelCode(channel)) return {};
   const page = await getLegalPage(slug);
-  if (!page) return {};
-  const title = page.seo?.metaTitle || page.title;
-  const description = page.seo?.metaDescription || undefined;
-  return {
-    title,
-    description,
-    openGraph: { title, description, type: 'article' },
-  };
+  if (!page) return { title: 'Not found', robots: { index: false, follow: false } };
+  return buildMetadata({
+    title: page.seo?.metaTitle || page.title,
+    description: page.seo?.metaDescription || toMetaDescription(page.content),
+    path: `/${channel}/${page.slug}`,
+    channel,
+    type: 'article',
+  });
 }
 
 /**

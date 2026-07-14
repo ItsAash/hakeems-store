@@ -1,4 +1,7 @@
 import { notFound, redirect } from 'next/navigation';
+import { NOINDEX_METADATA } from '@/lib/seo/metadata';
+
+export const metadata = { ...NOINDEX_METADATA, title: 'My Account' };
 import { getChannel, isChannelCode } from '@/lib/channel';
 import { routes } from '@/lib/routes';
 import { getVendureClient } from '@/lib/vendure/client';

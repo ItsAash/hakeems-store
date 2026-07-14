@@ -4057,6 +4057,14 @@ export type ProductCardsQueryVariables = Exact<{
 
 export type ProductCardsQuery = { __typename?: 'Query', products: { __typename?: 'ProductList', items: Array<{ __typename?: 'Product', id: string, slug: string, name: string, featuredAsset?: { __typename?: 'Asset', preview: string } | null, customFields?: { __typename?: 'ProductCustomFields', discountPercent?: number | null, promoLabel?: string | null, badge?: string | null } | null, variants: Array<{ __typename?: 'ProductVariant', id: string, priceWithTax: number, currencyCode: CurrencyCode, featuredAsset?: { __typename?: 'Asset', preview: string } | null, assets: Array<{ __typename?: 'Asset', preview: string }>, options: Array<{ __typename?: 'ProductOption', id: string, code: string, name: string, group: { __typename?: 'ProductOptionGroup', code: string }, customFields?: { __typename?: 'ProductOptionCustomFields', swatch?: string | null } | null }> }> }> } };
 
+export type SitemapEntriesQueryVariables = Exact<{
+  take: Scalars['Int']['input'];
+  skip: Scalars['Int']['input'];
+}>;
+
+
+export type SitemapEntriesQuery = { __typename?: 'Query', products: { __typename?: 'ProductList', totalItems: number, items: Array<{ __typename?: 'Product', slug: string, updatedAt: string }> }, collections: { __typename?: 'CollectionList', totalItems: number, items: Array<{ __typename?: 'Collection', slug: string, updatedAt: string }> } };
+
 export type SpotlightCollectionQueryVariables = Exact<{
   slug: Scalars['String']['input'];
   take: Scalars['Int']['input'];
@@ -4813,6 +4821,24 @@ export const ProductCardsDocument = gql`
   }
 }
     `;
+export const SitemapEntriesDocument = gql`
+    query SitemapEntries($take: Int!, $skip: Int!) {
+  products(options: {take: $take, skip: $skip}) {
+    totalItems
+    items {
+      slug
+      updatedAt
+    }
+  }
+  collections(options: {take: $take, skip: $skip}) {
+    totalItems
+    items {
+      slug
+      updatedAt
+    }
+  }
+}
+    `;
 export const SpotlightCollectionDocument = gql`
     query SpotlightCollection($slug: String!, $take: Int!) {
   collection(slug: $slug) {
@@ -4985,6 +5011,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     ProductCards(variables: ProductCardsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<ProductCardsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ProductCardsQuery>({ document: ProductCardsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'ProductCards', 'query', variables);
+    },
+    SitemapEntries(variables: SitemapEntriesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<SitemapEntriesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<SitemapEntriesQuery>({ document: SitemapEntriesDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'SitemapEntries', 'query', variables);
     },
     SpotlightCollection(variables: SpotlightCollectionQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<SpotlightCollectionQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<SpotlightCollectionQuery>({ document: SpotlightCollectionDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'SpotlightCollection', 'query', variables);

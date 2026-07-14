@@ -1,4 +1,7 @@
 import Link from 'next/link';
+import { NOINDEX_METADATA } from '@/lib/seo/metadata';
+
+export const metadata = { ...NOINDEX_METADATA, title: 'Order Confirmation' };
 import { notFound } from 'next/navigation';
 import { getChannel, isChannelCode } from '@/lib/channel';
 import { getVendureClient } from '@/lib/vendure/client';

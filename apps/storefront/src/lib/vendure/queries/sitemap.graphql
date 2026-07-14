@@ -1,0 +1,16 @@
+query SitemapEntries($take: Int!, $skip: Int!) {
+  products(options: { take: $take, skip: $skip }) {
+    totalItems
+    items {
+      slug
+      updatedAt
+    }
+  }
+  collections(options: { take: $take, skip: $skip }) {
+    totalItems
+    items {
+      slug
+      updatedAt
+    }
+  }
+}

@@ -83,7 +83,7 @@ export async function FacetCategoryGrid({
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img
                   src={imageUrl}
-                  alt=""
+                  alt={`Shop ${tile.label}`}
                   className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                   loading="lazy"
                 />

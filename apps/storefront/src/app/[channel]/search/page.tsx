@@ -25,7 +25,8 @@ export async function generateMetadata({
   searchParams: Promise<SearchParams>;
 }): Promise<Metadata> {
   const { q } = await searchParams;
-  return { title: q ? `Search: ${q}` : 'Search' };
+  // Search results are query-driven and infinite — index the concept, not the result pages.
+  return { title: q ? `Search: ${q}` : 'Search', robots: { index: false, follow: true } };
 }
 
 export default async function SearchPage({

@@ -20,7 +20,7 @@ import type { ChannelCode } from '@/lib/channel';
  */
 const POPULATE: Record<string, string[]> = {
   siteNav: ['items.children'],
-  siteSetting: ['socialLinks', 'legalLinks'],
+  siteSetting: ['socialLinks', 'legalLinks', 'defaultSeo', 'defaultSeo.ogImage'],
   brandStory: ['paragraphs', 'image'],
   collectionPage: ['heroImage', 'seo.ogImage'],
   legalPage: ['seo.ogImage'],
@@ -99,6 +99,14 @@ export async function getLegalPage(slug: string): Promise<LegalPage | null> {
     schema: listResponse(legalPageSchema),
   });
   return response.data[0] ?? null;
+}
+
+/** Slugs + last-modified of all published legal pages — for the sitemap. */
+export async function getLegalPageSlugs(): Promise<Array<{ slug: string; updatedAt: string | null }>> {
+  const response = await strapiFetch<StrapiListResponse<{ slug: string; updatedAt: string | null }>>('legal-pages', {
+    revalidate: 3600,
+  });
+  return response.data.map((entry) => ({ slug: entry.slug, updatedAt: entry.updatedAt }));
 }
 
 export async function getCollectionPage(vendureCollectionSlug: string): Promise<CollectionPage | null> {

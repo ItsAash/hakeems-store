@@ -148,9 +148,16 @@ export function HeroSlider({
                 left edge lines up with the nav logo and every section below it */}
             <div className="absolute inset-x-0 bottom-0 pb-20 md:pb-28">
               <div className={`flex flex-col items-start gap-4 ${CONTAINER}`}>
-                <h2 className="max-w-2xl font-serif text-4xl leading-[1.05] text-[var(--color-paper)] md:text-7xl">
-                  {slide.heading}
-                </h2>
+                {/* First slide carries the page's single H1 (it's the most prominent heading on
+                    the home page); subsequent slides are H2s to keep the outline valid. */}
+                {(() => {
+                  const HeadingTag = i === 0 ? 'h1' : 'h2';
+                  return (
+                    <HeadingTag className="max-w-2xl font-serif text-4xl leading-[1.05] text-[var(--color-paper)] md:text-7xl">
+                      {slide.heading}
+                    </HeadingTag>
+                  );
+                })()}
                 {slide.subheading && (
                   <p className="max-w-md text-sm leading-relaxed text-[var(--color-paper)]/70 md:text-base">
                     {slide.subheading}
