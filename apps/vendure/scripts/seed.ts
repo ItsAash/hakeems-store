@@ -324,12 +324,12 @@ async function ensureColorSwatches(colorGroup: { options: Array<{ id: string; co
  * Keys must match the colour option codes (see optionCode()).
  */
 const COLOR_IMAGE_URLS: Record<string, string[]> = {
-  black: ['https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=1500&fit=crop&q=80&fm=jpg'],
-  white: ['https://images.unsplash.com/photo-1445205170230-053b83016050?w=1200&h=1500&fit=crop&q=80&fm=jpg'],
-  olive: ['https://images.unsplash.com/photo-1560243563-062bfc001d68?w=1200&h=1500&fit=crop&q=80&fm=jpg'],
-  sand: ['https://images.unsplash.com/photo-1606522754091-a3bbf9ad4cb3?w=1200&h=1500&fit=crop&q=80&fm=jpg'],
-  clay: ['https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=1200&h=1500&fit=crop&q=80&fm=jpg'],
-  charcoal: ['https://images.unsplash.com/photo-1571945153237-4929e783af4a?w=1200&h=1500&fit=crop&q=80&fm=jpg'],
+  black: ['https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=1200&h=1500&fit=crop&q=80&fm=jpg'],
+  white: ['https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=1200&h=1500&fit=crop&q=80&fm=jpg'],
+  olive: ['https://images.unsplash.com/photo-1552902865-b72c031ac5ea?w=1200&h=1500&fit=crop&q=80&fm=jpg'],
+  sand: ['https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=1200&h=1500&fit=crop&q=80&fm=jpg'],
+  clay: ['https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=1200&h=1500&fit=crop&q=80&fm=jpg'],
+  charcoal: ['https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=1200&h=1500&fit=crop&q=80&fm=jpg'],
 };
 
 /** Uploads a colour's images once (deduped by filename) and caches the asset ids. */
@@ -340,7 +340,11 @@ async function ensureColorAssets(colorCode: string, channelIds: string[]): Promi
   const urls = COLOR_IMAGE_URLS[colorCode] ?? [];
   const ids: string[] = [];
   for (let i = 0; i < urls.length; i++) {
-    const asset = await ensureAsset(`color-${colorCode}-${i + 1}.jpg`, urls[i], channelIds);
+    // "-v2" forces a fresh upload under the corrected mapping below — the old
+    // "color-<code>-N.jpg" assets pointed at mismatched stock photos (e.g. "olive"
+    // resolved to a denim-shelf photo), and ensureAsset is idempotent by filename, so
+    // reusing the old name would keep serving the wrong image forever.
+    const asset = await ensureAsset(`color-${colorCode}-${i + 1}-v2.jpg`, urls[i], channelIds);
     ids.push(asset.id);
   }
   colorAssetIdCache.set(colorCode, ids);
