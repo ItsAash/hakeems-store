@@ -514,6 +514,38 @@ export interface ApiCollectionPageCollectionPage
   };
 }
 
+export interface ApiLegalPageLegalPage extends Struct.CollectionTypeSchema {
+  collectionName: 'legal_pages';
+  info: {
+    description: 'Standalone long-form policy pages (Privacy Policy, Terms of Service, Shipping & Returns, \u2026). The body is Markdown / Rich Text and is rendered verbatim on the storefront at /{channel}/{slug}. Add a page here and link it from the footer \u2014 no code changes required.';
+    displayName: 'Legal Page';
+    pluralName: 'legal-pages';
+    singularName: 'legal-page';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    content: Schema.Attribute.RichText & Schema.Attribute.Required;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::legal-page.legal-page'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    seo: Schema.Attribute.Component<'shared.seo', false>;
+    slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required;
+    title: Schema.Attribute.String & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiPagePage extends Struct.CollectionTypeSchema {
   collectionName: 'pages';
   info: {
@@ -1138,6 +1170,7 @@ declare module '@strapi/strapi' {
       'admin::user': AdminUser;
       'api::brand-story.brand-story': ApiBrandStoryBrandStory;
       'api::collection-page.collection-page': ApiCollectionPageCollectionPage;
+      'api::legal-page.legal-page': ApiLegalPageLegalPage;
       'api::page.page': ApiPagePage;
       'api::site-nav.site-nav': ApiSiteNavSiteNav;
       'api::site-setting.site-setting': ApiSiteSettingSiteSetting;

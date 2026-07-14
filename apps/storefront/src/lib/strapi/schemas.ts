@@ -106,6 +106,16 @@ export const siteSettingSchema = z.object({
   legalLinks: z.array(z.object({ id: z.number(), label: z.string(), href: z.string() })),
 });
 
+/** Standalone Markdown/rich-text policy page (Privacy, Terms, Shipping & Returns, …). */
+export const legalPageSchema = z.object({
+  id: z.number(),
+  slug: z.string(),
+  title: z.string(),
+  content: z.string(),
+  seo: seoSchema.nullable(),
+  updatedAt: z.string().nullable(),
+});
+
 export const collectionPageSchema = z.object({
   id: z.number(),
   // `vendureId` is intentionally absent: it is now a private, sync-only key in Strapi. The

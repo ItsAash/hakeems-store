@@ -11,6 +11,7 @@ import type {
   ctaSchema,
   facetCategoryTileSchema,
   heroSlideSchema,
+  legalPageSchema,
   mediaBlockSchema,
   mediaSchema,
   navItemSchema,
@@ -42,6 +43,9 @@ export type BrandStory = z.infer<typeof brandStorySchema>;
  * banner/tagline/description/SEO on top of what Vendure owns.
  */
 export type CollectionPage = z.infer<typeof collectionPageSchema>;
+
+/** Standalone Markdown policy page (Privacy, Terms, Shipping & Returns, …). */
+export type LegalPage = z.infer<typeof legalPageSchema>;
 
 export type NavLink = z.infer<typeof navLinkSchema>;
 export type NavItem = z.infer<typeof navItemSchema>;

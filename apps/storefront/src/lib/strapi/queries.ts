@@ -3,13 +3,14 @@ import type { StrapiListResponse, StrapiSingleResponse } from '@/lib/strapi/clie
 import {
   brandStorySchema,
   collectionPageSchema,
+  legalPageSchema,
   listResponse,
   pageSchema,
   singleResponse,
   siteNavSchema,
   siteSettingSchema,
 } from '@/lib/strapi/schemas';
-import type { BrandStory, CollectionPage, Page, SiteNav, SiteSetting } from '@/lib/strapi/types';
+import type { BrandStory, CollectionPage, LegalPage, Page, SiteNav, SiteSetting } from '@/lib/strapi/types';
 import type { ChannelCode } from '@/lib/channel';
 
 /**
@@ -22,6 +23,7 @@ const POPULATE: Record<string, string[]> = {
   siteSetting: ['socialLinks', 'legalLinks'],
   brandStory: ['paragraphs', 'image'],
   collectionPage: ['heroImage', 'seo.ogImage'],
+  legalPage: ['seo.ogImage'],
 };
 
 /**
@@ -87,6 +89,18 @@ export async function getBrandStory(): Promise<BrandStory | null> {
 
 /** Editorial layer over a Vendure collection (banner, tagline, SEO) — Vendure remains
  * the source of truth for the collection's existence, name, and products. */
+/** A standalone Markdown policy page by slug (privacy, terms, shipping-returns, …). Returns
+ * null when no published entry exists, so the route can 404 cleanly. Channel-agnostic —
+ * legal copy is shared across channels. */
+export async function getLegalPage(slug: string): Promise<LegalPage | null> {
+  const response = await strapiFetch<StrapiListResponse<LegalPage>>('legal-pages', {
+    filters: { slug },
+    populate: POPULATE.legalPage,
+    schema: listResponse(legalPageSchema),
+  });
+  return response.data[0] ?? null;
+}
+
 export async function getCollectionPage(vendureCollectionSlug: string): Promise<CollectionPage | null> {
   const response = await strapiFetch<StrapiListResponse<CollectionPage>>('collection-pages', {
     filters: { vendureCollectionSlug },
