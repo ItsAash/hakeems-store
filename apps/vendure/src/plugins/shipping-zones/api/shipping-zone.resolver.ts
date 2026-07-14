@@ -52,6 +52,17 @@ export class ShippingZoneResolver {
   }
 }
 
+/** Public (no permission gate) — the storefront reads this to build the checkout zone picker. */
+@Resolver()
+export class ShopShippingZoneResolver {
+  constructor(private shippingZoneService: ShippingZoneService) {}
+
+  @Query()
+  activeChannelShippingZones(@Ctx() ctx: RequestContext): Promise<ShippingZoneNode[]> {
+    return this.shippingZoneService.getTreeForActiveChannel(ctx);
+  }
+}
+
 /** Exposes `StockLocation.channels` so the dashboard can show each warehouse's currency. */
 @Resolver('StockLocation')
 export class StockLocationChannelsResolver {

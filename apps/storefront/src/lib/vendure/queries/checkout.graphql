@@ -6,6 +6,37 @@ query Countries {
   }
 }
 
+query ActiveChannelShippingZones {
+  activeChannelShippingZones {
+    id
+    name
+    code
+    rate
+    parentId
+    children {
+      id
+      name
+      code
+      rate
+      parentId
+      children {
+        id
+        name
+        code
+        rate
+        parentId
+        children {
+          id
+          name
+          code
+          rate
+          parentId
+        }
+      }
+    }
+  }
+}
+
 mutation SetOrderShippingAddress($input: CreateAddressInput!) {
   setOrderShippingAddress(input: $input) {
     __typename

@@ -1,5 +1,6 @@
 import type { ChannelCode } from '@/lib/channel';
 import { AddressForm, type Country, type CheckoutCustomer } from '@/components/checkout/address-form';
+import type { ZoneNode } from '@/components/checkout/shipping-zone-picker';
 import { ShippingMethodStep, type ShippingMethodOption } from '@/components/checkout/shipping-method-step';
 import { PaymentStep } from '@/components/checkout/payment-step';
 
@@ -29,6 +30,7 @@ export function CheckoutFlow({
   customer,
   defaultEmail,
   shippingMethods,
+  shippingZones,
   currencyCode,
 }: {
   channelCode: ChannelCode;
@@ -42,6 +44,8 @@ export function CheckoutFlow({
   customer?: CheckoutCustomer | null;
   defaultEmail?: string;
   shippingMethods: ShippingMethodOption[];
+  /** This channel's shipping-zone tree, for the address step's zone picker. */
+  shippingZones: ZoneNode[];
   currencyCode: string;
 }) {
   const step: CheckoutStep = !hasShippingAddress ? 'address' : !hasShippingMethod ? 'shipping' : 'payment';
@@ -57,6 +61,8 @@ export function CheckoutFlow({
           defaultCountryCode={defaultCountryCode}
           customer={customer}
           defaultEmail={defaultEmail}
+          shippingZones={shippingZones}
+          currencyCode={currencyCode}
         />
       )}
       {step === 'shipping' && (

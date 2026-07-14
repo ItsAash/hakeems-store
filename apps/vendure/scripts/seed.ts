@@ -1007,19 +1007,22 @@ async function main() {
   await assignOptionGroupsToChannels([size.id, color.id], [nepalChannel.id, hongKongChannel.id]);
 
   // Each warehouse gets exactly one root (country) zone, then as many nested levels as needed.
-  // Root carries no rate of its own (0) — every real address resolves to a priced leaf below,
-  // or falls back to the shipping method's own fallbackRate if it matches no zone at all.
-  const nepalRoot = await ensureShippingZoneNode(nepalWarehouse.id, null, 'Nepal', 'nepal', 0);
+  // Only leaf zones (no children) may carry a rate — every non-leaf node stays null (enforced
+  // by ShippingZoneService). The storefront's zone picker requires the customer to drill down
+  // to an actual leaf, so every real checkout resolves to a priced leaf; the shipping method's
+  // own fallbackRate only applies to the legacy free-text address-matching path.
+  const nepalRoot = await ensureShippingZoneNode(nepalWarehouse.id, null, 'Nepal', 'nepal', null);
   const bagmati = await ensureShippingZoneNode(nepalWarehouse.id, nepalRoot.id, 'Bagmati', 'bagmati', null);
   const kathmandu = await ensureShippingZoneNode(nepalWarehouse.id, bagmati.id, 'Kathmandu', 'kathmandu', null);
   await ensureShippingZoneNode(nepalWarehouse.id, kathmandu.id, 'Inside Ringroad', 'inside-ringroad', 15000);
   await ensureShippingZoneNode(nepalWarehouse.id, kathmandu.id, 'Outside Ringroad', 'outside-ringroad', 20000);
-  const lalitpur = await ensureShippingZoneNode(nepalWarehouse.id, bagmati.id, 'Lalitpur', 'lalitpur', 22000);
+  const lalitpur = await ensureShippingZoneNode(nepalWarehouse.id, bagmati.id, 'Lalitpur', 'lalitpur', null);
   await ensureShippingZoneNode(nepalWarehouse.id, lalitpur.id, 'Patan', 'patan', 18000);
+  await ensureShippingZoneNode(nepalWarehouse.id, lalitpur.id, 'Lalitpur — Other Areas', 'lalitpur-other', 22000);
   const lumbini = await ensureShippingZoneNode(nepalWarehouse.id, nepalRoot.id, 'Lumbini', 'lumbini', null);
   await ensureShippingZoneNode(nepalWarehouse.id, lumbini.id, 'Butwal', 'butwal', 32000);
 
-  const hongKongRoot = await ensureShippingZoneNode(hongKongWarehouse.id, null, 'Hong Kong', 'hong-kong', 5000);
+  const hongKongRoot = await ensureShippingZoneNode(hongKongWarehouse.id, null, 'Hong Kong', 'hong-kong', null);
   await ensureShippingZoneNode(hongKongWarehouse.id, hongKongRoot.id, 'Hong Kong Island', 'hong-kong-island', 3000);
   const kowloon = await ensureShippingZoneNode(hongKongWarehouse.id, hongKongRoot.id, 'Kowloon', 'kowloon', null);
   await ensureShippingZoneNode(hongKongWarehouse.id, kowloon.id, 'Yau Tsim Mong', 'yau-tsim-mong', 3200);

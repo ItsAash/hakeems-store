@@ -2,9 +2,15 @@ import { parse } from 'graphql';
 import { LanguageCode, PluginCommonModule, RuntimeVendureConfig, VendurePlugin } from '@vendure/core';
 import { ShippingZoneNode } from './entities/shipping-zone-node.entity';
 import { ShippingZoneService } from './service/shipping-zone.service';
-import { ShippingZoneResolver, StockLocationChannelsResolver } from './api/shipping-zone.resolver';
+import {
+  ShippingZoneResolver,
+  ShopShippingZoneResolver,
+  StockLocationChannelsResolver,
+} from './api/shipping-zone.resolver';
 
-const schemaExtension = parse(`
+// Admin and Shop are separate GraphQL schemas — a type used on both sides has to be declared in
+// both extension SDLs below, so it's factored out once here.
+const shippingZoneNodeType = `
   type ShippingZoneNode implements Node {
     id: ID!
     createdAt: DateTime!
@@ -17,6 +23,10 @@ const schemaExtension = parse(`
     stockLocationId: ID!
     children: [ShippingZoneNode!]!
   }
+`;
+
+const adminSchemaExtension = parse(`
+  ${shippingZoneNodeType}
 
   input CreateShippingZoneNodeInput {
     name: String!
@@ -52,13 +62,26 @@ const schemaExtension = parse(`
   }
 `);
 
+const shopSchemaExtension = parse(`
+  ${shippingZoneNodeType}
+
+  extend type Query {
+    "This channel's shipping-zone tree (enabled nodes only), from its assigned warehouse — a single root (country) node with children nested, or an empty array if none is configured."
+    activeChannelShippingZones: [ShippingZoneNode!]!
+  }
+`);
+
 @VendurePlugin({
   imports: [PluginCommonModule],
   entities: [ShippingZoneNode],
   providers: [ShippingZoneService],
   adminApiExtensions: {
-    schema: schemaExtension,
+    schema: adminSchemaExtension,
     resolvers: [ShippingZoneResolver, StockLocationChannelsResolver],
+  },
+  shopApiExtensions: {
+    schema: shopSchemaExtension,
+    resolvers: [ShopShippingZoneResolver],
   },
   dashboard: './dashboard/index.tsx',
   compatibility: '^3.7.0',
