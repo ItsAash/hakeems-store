@@ -8,11 +8,11 @@ import { getVendureClient } from '@/lib/vendure/client';
 import {
   groupFacetValuesByFacet,
   isPlpSortKey,
-  mapSearchResultsToProducts,
   PLP_PAGE_SIZE,
   sortKeyToSearchSort,
   type PlpSortKey,
 } from '@/lib/vendure/plp';
+import { loadProductCards } from '@/lib/vendure/product-cards-loader';
 import { CONTAINER } from '@/lib/ui';
 import { Breadcrumbs } from '@/components/commerce/breadcrumbs';
 import { ProductGrid } from '@/components/commerce/product-grid';
@@ -87,7 +87,7 @@ export default async function CollectionPage({
   const vendureCollection = collectionResult.collection;
   if (!vendureCollection) notFound();
 
-  const products = mapSearchResultsToProducts(searchResult.search.items);
+  const cards = await loadProductCards(channel.code, searchResult.search.items);
   const facetGroups = groupFacetValuesByFacet(searchResult.search.facetValues);
   const totalPages = Math.max(1, Math.ceil(searchResult.search.totalItems / PLP_PAGE_SIZE));
   const basePath = routes.collection(channel.code, slug);
@@ -135,7 +135,7 @@ export default async function CollectionPage({
             <SortSelect currentSort={sortKey} />
           </div>
 
-          <ProductGrid products={products} channelCode={channel.code} />
+          <ProductGrid cards={cards} channelCode={channel.code} />
 
           <Pagination currentPage={page} totalPages={totalPages} basePath={basePath} searchParams={resolvedSearchParams} />
         </div>

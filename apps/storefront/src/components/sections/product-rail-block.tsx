@@ -2,7 +2,7 @@ import { CONTAINER } from '@/lib/ui';
 import type { ChannelCode } from '@/lib/channel';
 import type { SectionOf } from '@/lib/strapi/types';
 import { getVendureClient } from '@/lib/vendure/client';
-import { groupVariantsIntoProducts } from '@/lib/vendure/spotlight';
+import { buildSpotlightCards } from '@/lib/vendure/product-card';
 import { SpotlightCarousel } from '@/components/commerce/spotlight-carousel';
 
 const VARIANT_FETCH_LIMIT = 100;
@@ -24,13 +24,13 @@ export async function ProductRailBlock({
     .SpotlightCollection({ slug: section.vendureCollectionSlug, take: VARIANT_FETCH_LIMIT })
     .catch(() => null);
 
-  const products = groupVariantsIntoProducts(result?.collection?.productVariants.items ?? []);
-  if (products.length === 0) return null;
+  const cards = buildSpotlightCards(result?.collection?.productVariants.items ?? []);
+  if (cards.length === 0) return null;
 
   return (
     <section className={`py-section ${CONTAINER}`}>
       <SpotlightCarousel
-        products={products}
+        cards={cards}
         channelCode={channelCode}
         eyebrow={section.header?.eyebrow ?? null}
         heading={section.header?.heading ?? ''}

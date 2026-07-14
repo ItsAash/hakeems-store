@@ -6,11 +6,11 @@ import { getVendureClient } from '@/lib/vendure/client';
 import {
   groupFacetValuesByFacet,
   isPlpSortKey,
-  mapSearchResultsToProducts,
   PLP_PAGE_SIZE,
   sortKeyToSearchSort,
   type PlpSortKey,
 } from '@/lib/vendure/plp';
+import { loadProductCards } from '@/lib/vendure/product-cards-loader';
 import { CONTAINER } from '@/lib/ui';
 import { ProductGrid } from '@/components/commerce/product-grid';
 import { FacetFilterSidebar } from '@/components/commerce/facet-filter-sidebar';
@@ -71,7 +71,7 @@ export default async function ShopPage({
     },
   });
 
-  const products = mapSearchResultsToProducts(search.items);
+  const cards = await loadProductCards(channel.code, search.items);
   const facetGroups = groupFacetValuesByFacet(search.facetValues);
   const totalPages = Math.max(1, Math.ceil(search.totalItems / PLP_PAGE_SIZE));
 
@@ -105,7 +105,7 @@ export default async function ShopPage({
             <SortSelect currentSort={sortKey} />
           </div>
 
-          <ProductGrid products={products} channelCode={channel.code} />
+          <ProductGrid cards={cards} channelCode={channel.code} />
 
           <Pagination currentPage={page} totalPages={totalPages} basePath={basePath} searchParams={resolvedSearchParams} />
         </div>

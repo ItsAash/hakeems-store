@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { withChannel, type ChannelCode } from '@/lib/channel';
-import type { SpotlightProduct } from '@/lib/vendure/spotlight';
+import type { ProductCardModel } from '@/lib/vendure/product-card';
 import { ProductCard } from '@/components/commerce/product-card';
 import { ArrowLeftIcon, ArrowRightIcon } from '@/components/ui/icons';
 
@@ -13,7 +13,7 @@ import { ArrowLeftIcon, ArrowRightIcon } from '@/components/ui/icons';
 const VISIBLE_ON_DESKTOP = 4;
 
 type SpotlightCarouselProps = {
-  products: SpotlightProduct[];
+  cards: ProductCardModel[];
   channelCode: ChannelCode;
   eyebrow: string | null;
   heading: string;
@@ -31,7 +31,7 @@ type SpotlightCarouselProps = {
  * the arrow buttons.
  */
 export function SpotlightCarousel({
-  products,
+  cards,
   channelCode,
   eyebrow,
   heading,
@@ -59,13 +59,13 @@ export function SpotlightCarousel({
       track.removeEventListener('scroll', updateScrollState);
       window.removeEventListener('resize', updateScrollState);
     };
-  }, [products.length]);
+  }, [cards.length]);
 
   const scrollByPage = (direction: 1 | -1) => {
     trackRef.current?.scrollBy({ left: direction * trackRef.current.clientWidth, behavior: 'smooth' });
   };
 
-  const canPage = products.length > VISIBLE_ON_DESKTOP;
+  const canPage = cards.length > VISIBLE_ON_DESKTOP;
 
   return (
     <div>
@@ -96,14 +96,16 @@ export function SpotlightCarousel({
 
       <div
         ref={trackRef}
-        className="scrollbar-none -mx-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 md:-mx-10 md:gap-5 md:px-10 lg:mx-0 lg:px-0"
+        // px-* gives the overflow clip box slack so a leftmost card's selected-swatch ring
+        // isn't shaved; the matching -mx-* cancels it so the track still aligns to the grid.
+        className="scrollbar-none -mx-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 py-1 md:-mx-10 md:gap-5 md:px-10 lg:-mx-1 lg:px-1"
       >
-        {products.map((product) => (
+        {cards.map((card) => (
           <div
-            key={product.id}
+            key={card.productId}
             className="shrink-0 snap-start basis-[78%] sm:basis-[calc(50%-0.5rem)] lg:basis-[calc(25%-0.9375rem)]"
           >
-            <ProductCard product={product} channelCode={channelCode} />
+            <ProductCard card={card} channelCode={channelCode} showQuickAdd />
           </div>
         ))}
       </div>

@@ -701,6 +701,11 @@ type CatalogProduct = {
   /** PDP "Fit & Fabric" tab content (HTML). */
   fitAndFabric: string;
   facetValueIds: string[];
+  /** Merchandising (all optional): sale % (0–100) drives the strikethrough "was" price and
+   * "% off" on product cards; promoLabel is the small caption; badge is the corner tag. */
+  discountPercent?: number;
+  promoLabel?: string;
+  badge?: string;
   sizes: string[];
   colors: string[];
   images: Array<{ fileName: string; url: string }>;
@@ -802,7 +807,18 @@ async function ensureProduct(ctx: SeedContext, input: CatalogProduct) {
     `mutation UpdateProductCustomFields($input: UpdateProductInput!) {
       updateProduct(input: $input) { id }
     }`,
-    { input: { id: productId, customFields: { fitAndFabric: input.fitAndFabric, shippingReturns: SHIPPING_RETURNS } } },
+    {
+      input: {
+        id: productId,
+        customFields: {
+          fitAndFabric: input.fitAndFabric,
+          shippingReturns: SHIPPING_RETURNS,
+          discountPercent: input.discountPercent ?? null,
+          promoLabel: input.promoLabel ?? null,
+          badge: input.badge ?? null,
+        },
+      },
+    },
     'nepal',
   );
 
@@ -1092,6 +1108,7 @@ async function main() {
         { fileName: 'hakeems-box-tee-2.jpg', url: unsplash('photo-1554568218-0f1715e72254') },
       ],
       nepalPrice: 250000, hongKongPrice: 16800, nepalStock: 14, hongKongStock: 12,
+      discountPercent: 40, promoLabel: 'Price as Marked', badge: 'Best Seller',
     },
     {
       name: 'Studio Tee',
@@ -1106,6 +1123,7 @@ async function main() {
         { fileName: 'studio-tee-2.jpg', url: unsplash('photo-1583743814966-8936f5b7be1a') },
       ],
       nepalPrice: 220000, hongKongPrice: 14800, nepalStock: 16, hongKongStock: 10,
+      discountPercent: 30, promoLabel: 'Extra 30% Off at Checkout',
     },
     {
       name: 'Terrace Graphic Tee',
@@ -1120,6 +1138,7 @@ async function main() {
         { fileName: 'terrace-graphic-tee-2.jpg', url: unsplash('photo-1576566588028-4147f3842f27') },
       ],
       nepalPrice: 280000, hongKongPrice: 18800, nepalStock: 12, hongKongStock: 12,
+      badge: 'Best Seller',
     },
     {
       name: 'Everyday Crew Sweat',
@@ -1148,6 +1167,7 @@ async function main() {
         { fileName: 'ridgeline-hoodie-2.jpg', url: unsplash('photo-1556905055-8f358a7a47b2') },
       ],
       nepalPrice: 560000, hongKongPrice: 38800, nepalStock: 10, hongKongStock: 10,
+      discountPercent: 25, promoLabel: 'Price as Marked', badge: 'Just Reduced',
     },
     {
       name: 'Harbour Overshirt',

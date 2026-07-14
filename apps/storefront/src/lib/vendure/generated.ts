@@ -2757,8 +2757,11 @@ export type ProductVariantListArgs = {
 
 export type ProductCustomFields = {
   __typename?: 'ProductCustomFields';
+  badge?: Maybe<Scalars['String']['output']>;
+  discountPercent?: Maybe<Scalars['Int']['output']>;
   enrichedDescription?: Maybe<Scalars['String']['output']>;
   fitAndFabric?: Maybe<Scalars['String']['output']>;
+  promoLabel?: Maybe<Scalars['String']['output']>;
   seoDescription?: Maybe<Scalars['String']['output']>;
   seoTitle?: Maybe<Scalars['String']['output']>;
   shippingReturns?: Maybe<Scalars['String']['output']>;
@@ -2767,14 +2770,17 @@ export type ProductCustomFields = {
 export type ProductFilterParameter = {
   _and?: InputMaybe<Array<ProductFilterParameter>>;
   _or?: InputMaybe<Array<ProductFilterParameter>>;
+  badge?: InputMaybe<StringOperators>;
   createdAt?: InputMaybe<DateOperators>;
   description?: InputMaybe<StringOperators>;
+  discountPercent?: InputMaybe<NumberOperators>;
   enabled?: InputMaybe<BooleanOperators>;
   enrichedDescription?: InputMaybe<StringOperators>;
   fitAndFabric?: InputMaybe<StringOperators>;
   id?: InputMaybe<IdOperators>;
   languageCode?: InputMaybe<StringOperators>;
   name?: InputMaybe<StringOperators>;
+  promoLabel?: InputMaybe<StringOperators>;
   seoDescription?: InputMaybe<StringOperators>;
   seoTitle?: InputMaybe<StringOperators>;
   shippingReturns?: InputMaybe<StringOperators>;
@@ -2854,12 +2860,15 @@ export type ProductOptionTranslation = {
 };
 
 export type ProductSortParameter = {
+  badge?: InputMaybe<SortOrder>;
   createdAt?: InputMaybe<SortOrder>;
   description?: InputMaybe<SortOrder>;
+  discountPercent?: InputMaybe<SortOrder>;
   enrichedDescription?: InputMaybe<SortOrder>;
   fitAndFabric?: InputMaybe<SortOrder>;
   id?: InputMaybe<SortOrder>;
   name?: InputMaybe<SortOrder>;
+  promoLabel?: InputMaybe<SortOrder>;
   seoDescription?: InputMaybe<SortOrder>;
   seoTitle?: InputMaybe<SortOrder>;
   shippingReturns?: InputMaybe<SortOrder>;
@@ -4041,13 +4050,20 @@ export type PlpSearchQuery = { __typename?: 'Query', search: { __typename?: 'Sea
         | { __typename?: 'SinglePrice', value: number }
        }>, facetValues: Array<{ __typename?: 'FacetValueResult', count: number, facetValue: { __typename?: 'FacetValue', id: string, code: string, name: string, facet: { __typename?: 'Facet', id: string, code: string, name: string } } }> } };
 
+export type ProductCardsQueryVariables = Exact<{
+  ids: Array<Scalars['String']['input']> | Scalars['String']['input'];
+}>;
+
+
+export type ProductCardsQuery = { __typename?: 'Query', products: { __typename?: 'ProductList', items: Array<{ __typename?: 'Product', id: string, slug: string, name: string, featuredAsset?: { __typename?: 'Asset', preview: string } | null, customFields?: { __typename?: 'ProductCustomFields', discountPercent?: number | null, promoLabel?: string | null, badge?: string | null } | null, variants: Array<{ __typename?: 'ProductVariant', id: string, priceWithTax: number, currencyCode: CurrencyCode, featuredAsset?: { __typename?: 'Asset', preview: string } | null, assets: Array<{ __typename?: 'Asset', preview: string }>, options: Array<{ __typename?: 'ProductOption', id: string, code: string, name: string, group: { __typename?: 'ProductOptionGroup', code: string }, customFields?: { __typename?: 'ProductOptionCustomFields', swatch?: string | null } | null }> }> }> } };
+
 export type SpotlightCollectionQueryVariables = Exact<{
   slug: Scalars['String']['input'];
   take: Scalars['Int']['input'];
 }>;
 
 
-export type SpotlightCollectionQuery = { __typename?: 'Query', collection?: { __typename?: 'Collection', id: string, name: string, slug: string, productVariants: { __typename?: 'ProductVariantList', items: Array<{ __typename?: 'ProductVariant', id: string, priceWithTax: number, currencyCode: CurrencyCode, stockLevel: string, product: { __typename?: 'Product', id: string, slug: string, name: string, featuredAsset?: { __typename?: 'Asset', preview: string } | null }, options: Array<{ __typename?: 'ProductOption', id: string, code: string, groupId: string, group: { __typename?: 'ProductOptionGroup', code: string }, customFields?: { __typename?: 'ProductOptionCustomFields', swatch?: string | null } | null }> }> } } | null };
+export type SpotlightCollectionQuery = { __typename?: 'Query', collection?: { __typename?: 'Collection', id: string, name: string, slug: string, productVariants: { __typename?: 'ProductVariantList', items: Array<{ __typename?: 'ProductVariant', id: string, priceWithTax: number, currencyCode: CurrencyCode, stockLevel: string, featuredAsset?: { __typename?: 'Asset', preview: string } | null, assets: Array<{ __typename?: 'Asset', preview: string }>, product: { __typename?: 'Product', id: string, slug: string, name: string, featuredAsset?: { __typename?: 'Asset', preview: string } | null, customFields?: { __typename?: 'ProductCustomFields', discountPercent?: number | null, promoLabel?: string | null, badge?: string | null } | null }, options: Array<{ __typename?: 'ProductOption', id: string, code: string, name: string, groupId: string, group: { __typename?: 'ProductOptionGroup', code: string }, customFields?: { __typename?: 'ProductOptionCustomFields', swatch?: string | null } | null }> }> } } | null };
 
 export const ActiveOrderFieldsFragmentDoc = gql`
     fragment ActiveOrderFields on Order {
@@ -4756,6 +4772,47 @@ export const PlpSearchDocument = gql`
   }
 }
     `;
+export const ProductCardsDocument = gql`
+    query ProductCards($ids: [String!]!) {
+  products(options: {filter: {id: {in: $ids}}, take: 100}) {
+    items {
+      id
+      slug
+      name
+      featuredAsset {
+        preview
+      }
+      customFields {
+        discountPercent
+        promoLabel
+        badge
+      }
+      variants {
+        id
+        priceWithTax
+        currencyCode
+        featuredAsset {
+          preview
+        }
+        assets {
+          preview
+        }
+        options {
+          id
+          code
+          name
+          group {
+            code
+          }
+          customFields {
+            swatch
+          }
+        }
+      }
+    }
+  }
+}
+    `;
 export const SpotlightCollectionDocument = gql`
     query SpotlightCollection($slug: String!, $take: Int!) {
   collection(slug: $slug) {
@@ -4768,6 +4825,12 @@ export const SpotlightCollectionDocument = gql`
         priceWithTax
         currencyCode
         stockLevel
+        featuredAsset {
+          preview
+        }
+        assets {
+          preview
+        }
         product {
           id
           slug
@@ -4775,10 +4838,16 @@ export const SpotlightCollectionDocument = gql`
           featuredAsset {
             preview
           }
+          customFields {
+            discountPercent
+            promoLabel
+            badge
+          }
         }
         options {
           id
           code
+          name
           groupId
           group {
             code
@@ -4913,6 +4982,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     PlpSearch(variables: PlpSearchQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<PlpSearchQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<PlpSearchQuery>({ document: PlpSearchDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'PlpSearch', 'query', variables);
+    },
+    ProductCards(variables: ProductCardsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<ProductCardsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ProductCardsQuery>({ document: ProductCardsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'ProductCards', 'query', variables);
     },
     SpotlightCollection(variables: SpotlightCollectionQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<SpotlightCollectionQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<SpotlightCollectionQuery>({ document: SpotlightCollectionDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'SpotlightCollection', 'query', variables);
