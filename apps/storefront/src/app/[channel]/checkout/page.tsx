@@ -16,11 +16,18 @@ export default async function CheckoutPage({ params }: { params: Promise<{ chann
   const sessionCookies = await getVendureSessionCookies();
   const client = getVendureClient(channel.code, sessionCookies);
 
-  const [{ activeOrder }, { availableCountries }, { eligibleShippingMethods }, { activeCustomer }] = await Promise.all([
+  const [
+    { activeOrder },
+    { availableCountries },
+    { eligibleShippingMethods },
+    { activeCustomer },
+    { activeChannelShippingZones },
+  ] = await Promise.all([
     client.ActiveOrderFull(),
     client.Countries(),
     client.EligibleShippingMethods(),
     client.ActiveCustomer(),
+    client.ActiveChannelShippingZones(),
   ]);
 
   if (!activeOrder || activeOrder.lines.length === 0) {
@@ -51,6 +58,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ chann
           hasShippingMethod={activeOrder.shippingLines.length > 0}
           countries={availableCountries}
           defaultCountryCode={channel.countryCode}
+          shippingZones={activeChannelShippingZones}
           customer={
             activeCustomer
               ? {

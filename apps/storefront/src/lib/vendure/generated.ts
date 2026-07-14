@@ -3039,6 +3039,8 @@ export type Query = {
   __typename?: 'Query';
   /** The active Channel */
   activeChannel: Channel;
+  /** This channel's shipping-zone tree (enabled nodes only), from its assigned warehouse — a single root (country) node with children nested, or an empty array if none is configured. */
+  activeChannelShippingZones: Array<ShippingZoneNode>;
   /** The active Customer */
   activeCustomer?: Maybe<Customer>;
   /**
@@ -3378,6 +3380,20 @@ export type ShippingMethodTranslation = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+export type ShippingZoneNode = Node & {
+  __typename?: 'ShippingZoneNode';
+  children: Array<ShippingZoneNode>;
+  code: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  enabled: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  parentId?: Maybe<Scalars['ID']['output']>;
+  rate?: Maybe<Scalars['Int']['output']>;
+  stockLocationId: Scalars['ID']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
 /** The price value where the result has a single price */
 export type SinglePrice = {
   __typename?: 'SinglePrice';
@@ -3672,7 +3688,7 @@ export type Zone = Node & {
   updatedAt: Scalars['DateTime']['output'];
 };
 
-export type ActiveOrderFieldsFragment = { __typename?: 'Order', id: string, code: string, state: string, totalQuantity: number, subTotalWithTax: number, shippingWithTax: number, totalWithTax: number, currencyCode: CurrencyCode, lines: Array<{ __typename?: 'OrderLine', id: string, quantity: number, unitPriceWithTax: number, linePriceWithTax: number, featuredAsset?: { __typename?: 'Asset', preview: string } | null, productVariant: { __typename?: 'ProductVariant', id: string, name: string, sku: string, product: { __typename?: 'Product', slug: string }, options: Array<{ __typename?: 'ProductOption', code: string, name: string, group: { __typename?: 'ProductOptionGroup', code: string } }> } }>, shippingLines: Array<{ __typename?: 'ShippingLine', priceWithTax: number, shippingMethod: { __typename?: 'ShippingMethod', name: string } }>, shippingAddress?: { __typename?: 'OrderAddress', fullName?: string | null, streetLine1?: string | null, streetLine2?: string | null, city?: string | null, province?: string | null, postalCode?: string | null, countryCode?: string | null, phoneNumber?: string | null } | null, customer?: { __typename?: 'Customer', id: string, emailAddress: string } | null };
+export type ActiveOrderFieldsFragment = { __typename?: 'Order', id: string, code: string, state: string, totalQuantity: number, subTotalWithTax: number, shippingWithTax: number, totalWithTax: number, currencyCode: CurrencyCode, lines: Array<{ __typename?: 'OrderLine', id: string, quantity: number, unitPriceWithTax: number, linePriceWithTax: number, featuredAsset?: { __typename?: 'Asset', preview: string } | null, productVariant: { __typename?: 'ProductVariant', id: string, name: string, sku: string, product: { __typename?: 'Product', slug: string }, options: Array<{ __typename?: 'ProductOption', code: string, name: string, group: { __typename?: 'ProductOptionGroup', code: string } }> } }>, shippingLines: Array<{ __typename?: 'ShippingLine', priceWithTax: number, shippingMethod: { __typename?: 'ShippingMethod', name: string } }>, shippingAddress?: { __typename?: 'OrderAddress', fullName?: string | null, streetLine1?: string | null, streetLine2?: string | null, city?: string | null, province?: string | null, postalCode?: string | null, countryCode?: string | null, phoneNumber?: string | null, customFields?: { __typename?: 'AddressCustomFields', shippingZoneId?: string | null } | null } | null, customer?: { __typename?: 'Customer', id: string, emailAddress: string } | null };
 
 export type ActiveOrderSummaryQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -3682,7 +3698,7 @@ export type ActiveOrderSummaryQuery = { __typename?: 'Query', activeOrder?: { __
 export type ActiveOrderFullQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ActiveOrderFullQuery = { __typename?: 'Query', activeOrder?: { __typename?: 'Order', id: string, code: string, state: string, totalQuantity: number, subTotalWithTax: number, shippingWithTax: number, totalWithTax: number, currencyCode: CurrencyCode, lines: Array<{ __typename?: 'OrderLine', id: string, quantity: number, unitPriceWithTax: number, linePriceWithTax: number, featuredAsset?: { __typename?: 'Asset', preview: string } | null, productVariant: { __typename?: 'ProductVariant', id: string, name: string, sku: string, product: { __typename?: 'Product', slug: string }, options: Array<{ __typename?: 'ProductOption', code: string, name: string, group: { __typename?: 'ProductOptionGroup', code: string } }> } }>, shippingLines: Array<{ __typename?: 'ShippingLine', priceWithTax: number, shippingMethod: { __typename?: 'ShippingMethod', name: string } }>, shippingAddress?: { __typename?: 'OrderAddress', fullName?: string | null, streetLine1?: string | null, streetLine2?: string | null, city?: string | null, province?: string | null, postalCode?: string | null, countryCode?: string | null, phoneNumber?: string | null } | null, customer?: { __typename?: 'Customer', id: string, emailAddress: string } | null } | null };
+export type ActiveOrderFullQuery = { __typename?: 'Query', activeOrder?: { __typename?: 'Order', id: string, code: string, state: string, totalQuantity: number, subTotalWithTax: number, shippingWithTax: number, totalWithTax: number, currencyCode: CurrencyCode, lines: Array<{ __typename?: 'OrderLine', id: string, quantity: number, unitPriceWithTax: number, linePriceWithTax: number, featuredAsset?: { __typename?: 'Asset', preview: string } | null, productVariant: { __typename?: 'ProductVariant', id: string, name: string, sku: string, product: { __typename?: 'Product', slug: string }, options: Array<{ __typename?: 'ProductOption', code: string, name: string, group: { __typename?: 'ProductOptionGroup', code: string } }> } }>, shippingLines: Array<{ __typename?: 'ShippingLine', priceWithTax: number, shippingMethod: { __typename?: 'ShippingMethod', name: string } }>, shippingAddress?: { __typename?: 'OrderAddress', fullName?: string | null, streetLine1?: string | null, streetLine2?: string | null, city?: string | null, province?: string | null, postalCode?: string | null, countryCode?: string | null, phoneNumber?: string | null, customFields?: { __typename?: 'AddressCustomFields', shippingZoneId?: string | null } | null } | null, customer?: { __typename?: 'Customer', id: string, emailAddress: string } | null } | null };
 
 export type AddItemToOrderMutationVariables = Exact<{
   productVariantId: Scalars['ID']['input'];
@@ -3812,6 +3828,11 @@ export type CountriesQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type CountriesQuery = { __typename?: 'Query', availableCountries: Array<{ __typename?: 'Country', id: string, code: string, name: string }> };
 
+export type ActiveChannelShippingZonesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ActiveChannelShippingZonesQuery = { __typename?: 'Query', activeChannelShippingZones: Array<{ __typename?: 'ShippingZoneNode', id: string, name: string, code: string, rate?: number | null, parentId?: string | null, children: Array<{ __typename?: 'ShippingZoneNode', id: string, name: string, code: string, rate?: number | null, parentId?: string | null, children: Array<{ __typename?: 'ShippingZoneNode', id: string, name: string, code: string, rate?: number | null, parentId?: string | null, children: Array<{ __typename?: 'ShippingZoneNode', id: string, name: string, code: string, rate?: number | null, parentId?: string | null }> }> }> }> };
+
 export type SetOrderShippingAddressMutationVariables = Exact<{
   input: CreateAddressInput;
 }>;
@@ -3895,12 +3916,12 @@ export type OrderByCodeQueryVariables = Exact<{
 
 export type OrderByCodeQuery = { __typename?: 'Query', orderByCode?: { __typename?: 'Order', id: string, code: string, state: string, orderPlacedAt?: string | null, subTotalWithTax: number, shippingWithTax: number, totalWithTax: number, currencyCode: CurrencyCode, customer?: { __typename?: 'Customer', emailAddress: string } | null, shippingAddress?: { __typename?: 'OrderAddress', fullName?: string | null, streetLine1?: string | null, city?: string | null, countryCode?: string | null } | null, lines: Array<{ __typename?: 'OrderLine', id: string, quantity: number, linePriceWithTax: number, featuredAsset?: { __typename?: 'Asset', preview: string } | null, productVariant: { __typename?: 'ProductVariant', name: string, product: { __typename?: 'Product', slug: string } } }> } | null };
 
-export type CustomerAddressFieldsFragment = { __typename?: 'Address', id: string, fullName?: string | null, company?: string | null, streetLine1: string, streetLine2?: string | null, city?: string | null, province?: string | null, postalCode?: string | null, phoneNumber?: string | null, defaultShippingAddress?: boolean | null, defaultBillingAddress?: boolean | null, country: { __typename?: 'Country', code: string, name: string } };
+export type CustomerAddressFieldsFragment = { __typename?: 'Address', id: string, fullName?: string | null, company?: string | null, streetLine1: string, streetLine2?: string | null, city?: string | null, province?: string | null, postalCode?: string | null, phoneNumber?: string | null, defaultShippingAddress?: boolean | null, defaultBillingAddress?: boolean | null, country: { __typename?: 'Country', code: string, name: string }, customFields?: { __typename?: 'AddressCustomFields', shippingZoneId?: string | null } | null };
 
 export type ActiveCustomerQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ActiveCustomerQuery = { __typename?: 'Query', activeCustomer?: { __typename?: 'Customer', id: string, firstName: string, lastName: string, emailAddress: string, phoneNumber?: string | null, addresses?: Array<{ __typename?: 'Address', id: string, fullName?: string | null, company?: string | null, streetLine1: string, streetLine2?: string | null, city?: string | null, province?: string | null, postalCode?: string | null, phoneNumber?: string | null, defaultShippingAddress?: boolean | null, defaultBillingAddress?: boolean | null, country: { __typename?: 'Country', code: string, name: string } }> | null } | null };
+export type ActiveCustomerQuery = { __typename?: 'Query', activeCustomer?: { __typename?: 'Customer', id: string, firstName: string, lastName: string, emailAddress: string, phoneNumber?: string | null, addresses?: Array<{ __typename?: 'Address', id: string, fullName?: string | null, company?: string | null, streetLine1: string, streetLine2?: string | null, city?: string | null, province?: string | null, postalCode?: string | null, phoneNumber?: string | null, defaultShippingAddress?: boolean | null, defaultBillingAddress?: boolean | null, country: { __typename?: 'Country', code: string, name: string }, customFields?: { __typename?: 'AddressCustomFields', shippingZoneId?: string | null } | null }> | null } | null };
 
 export type CustomerOrdersQueryVariables = Exact<{
   take: Scalars['Int']['input'];
@@ -3960,14 +3981,14 @@ export type CreateCustomerAddressMutationVariables = Exact<{
 }>;
 
 
-export type CreateCustomerAddressMutation = { __typename?: 'Mutation', createCustomerAddress: { __typename?: 'Address', id: string, fullName?: string | null, company?: string | null, streetLine1: string, streetLine2?: string | null, city?: string | null, province?: string | null, postalCode?: string | null, phoneNumber?: string | null, defaultShippingAddress?: boolean | null, defaultBillingAddress?: boolean | null, country: { __typename?: 'Country', code: string, name: string } } };
+export type CreateCustomerAddressMutation = { __typename?: 'Mutation', createCustomerAddress: { __typename?: 'Address', id: string, fullName?: string | null, company?: string | null, streetLine1: string, streetLine2?: string | null, city?: string | null, province?: string | null, postalCode?: string | null, phoneNumber?: string | null, defaultShippingAddress?: boolean | null, defaultBillingAddress?: boolean | null, country: { __typename?: 'Country', code: string, name: string }, customFields?: { __typename?: 'AddressCustomFields', shippingZoneId?: string | null } | null } };
 
 export type UpdateCustomerAddressMutationVariables = Exact<{
   input: UpdateAddressInput;
 }>;
 
 
-export type UpdateCustomerAddressMutation = { __typename?: 'Mutation', updateCustomerAddress: { __typename?: 'Address', id: string, fullName?: string | null, company?: string | null, streetLine1: string, streetLine2?: string | null, city?: string | null, province?: string | null, postalCode?: string | null, phoneNumber?: string | null, defaultShippingAddress?: boolean | null, defaultBillingAddress?: boolean | null, country: { __typename?: 'Country', code: string, name: string } } };
+export type UpdateCustomerAddressMutation = { __typename?: 'Mutation', updateCustomerAddress: { __typename?: 'Address', id: string, fullName?: string | null, company?: string | null, streetLine1: string, streetLine2?: string | null, city?: string | null, province?: string | null, postalCode?: string | null, phoneNumber?: string | null, defaultShippingAddress?: boolean | null, defaultBillingAddress?: boolean | null, country: { __typename?: 'Country', code: string, name: string }, customFields?: { __typename?: 'AddressCustomFields', shippingZoneId?: string | null } | null } };
 
 export type DeleteCustomerAddressMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -4077,6 +4098,9 @@ export const ActiveOrderFieldsFragmentDoc = gql`
     postalCode
     countryCode
     phoneNumber
+    customFields {
+      shippingZoneId
+    }
   }
   customer {
     id
@@ -4100,6 +4124,9 @@ export const CustomerAddressFieldsFragmentDoc = gql`
   country {
     code
     name
+  }
+  customFields {
+    shippingZoneId
   }
 }
     `;
@@ -4266,6 +4293,38 @@ export const CountriesDocument = gql`
     id
     code
     name
+  }
+}
+    `;
+export const ActiveChannelShippingZonesDocument = gql`
+    query ActiveChannelShippingZones {
+  activeChannelShippingZones {
+    id
+    name
+    code
+    rate
+    parentId
+    children {
+      id
+      name
+      code
+      rate
+      parentId
+      children {
+        id
+        name
+        code
+        rate
+        parentId
+        children {
+          id
+          name
+          code
+          rate
+          parentId
+        }
+      }
+    }
   }
 }
     `;
@@ -4779,6 +4838,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     Countries(variables?: CountriesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<CountriesQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<CountriesQuery>({ document: CountriesDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'Countries', 'query', variables);
+    },
+    ActiveChannelShippingZones(variables?: ActiveChannelShippingZonesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<ActiveChannelShippingZonesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ActiveChannelShippingZonesQuery>({ document: ActiveChannelShippingZonesDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'ActiveChannelShippingZones', 'query', variables);
     },
     SetOrderShippingAddress(variables: SetOrderShippingAddressMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<SetOrderShippingAddressMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<SetOrderShippingAddressMutation>({ document: SetOrderShippingAddressDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'SetOrderShippingAddress', 'mutation', variables);

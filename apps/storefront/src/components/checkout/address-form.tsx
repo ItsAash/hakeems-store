@@ -7,6 +7,7 @@ import { setCustomerForOrderAction, setOrderShippingAddressAction } from '@/lib/
 import { createCustomerAddressAction } from '@/lib/vendure/auth-actions';
 import type { CreateAddressInput, CustomerAddressFieldsFragment } from '@/lib/vendure/generated';
 import { Field } from '@/components/ui/field';
+import { ShippingZonePicker, type ZoneNode } from '@/components/checkout/shipping-zone-picker';
 
 export type Country = { code: string; name: string };
 
@@ -80,6 +81,8 @@ export function AddressForm({
   defaultCountryCode,
   customer,
   defaultEmail,
+  shippingZones,
+  currencyCode,
 }: {
   channelCode: ChannelCode;
   countries: Country[];
@@ -88,6 +91,9 @@ export function AddressForm({
   customer?: CheckoutCustomer | null;
   /** Guest email fallback (e.g. from a prior guest checkout). */
   defaultEmail?: string;
+  /** This channel's shipping-zone tree — drives the delivery-zone picker below the address. */
+  shippingZones: ZoneNode[];
+  currencyCode: string;
 }) {
   const router = useRouter();
   const isLoggedIn = !!customer;
@@ -111,6 +117,12 @@ export function AddressForm({
   const [address, setAddress] = useState<AddressState>({ ...emptyAddress, countryCode: defaultCountryCode });
   const [saveToAccount, setSaveToAccount] = useState(true);
 
+  const defaultSelected = savedAddresses.find((candidate) => candidate.id === defaultSelectedId);
+  const [shippingZoneId, setShippingZoneId] = useState<string | null>(
+    defaultSelected?.customFields?.shippingZoneId ?? null,
+  );
+  const zoneRequired = (shippingZones[0]?.children?.length ?? 0) > 0;
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -133,6 +145,8 @@ export function AddressForm({
       setIsSubmitting(false);
     };
 
+    if (zoneRequired && !shippingZoneId) return fail('Please select a delivery zone.');
+
     // Vendure rejects setCustomerForOrder once the session is authenticated — the order's
     // customer is implicitly the signed-in user, so only guests need this call.
     if (!isLoggedIn) {
@@ -145,11 +159,13 @@ export function AddressForm({
       if (!customerResult.success) return fail(customerResult.message);
     }
 
+    const zoneCustomFields = shippingZoneId ? { customFields: { shippingZoneId } } : undefined;
+
     let addressInput: CreateAddressInput;
     if (usingSavedAddress) {
       const selected = savedAddresses.find((candidate) => candidate.id === selectedAddressId);
       if (!selected) return fail('Please select a shipping address.');
-      addressInput = savedAddressToInput(selected);
+      addressInput = { ...savedAddressToInput(selected), ...zoneCustomFields };
     } else {
       addressInput = {
         fullName: `${contact.firstName} ${contact.lastName}`.trim() || undefined,
@@ -160,10 +176,11 @@ export function AddressForm({
         postalCode: address.postalCode || undefined,
         countryCode: address.countryCode,
         phoneNumber: contact.phoneNumber || undefined,
+        ...zoneCustomFields,
       };
 
-      // Optionally persist the new address to the account for future orders. A failure here
-      // shouldn't block the order — the address is still applied below either way.
+      // Optionally persist the new address (and its zone) to the account for future orders. A
+      // failure here shouldn't block the order — the address is still applied below either way.
       if (isLoggedIn && saveToAccount) {
         await createCustomerAddressAction(channelCode, {
           ...addressInput,
@@ -237,6 +254,7 @@ export function AddressForm({
                   onClick={() => {
                     setMode('saved');
                     setSelectedAddressId(saved.id);
+                    setShippingZoneId(saved.customFields?.shippingZoneId ?? null);
                   }}
                   aria-pressed={isSelected}
                   className={`flex items-start gap-3 border p-4 text-left transition-colors ${
@@ -272,7 +290,10 @@ export function AddressForm({
 
             <button
               type="button"
-              onClick={() => setMode('new')}
+              onClick={() => {
+                setMode('new');
+                setShippingZoneId(null);
+              }}
               aria-pressed={mode === 'new'}
               className={`border border-dashed p-4 text-left text-sm transition-colors ${
                 mode === 'new'
@@ -364,13 +385,22 @@ export function AddressForm({
             )}
           </div>
         )}
+
+        {zoneRequired && (
+          <ShippingZonePicker
+            zones={shippingZones}
+            value={shippingZoneId}
+            onChange={setShippingZoneId}
+            currencyCode={currencyCode}
+          />
+        )}
       </section>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       <button
         type="submit"
-        disabled={isSubmitting}
+        disabled={isSubmitting || (zoneRequired && !shippingZoneId)}
         className="mt-1 w-full bg-[var(--color-ink)] py-4 text-sm font-medium tracking-[0.1em] text-[var(--color-paper)] uppercase transition-opacity hover:opacity-90 disabled:opacity-40"
       >
         {isSubmitting ? 'Saving…' : 'Continue to Shipping'}

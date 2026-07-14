@@ -47,6 +47,20 @@ export class ShippingZoneService {
     return this.buildTree(flat);
   }
 
+  /**
+   * The active channel's zone tree, enabled nodes only (a disabled node's whole subtree is
+   * pruned) — this is what the storefront's zone picker reads. Returns `[]` if no warehouse is
+   * linked to this channel or nothing has been configured yet.
+   */
+  async getTreeForActiveChannel(ctx: RequestContext): Promise<ShippingZoneNode[]> {
+    const stockLocations = await this.getStockLocationsForChannel(ctx);
+    if (stockLocations.length === 0) return [];
+
+    const flat = await this.getFlatTreeForStockLocation(ctx, stockLocations[0].id);
+    const enabled = flat.filter(node => node.enabled);
+    return this.buildTree(enabled);
+  }
+
   private buildTree(flat: ShippingZoneNode[]): ShippingZoneNode[] {
     const byParent = new Map<string, ShippingZoneNode[]>();
     for (const node of flat) {
@@ -73,6 +87,11 @@ export class ShippingZoneService {
       const parent = await this.findOne(ctx, input.parentId);
       if (!parent) {
         throw new UserInputError('Parent shipping zone not found');
+      }
+      if (parent.rate != null) {
+        throw new UserInputError(
+          `"${parent.name}" has its own rate set, so it's priced as a leaf — remove its rate before adding zones beneath it (only leaf zones may carry a rate).`,
+        );
       }
       stockLocationId = parent.stockLocationId;
     } else {
@@ -110,6 +129,14 @@ export class ShippingZoneService {
     if (input.code !== undefined && normalize(input.code) !== normalize(node.code)) {
       await this.assertUniqueSibling(node.stockLocationId, input.code, node.parentId, node.id);
     }
+    if (input.rate != null) {
+      const childCount = await this.repo.count({ where: { parentId: node.id as any } });
+      if (childCount > 0) {
+        throw new UserInputError(
+          `"${node.name}" has zones beneath it, so only they can carry a rate — only leaf zones may be priced.`,
+        );
+      }
+    }
     Object.assign(node, {
       name: input.name ?? node.name,
       code: input.code ?? node.code,
@@ -141,7 +168,7 @@ export class ShippingZoneService {
   }
 
   /** The StockLocation(s) assigned to the active channel — in practice, one warehouse per channel. */
-  private async getStockLocationsForChannel(ctx: RequestContext): Promise<StockLocation[]> {
+  async getStockLocationsForChannel(ctx: RequestContext): Promise<StockLocation[]> {
     return this.connection
       .getRepository(ctx, StockLocation)
       .createQueryBuilder('stockLocation')
@@ -179,8 +206,9 @@ export class ShippingZoneService {
 
       let matched: ShippingZoneNode | undefined;
 
-      if (explicitId && byId.has(String(explicitId))) {
-        matched = byId.get(String(explicitId));
+      const explicitNode = explicitId ? byId.get(String(explicitId)) : undefined;
+      if (explicitNode?.enabled) {
+        matched = explicitNode;
       } else if (root) {
         const byParent = new Map<string, ShippingZoneNode[]>();
         for (const node of flat) {
