@@ -6,7 +6,7 @@ import type { ChannelCode } from '@/lib/channel';
 import type { NavItem } from '@/lib/strapi/types';
 import { withChannel } from '@/lib/channel';
 import { ChevronDownIcon, CloseIcon, MenuIcon } from '@/components/ui/icons';
-import { Portal } from '@/components/ui/portal';
+import { Overlay } from '@/components/ui/overlay';
 
 export function MobileMenu({ items, channelCode }: { items: NavItem[]; channelCode: ChannelCode }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,20 +19,31 @@ export function MobileMenu({ items, channelCode }: { items: NavItem[]; channelCo
 
   return (
     <>
-      <button type="button" onClick={() => setIsOpen(true)} aria-label="Open menu" className="text-[var(--nav-fg)] md:hidden">
+      <button
+        type="button"
+        onClick={() => setIsOpen(true)}
+        aria-label="Open menu"
+        aria-haspopup="dialog"
+        className="text-[var(--nav-fg)] md:hidden"
+      >
         <MenuIcon className="h-5 w-5" />
       </button>
 
-      {isOpen && (
-        <Portal>
-          <div className="fixed inset-0 z-50 flex flex-col bg-[var(--color-paper-raised)]">
-            <div className="flex items-center justify-between border-b hairline px-6 py-5">
-              <span className="font-serif text-lg text-[var(--color-ink)]">Hakeems</span>
-              <button type="button" onClick={close} aria-label="Close menu">
-                <CloseIcon className="h-5 w-5" />
-              </button>
-            </div>
-            <nav className="flex flex-1 flex-col overflow-y-auto px-6 py-4">
+      <Overlay
+        open={isOpen}
+        onClose={close}
+        label="Menu"
+        panelClassName="absolute inset-y-0 left-0 flex w-full flex-col bg-[var(--color-paper-raised)]"
+        panelClosedClassName="-translate-x-full"
+        panelOpenClassName="translate-x-0"
+      >
+        <div className="flex items-center justify-between border-b hairline px-6 py-5">
+          <span className="font-serif text-lg text-[var(--color-ink)]">Hakeems</span>
+          <button type="button" onClick={close} aria-label="Close menu">
+            <CloseIcon className="h-5 w-5" />
+          </button>
+        </div>
+        <nav className="flex flex-1 flex-col overflow-y-auto px-6 py-4">
               {items.map((item) => {
                 const hasChildren = item.children.length > 0;
                 const isExpanded = expandedId === item.id;
@@ -70,10 +81,8 @@ export function MobileMenu({ items, channelCode }: { items: NavItem[]; channelCo
                   </div>
                 );
               })}
-            </nav>
-          </div>
-        </Portal>
-      )}
+        </nav>
+      </Overlay>
     </>
   );
 }

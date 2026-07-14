@@ -399,6 +399,7 @@ async function seedPages(strapi: Core.Strapi) {
         subheading: 'Streetwear made with the community, for the community — designed in Kathmandu, worn from Jhamsikhel to Jomsom.',
         ctaLabel: 'Shop The Spotlight',
         ctaHref: '/nepal/collections/spotlight',
+        alt: 'Model wearing Hakeems streetwear on a Kathmandu rooftop at golden hour',
       },
       {
         image: heroEssentials,
@@ -406,6 +407,7 @@ async function seedPages(strapi: Core.Strapi) {
         subheading: 'Core pieces we cut in every drop and restock season after season.',
         ctaLabel: 'Shop Tops',
         ctaHref: '/nepal/collections/tops',
+        alt: 'Folded Hakeems everyday tees and sweats in core neutral tones',
       },
       {
         image: heroAccessories,
@@ -413,6 +415,7 @@ async function seedPages(strapi: Core.Strapi) {
         subheading: 'Totes, slings and caps — the details that make the difference, from the pop-up to the street.',
         ctaLabel: 'Shop Accessories',
         ctaHref: '/nepal/collections/accessories',
+        alt: 'Hakeems canvas tote, sling pack and cap arranged on a concrete surface',
       },
     ],
     hongkong: [
@@ -423,6 +426,7 @@ async function seedPages(strapi: Core.Strapi) {
           'Streetwear made with the community, for the community — designed in Kathmandu, cut for Hong Kong humidity and harbour nights.',
         ctaLabel: 'Shop The Spotlight',
         ctaHref: '/hongkong/collections/spotlight',
+        alt: 'Model in Hakeems streetwear against a Hong Kong harbour skyline at night',
       },
       {
         image: heroEssentials,
@@ -430,6 +434,7 @@ async function seedPages(strapi: Core.Strapi) {
         subheading: 'Core pieces we cut in every drop and restock season after season.',
         ctaLabel: 'Shop Tops',
         ctaHref: '/hongkong/collections/tops',
+        alt: 'Folded Hakeems everyday tees and sweats in core neutral tones',
       },
       {
         image: heroBottoms,
@@ -437,6 +442,7 @@ async function seedPages(strapi: Core.Strapi) {
         subheading: 'Utility pants, joggers and denim, cut for the street and the stage — Hong Kong humidity included.',
         ctaLabel: 'Shop Bottoms',
         ctaHref: '/hongkong/collections/bottoms',
+        alt: 'Model wearing Hakeems utility pants and joggers on a city street',
       },
     ],
   };

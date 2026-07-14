@@ -19,7 +19,9 @@
       "allowedTypes": ["images"]
     },
     "alt": {
-      "type": "string"
+      "type": "string",
+      "required": true,
+      "maxLength": 160
     },
     "heading": {
       "type": "string",
@@ -29,10 +31,12 @@
       "type": "text"
     },
     "ctaLabel": {
-      "type": "string"
+      "type": "string",
+      "maxLength": 40
     },
     "ctaHref": {
-      "type": "string"
+      "type": "string",
+      "regex": "^$|^(/[^\\s]*|https?://[^\\s]+)$"
     }
   }
 }

@@ -12,6 +12,7 @@
     "start": "strapi start",
     "strapi": "strapi",
     "seed": "tsx scripts/seed.ts",
+    "purge": "tsx scripts/purge.ts",
     "upgrade": "npx @strapi/upgrade latest",
     "upgrade:dry": "npx @strapi/upgrade latest --dry"
   },

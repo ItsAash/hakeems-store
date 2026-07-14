@@ -9,6 +9,9 @@
   --color-paper-raised: #ffffff;
   --color-hairline: #e5e1da;
   --color-accent: #b3441e;
+  /* Sale/markdown pricing. A token (not a raw Tailwind `red-700`) so sale styling stays
+     themeable and consistent everywhere pricing renders. */
+  --color-sale: #b91c1c;
 
   /* Section-background palette tokens — the constrained set editors pick from (see
      lib/design/color-tokens.ts). Replaces free-form hex in the CMS. */
@@ -70,6 +73,21 @@ input[type="search"]::-webkit-search-cancel-button {
   display: none;
 }
 
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Reused for image swaps (e.g. the PDP gallery selecting a thumbnail) so the change reads as a
+   soft crossfade rather than a hard cut. Keyed elements re-trigger it on mount. */
+.animate-fade-in {
+  animation: fade-in 300ms ease-out;
+}
+
 @keyframes hero-kenburns {
   from {
     transform: scale(1.08);
@@ -87,24 +105,9 @@ input[type="search"]::-webkit-search-cancel-button {
   animation-fill-mode: forwards;
 }
 
-@keyframes hero-progress {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
-  }
-}
-
-.animate-hero-progress {
-  animation-name: hero-progress;
-  animation-timing-function: linear;
-  animation-fill-mode: forwards;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .animate-hero-kenburns,
-  .animate-hero-progress {
+  .animate-fade-in {
     animation: none;
   }
 }

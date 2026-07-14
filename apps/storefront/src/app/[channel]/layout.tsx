@@ -51,7 +51,7 @@ export default async function ChannelLayout({
       <JsonLd data={organization} />
       <JsonLd data={website} />
       <div className="flex min-h-screen flex-col">
-        <HeaderChrome channelCode={channel.code}>
+        <HeaderChrome channelCode={channel.code} hasAnnouncement={activeAnnouncements.length > 0}>
           <AnnouncementBar announcements={activeAnnouncements} />
           <NavBar channel={channel} />
         </HeaderChrome>

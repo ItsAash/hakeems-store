@@ -89,15 +89,12 @@ export function ProductCard({
         )}
 
         {/* Per-colour photo paging — arrows sit over (not inside) the PDP link, so a click
-            pages the gallery instead of navigating. Revealed on hover, shown on touch. */}
+            pages the gallery instead of navigating. Revealed on hover, shown on touch. Both
+            arrows stay mounted and disable at the ends so the affordance never shifts. */}
         {images.length > 1 && (
           <>
-            {imageIndex > 0 && (
-              <CardArrow direction="prev" onClick={pageImage(-1)} />
-            )}
-            {imageIndex < images.length - 1 && (
-              <CardArrow direction="next" onClick={pageImage(1)} />
-            )}
+            <CardArrow direction="prev" onClick={pageImage(-1)} disabled={imageIndex === 0} />
+            <CardArrow direction="next" onClick={pageImage(1)} disabled={imageIndex === images.length - 1} />
           </>
         )}
       </div>
@@ -140,7 +137,7 @@ export function ProductCard({
               {formatPrice(card.compareAtPrice!, card.currencyCode)}
             </span>
           )}
-          <span className={onSale ? 'font-medium text-red-700' : 'text-[var(--color-ink-muted)]'}>
+          <span className={onSale ? 'font-medium text-[var(--color-sale)]' : 'text-[var(--color-ink-muted)]'}>
             {formatPrice(card.price, card.currencyCode)}
           </span>
         </div>
@@ -151,14 +148,23 @@ export function ProductCard({
   );
 }
 
-function CardArrow({ direction, onClick }: { direction: 'prev' | 'next'; onClick: (event: React.MouseEvent) => void }) {
+function CardArrow({
+  direction,
+  onClick,
+  disabled,
+}: {
+  direction: 'prev' | 'next';
+  onClick: (event: React.MouseEvent) => void;
+  disabled: boolean;
+}) {
   const Icon = direction === 'prev' ? ArrowLeftIcon : ArrowRightIcon;
   return (
     <button
       type="button"
       onClick={onClick}
+      disabled={disabled}
       aria-label={direction === 'prev' ? 'Previous image' : 'Next image'}
-      className={`absolute top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-[var(--color-paper)]/85 text-[var(--color-ink)] shadow-sm backdrop-blur transition-opacity duration-200 hover:bg-[var(--color-paper)] focus-visible:opacity-100 md:opacity-0 md:group-hover/media:opacity-100 ${
+      className={`absolute top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-[var(--color-paper)]/85 text-[var(--color-ink)] shadow-sm backdrop-blur transition-opacity duration-200 hover:bg-[var(--color-paper)] focus-visible:opacity-100 disabled:cursor-default disabled:opacity-0 md:opacity-0 md:group-hover/media:opacity-100 ${
         direction === 'prev' ? 'left-2' : 'right-2'
       }`}
     >

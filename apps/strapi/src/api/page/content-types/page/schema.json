@@ -14,7 +14,9 @@
   "attributes": {
     "slug": {
       "type": "string",
-      "required": true
+      "required": true,
+      "maxLength": 120,
+      "regex": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
     },
     "channel": {
       "type": "enumeration",

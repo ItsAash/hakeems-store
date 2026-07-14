@@ -19,7 +19,9 @@
       "allowedTypes": ["images"]
     },
     "alt": {
-      "type": "string"
+      "type": "string",
+      "required": true,
+      "maxLength": 160
     }
   }
 }

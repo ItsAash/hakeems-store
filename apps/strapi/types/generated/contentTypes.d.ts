@@ -581,7 +581,11 @@ export interface ApiPagePage extends Struct.CollectionTypeSchema {
       ]
     >;
     seo: Schema.Attribute.Component<'shared.seo', false>;
-    slug: Schema.Attribute.String & Schema.Attribute.Required;
+    slug: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 120;
+      }>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

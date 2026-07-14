@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import type { ChannelCode } from '@/lib/channel';
 import { routes } from '@/lib/routes';
 import { formatPrice } from '@/lib/format';
 import { BagIcon, CloseIcon } from '@/components/ui/icons';
-import { Portal } from '@/components/ui/portal';
+import { Overlay } from '@/components/ui/overlay';
 import { CartLineItem, type CartLine } from '@/components/commerce/cart-line-item';
 
 export function CartWidget({
@@ -23,15 +23,7 @@ export function CartWidget({
   channelCode: ChannelCode;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setIsOpen(false);
-    };
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [isOpen]);
+  const close = () => setIsOpen(false);
 
   return (
     <>
@@ -39,6 +31,7 @@ export function CartWidget({
         type="button"
         onClick={() => setIsOpen(true)}
         aria-label={`Cart, ${initialCount} item${initialCount === 1 ? '' : 's'}`}
+        aria-haspopup="dialog"
         className="relative text-[var(--nav-fg)]"
       >
         <BagIcon className="h-5 w-5" />
@@ -49,54 +42,49 @@ export function CartWidget({
         )}
       </button>
 
-      {isOpen && (
-        <Portal>
-          <div className="fixed inset-0 z-50">
-            <button
-              type="button"
-              aria-label="Close cart"
-              onClick={() => setIsOpen(false)}
-              className="absolute inset-0 bg-[var(--color-ink)]/40"
-            />
-            <div className="absolute right-0 top-0 flex h-full w-full max-w-sm flex-col bg-[var(--color-paper-raised)] shadow-xl">
-              <div className="flex items-center justify-between border-b hairline px-6 py-5">
-                <h2 className="text-sm tracking-wide uppercase">Cart ({initialCount})</h2>
-                <button type="button" onClick={() => setIsOpen(false)} aria-label="Close cart">
-                  <CloseIcon className="h-5 w-5" />
-                </button>
-              </div>
+      <Overlay
+        open={isOpen}
+        onClose={close}
+        label="Cart"
+        panelClassName="absolute right-0 top-0 flex h-full w-full max-w-sm flex-col bg-[var(--color-paper-raised)] shadow-xl"
+        panelClosedClassName="translate-x-full"
+        panelOpenClassName="translate-x-0"
+      >
+        <div className="flex items-center justify-between border-b hairline px-6 py-5">
+          <h2 className="text-sm tracking-wide uppercase">Cart ({initialCount})</h2>
+          <button type="button" onClick={close} aria-label="Close cart">
+            <CloseIcon className="h-5 w-5" />
+          </button>
+        </div>
 
-              {initialLines.length === 0 ? (
-                <div className="flex flex-1 items-center justify-center px-6 text-center text-sm text-[var(--color-ink-muted)]">
-                  Your cart is empty.
-                </div>
-              ) : (
-                <div className="flex-1 overflow-y-auto px-6">
-                  {initialLines.map((line) => (
-                    <CartLineItem key={line.id} line={line} channelCode={channelCode} />
-                  ))}
-                </div>
-              )}
-
-              <div className="border-t hairline p-6">
-                {initialLines.length > 0 && (
-                  <div className="mb-4 flex items-center justify-between text-sm">
-                    <span className="text-[var(--color-ink-muted)]">Subtotal</span>
-                    <span className="text-[var(--color-ink)]">{formatPrice(subTotalWithTax, currencyCode)}</span>
-                  </div>
-                )}
-                <Link
-                  href={routes.cart(channelCode)}
-                  onClick={() => setIsOpen(false)}
-                  className="flex w-full items-center justify-center bg-[var(--color-ink)] px-6 py-3 text-sm tracking-wide text-[var(--color-paper)] uppercase hover:opacity-90"
-                >
-                  View Cart
-                </Link>
-              </div>
-            </div>
+        {initialLines.length === 0 ? (
+          <div className="flex flex-1 items-center justify-center px-6 text-center text-sm text-[var(--color-ink-muted)]">
+            Your cart is empty.
           </div>
-        </Portal>
-      )}
+        ) : (
+          <div className="flex-1 overflow-y-auto px-6">
+            {initialLines.map((line) => (
+              <CartLineItem key={line.id} line={line} channelCode={channelCode} />
+            ))}
+          </div>
+        )}
+
+        <div className="border-t hairline p-6">
+          {initialLines.length > 0 && (
+            <div className="mb-4 flex items-center justify-between text-sm">
+              <span className="text-[var(--color-ink-muted)]">Subtotal</span>
+              <span className="text-[var(--color-ink)]">{formatPrice(subTotalWithTax, currencyCode)}</span>
+            </div>
+          )}
+          <Link
+            href={routes.cart(channelCode)}
+            onClick={close}
+            className="flex w-full items-center justify-center bg-[var(--color-ink)] px-6 py-3 text-sm tracking-wide text-[var(--color-paper)] uppercase hover:opacity-90"
+          >
+            View Cart
+          </Link>
+        </div>
+      </Overlay>
     </>
   );
 }

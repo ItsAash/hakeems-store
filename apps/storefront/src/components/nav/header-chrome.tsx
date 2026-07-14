@@ -7,6 +7,13 @@ import { routes } from '@/lib/routes';
 
 const SCROLL_THRESHOLD = 60;
 
+// Deterministic header heights used to reserve the spacer on the very first (server-rendered)
+// paint, before the ResizeObserver has measured the live element — this is what prevents the
+// content jump (CLS) that a spacer starting at height 0 would cause. NavBar is a fixed `h-16`
+// (64px); the announcement bar is `py-2.5` + `text-xs` (≈37px) and only present when authored.
+const NAV_HEIGHT = 64;
+const ANNOUNCEMENT_HEIGHT = 37;
+
 /**
  * Owns the fixed positioning + transparent/solid background transition for the
  * header. AnnouncementBar and NavBar are Server Components rendered by the caller
@@ -22,12 +29,22 @@ const SCROLL_THRESHOLD = 60;
  * The spacer measures the live header (nav + optional announcement bar) so it stays
  * correct whether or not announcements are showing.
  */
-export function HeaderChrome({ channelCode, children }: { channelCode: ChannelCode; children: React.ReactNode }) {
+export function HeaderChrome({
+  channelCode,
+  hasAnnouncement = false,
+  children,
+}: {
+  channelCode: ChannelCode;
+  /** Whether the announcement bar is rendered — lets the spacer reserve the right height on
+   *  the first paint (server-side) instead of starting at 0 and jumping after measurement. */
+  hasAnnouncement?: boolean;
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
   const isHome = pathname === routes.home(channelCode);
   const [scrolled, setScrolled] = useState(!isHome);
   const headerRef = useRef<HTMLDivElement>(null);
-  const [headerHeight, setHeaderHeight] = useState(0);
+  const [headerHeight, setHeaderHeight] = useState(NAV_HEIGHT + (hasAnnouncement ? ANNOUNCEMENT_HEIGHT : 0));
 
   useEffect(() => {
     if (!isHome) {

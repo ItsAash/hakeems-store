@@ -12,8 +12,14 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
   return (
     <div className="flex flex-col gap-3">
       <div className="aspect-[4/5] w-full overflow-hidden bg-[var(--color-hairline)]">
+        {/* Keyed on src so selecting a thumbnail re-triggers the crossfade instead of hard-cutting. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={images[activeIndex]} alt={alt} className="h-full w-full object-cover" />
+        <img
+          key={images[activeIndex]}
+          src={images[activeIndex]}
+          alt={alt}
+          className="animate-fade-in h-full w-full object-cover"
+        />
       </div>
 
       {images.length > 1 && (

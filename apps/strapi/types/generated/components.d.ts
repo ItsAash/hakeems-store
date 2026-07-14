@@ -51,9 +51,16 @@ export interface LayoutHeroSlide extends Struct.ComponentSchema {
     icon: 'images';
   };
   attributes: {
-    alt: Schema.Attribute.String;
+    alt: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 160;
+      }>;
     ctaHref: Schema.Attribute.String;
-    ctaLabel: Schema.Attribute.String;
+    ctaLabel: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 40;
+      }>;
     heading: Schema.Attribute.String & Schema.Attribute.Required;
     image: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
     imageMobile: Schema.Attribute.Media<'images'>;
@@ -184,7 +191,11 @@ export interface SharedLink extends Struct.ComponentSchema {
   };
   attributes: {
     href: Schema.Attribute.String & Schema.Attribute.Required;
-    label: Schema.Attribute.String & Schema.Attribute.Required;
+    label: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 80;
+      }>;
   };
 }
 
@@ -196,7 +207,11 @@ export interface SharedMedia extends Struct.ComponentSchema {
     icon: 'picture';
   };
   attributes: {
-    alt: Schema.Attribute.String;
+    alt: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 160;
+      }>;
     image: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
     imageMobile: Schema.Attribute.Media<'images'>;
   };

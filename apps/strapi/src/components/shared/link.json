@@ -8,11 +8,13 @@
   "attributes": {
     "label": {
       "type": "string",
-      "required": true
+      "required": true,
+      "maxLength": 80
     },
     "href": {
       "type": "string",
-      "required": true
+      "required": true,
+      "regex": "^(/[^\\s]*|https?://[^\\s]+)$"
     }
   }
 }
