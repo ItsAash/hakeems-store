@@ -317,6 +317,36 @@ async function ensureColorSwatches(colorGroup: { options: Array<{ id: string; co
   console.log('Set colour swatches');
 }
 
+/**
+ * Distinct lead image per colour code, so PDP colour swatches visibly swap the gallery.
+ * (Demo imagery reused across products — production would use real per-product-per-colour
+ * photography; the storefront simply renders whatever assets each variant carries.)
+ * Keys must match the colour option codes (see optionCode()).
+ */
+const COLOR_IMAGE_URLS: Record<string, string[]> = {
+  black: ['https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=1500&fit=crop&q=80&fm=jpg'],
+  white: ['https://images.unsplash.com/photo-1445205170230-053b83016050?w=1200&h=1500&fit=crop&q=80&fm=jpg'],
+  olive: ['https://images.unsplash.com/photo-1560243563-062bfc001d68?w=1200&h=1500&fit=crop&q=80&fm=jpg'],
+  sand: ['https://images.unsplash.com/photo-1606522754091-a3bbf9ad4cb3?w=1200&h=1500&fit=crop&q=80&fm=jpg'],
+  clay: ['https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=1200&h=1500&fit=crop&q=80&fm=jpg'],
+  charcoal: ['https://images.unsplash.com/photo-1571945153237-4929e783af4a?w=1200&h=1500&fit=crop&q=80&fm=jpg'],
+};
+
+/** Uploads a colour's images once (deduped by filename) and caches the asset ids. */
+const colorAssetIdCache = new Map<string, string[]>();
+async function ensureColorAssets(colorCode: string, channelIds: string[]): Promise<string[]> {
+  const cached = colorAssetIdCache.get(colorCode);
+  if (cached) return cached;
+  const urls = COLOR_IMAGE_URLS[colorCode] ?? [];
+  const ids: string[] = [];
+  for (let i = 0; i < urls.length; i++) {
+    const asset = await ensureAsset(`color-${colorCode}-${i + 1}.jpg`, urls[i], channelIds);
+    ids.push(asset.id);
+  }
+  colorAssetIdCache.set(colorCode, ids);
+  return ids;
+}
+
 async function assignOptionGroupsToChannels(optionGroupIds: string[], channelIds: string[]) {
   for (const channelId of channelIds) {
     await adminFetch(
@@ -815,6 +845,7 @@ async function ensureProduct(ctx: SeedContext, input: CatalogProduct) {
   };
 
   const variantIds: string[] = [];
+  const variantColorCodes: string[] = [];
   for (const sizeName of input.sizes) {
     for (const colorName of input.colors) {
       const sizeCode = optionCode(sizeName);
@@ -823,6 +854,7 @@ async function ensureProduct(ctx: SeedContext, input: CatalogProduct) {
       if (found) {
         adopted.add(found.id);
         variantIds.push(found.id);
+        variantColorCodes.push(colorCode);
         continue;
       }
 
@@ -851,6 +883,7 @@ async function ensureProduct(ctx: SeedContext, input: CatalogProduct) {
         'nepal',
       );
       variantIds.push(createProductVariants[0].id);
+      variantColorCodes.push(colorCode);
     }
   }
 
@@ -892,6 +925,29 @@ async function ensureProduct(ctx: SeedContext, input: CatalogProduct) {
     { input: variantIds.map((id) => ({ id, prices: [{ currencyCode: 'HKD', price: input.hongKongPrice }] })) },
     'hongkong',
   );
+
+  // Per-colour imagery: every variant of a colour gets that colour's lead image (so the PDP
+  // gallery swaps when a swatch is clicked), followed by the product's own shots.
+  const imageChannelIds = [ctx.nepalChannelId, ctx.hongKongChannelId];
+  const variantsByColor = new Map<string, string[]>();
+  variantIds.forEach((id, index) => {
+    const colorCode = variantColorCodes[index];
+    if (!colorCode) return;
+    if (!variantsByColor.has(colorCode)) variantsByColor.set(colorCode, []);
+    variantsByColor.get(colorCode)!.push(id);
+  });
+  for (const [colorCode, ids] of variantsByColor) {
+    const colorAssetIds = await ensureColorAssets(colorCode, imageChannelIds);
+    if (colorAssetIds.length === 0) continue;
+    const variantAssetIds = [...colorAssetIds, ...assetIds];
+    await adminFetch(
+      `mutation UpdateVariantAssets($input: [UpdateProductVariantInput!]!) {
+        updateProductVariants(input: $input) { id }
+      }`,
+      { input: ids.map((id) => ({ id, featuredAssetId: colorAssetIds[0], assetIds: variantAssetIds })) },
+      'nepal',
+    );
+  }
 
   return { id: productId, slug: input.slug };
 }

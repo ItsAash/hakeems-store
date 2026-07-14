@@ -4001,7 +4001,7 @@ export type PdpProductQueryVariables = Exact<{
 }>;
 
 
-export type PdpProductQuery = { __typename?: 'Query', product?: { __typename?: 'Product', id: string, name: string, slug: string, description: string, customFields?: { __typename?: 'ProductCustomFields', enrichedDescription?: string | null, seoTitle?: string | null, seoDescription?: string | null, fitAndFabric?: string | null, shippingReturns?: string | null } | null, assets: Array<{ __typename?: 'Asset', id: string, preview: string, width: number, height: number }>, collections: Array<{ __typename?: 'Collection', id: string, name: string, slug: string, breadcrumbs: Array<{ __typename?: 'CollectionBreadcrumb', id: string, name: string, slug: string }> }>, variants: Array<{ __typename?: 'ProductVariant', id: string, name: string, sku: string, priceWithTax: number, currencyCode: CurrencyCode, stockLevel: string, featuredAsset?: { __typename?: 'Asset', preview: string } | null, options: Array<{ __typename?: 'ProductOption', id: string, code: string, name: string, groupId: string, group: { __typename?: 'ProductOptionGroup', code: string, name: string }, customFields?: { __typename?: 'ProductOptionCustomFields', swatch?: string | null } | null }> }> } | null };
+export type PdpProductQuery = { __typename?: 'Query', product?: { __typename?: 'Product', id: string, name: string, slug: string, description: string, customFields?: { __typename?: 'ProductCustomFields', enrichedDescription?: string | null, seoTitle?: string | null, seoDescription?: string | null, fitAndFabric?: string | null, shippingReturns?: string | null } | null, assets: Array<{ __typename?: 'Asset', id: string, preview: string, width: number, height: number }>, collections: Array<{ __typename?: 'Collection', id: string, name: string, slug: string, breadcrumbs: Array<{ __typename?: 'CollectionBreadcrumb', id: string, name: string, slug: string }> }>, variants: Array<{ __typename?: 'ProductVariant', id: string, name: string, sku: string, priceWithTax: number, currencyCode: CurrencyCode, stockLevel: string, featuredAsset?: { __typename?: 'Asset', preview: string } | null, assets: Array<{ __typename?: 'Asset', id: string, preview: string }>, options: Array<{ __typename?: 'ProductOption', id: string, code: string, name: string, groupId: string, group: { __typename?: 'ProductOptionGroup', code: string, name: string }, customFields?: { __typename?: 'ProductOptionCustomFields', swatch?: string | null } | null }> }> } | null };
 
 export type PlpCollectionQueryVariables = Exact<{
   slug: Scalars['String']['input'];
@@ -4621,6 +4621,10 @@ export const PdpProductDocument = gql`
       currencyCode
       stockLevel
       featuredAsset {
+        preview
+      }
+      assets {
+        id
         preview
       }
       options {

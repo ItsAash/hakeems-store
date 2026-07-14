@@ -5,9 +5,7 @@ import { getVendureClient } from '@/lib/vendure/client';
 import { buildVariantMatrix } from '@/lib/vendure/pdp';
 import { CONTAINER } from '@/lib/ui';
 import { Breadcrumbs } from '@/components/commerce/breadcrumbs';
-import { ProductGallery } from '@/components/commerce/product-gallery';
-import { VariantSelector } from '@/components/commerce/variant-selector';
-import { ProductDetailsTabs } from '@/components/commerce/product-details-tabs';
+import { ProductDetail } from '@/components/commerce/product-detail';
 
 type PdpParams = { channel: string; slug: string };
 
@@ -47,25 +45,17 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pd
     <main className={`flex-1 py-section-sm ${CONTAINER}`}>
       <Breadcrumbs items={[...breadcrumbItems, { name: product.name, slug: product.slug }]} channelCode={channel.code} />
 
-      <div className="mt-6 grid gap-10 lg:grid-cols-2 lg:gap-16">
-        <ProductGallery images={images} alt={product.name} />
-
-        <div className="flex flex-col gap-6 lg:max-w-md lg:py-4">
-          <div>
-            <h1 className="font-serif text-3xl text-[var(--color-ink)] md:text-4xl">{product.name}</h1>
-          </div>
-
-          <VariantSelector matrix={matrix} channelCode={channel.code} />
-
-          <ProductDetailsTabs
-            tabs={[
-              { id: 'details', label: 'Details', content: description },
-              { id: 'fit-fabric', label: 'Fit & Fabric', content: product.customFields?.fitAndFabric },
-              { id: 'shipping-returns', label: 'Shipping & Returns', content: product.customFields?.shippingReturns },
-            ]}
-          />
-        </div>
-      </div>
+      <ProductDetail
+        matrix={matrix}
+        channelCode={channel.code}
+        productName={product.name}
+        productImages={images}
+        detailTabs={[
+          { id: 'details', label: 'Details', content: description },
+          { id: 'fit-fabric', label: 'Fit & Fabric', content: product.customFields?.fitAndFabric },
+          { id: 'shipping-returns', label: 'Shipping & Returns', content: product.customFields?.shippingReturns },
+        ]}
+      />
     </main>
   );
 }
