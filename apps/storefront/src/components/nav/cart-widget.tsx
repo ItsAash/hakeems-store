@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import type { ChannelCode } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 import { formatPrice } from '@/lib/format';
 import { BagIcon, CloseIcon } from '@/components/ui/icons';
 import { Portal } from '@/components/ui/portal';
@@ -85,7 +86,7 @@ export function CartWidget({
                   </div>
                 )}
                 <Link
-                  href={`/${channelCode}/cart`}
+                  href={routes.cart(channelCode)}
                   onClick={() => setIsOpen(false)}
                   className="flex w-full items-center justify-center bg-[var(--color-ink)] px-6 py-3 text-sm tracking-wide text-[var(--color-paper)] uppercase hover:opacity-90"
                 >

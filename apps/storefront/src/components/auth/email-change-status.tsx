@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { ChannelCode } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 import { updateCustomerEmailAddressAction } from '@/lib/vendure/auth-actions';
 
 export function EmailChangeStatus({ channelCode, token }: { channelCode: ChannelCode; token: string }) {
@@ -29,7 +30,7 @@ export function EmailChangeStatus({ channelCode, token }: { channelCode: Channel
       <div className="flex flex-col gap-4">
         <p className="text-sm text-[var(--color-ink)]">Your email address has been updated.</p>
         <a
-          href={`/${channelCode}/account`}
+          href={routes.account(channelCode)}
           className="border-b border-[var(--color-ink)] pb-1 text-sm font-medium text-[var(--color-ink)] transition-opacity hover:opacity-70 self-start"
         >
           Go to your account

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import type { ChannelCode } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 import { registerCustomerAccountAction } from '@/lib/vendure/auth-actions';
 import { Field } from '@/components/ui/field';
 
@@ -39,7 +40,7 @@ export function RegisterForm({ channelCode }: { channelCode: ChannelCode }) {
           account.
         </p>
         <Link
-          href={`/${channelCode}/login`}
+          href={routes.login(channelCode)}
           className="border-b border-[var(--color-ink)] pb-1 text-sm font-medium text-[var(--color-ink)] transition-opacity hover:opacity-70 self-start"
         >
           Back to sign in
@@ -85,7 +86,7 @@ export function RegisterForm({ channelCode }: { channelCode: ChannelCode }) {
 
       <p className="text-center text-sm text-[var(--color-ink-muted)]">
         Already have an account?{' '}
-        <Link href={`/${channelCode}/login`} className="text-[var(--color-ink)] underline underline-offset-2">
+        <Link href={routes.login(channelCode)} className="text-[var(--color-ink)] underline underline-offset-2">
           Sign in
         </Link>
       </p>

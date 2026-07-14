@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { getChannel, isChannelCode } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 import { getVendureClient } from '@/lib/vendure/client';
 import { getVendureSessionCookies } from '@/lib/session';
 import { formatOrderState, formatPrice } from '@/lib/format';
@@ -17,14 +18,14 @@ export default async function AccountOrderDetailPage({
   const sessionCookies = await getVendureSessionCookies();
   const client = getVendureClient(channel.code, sessionCookies);
   const [{ activeCustomer }, { orderByCode: order }] = await Promise.all([client.ActiveCustomer(), client.OrderByCode({ code })]);
-  if (!activeCustomer) redirect(`/${channel.code}/login?next=/${channel.code}/account/orders/${code}`);
+  if (!activeCustomer) redirect(routes.login(channel.code, routes.account(channel.code, `/orders/${code}`)));
   if (!order || order.customer?.emailAddress !== activeCustomer.emailAddress) notFound();
 
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
         <div>
-          <Link href={`/${channel.code}/account/orders`} className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink)]">
+          <Link href={routes.account(channel.code, '/orders')} className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink)]">
             ← Order History
           </Link>
           <h2 className="mt-2 font-serif text-xl text-[var(--color-ink)]">Order {order.code}</h2>

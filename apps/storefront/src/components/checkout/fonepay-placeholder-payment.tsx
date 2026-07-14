@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ChannelCode } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 import { addFonepayPlaceholderPaymentAction } from '@/lib/vendure/actions';
 
 /**
@@ -26,7 +27,7 @@ export function FonepayPlaceholderPayment({ channelCode, orderCode }: { channelC
       return;
     }
 
-    router.push(`/${channelCode}/checkout/confirmation?code=${result.orderCode ?? orderCode}`);
+    router.push(routes.checkoutConfirmation(channelCode, result.orderCode ?? orderCode));
   };
 
   return (

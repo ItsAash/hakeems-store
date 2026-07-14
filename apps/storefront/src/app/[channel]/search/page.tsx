@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getChannel, isChannelCode } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 import { getVendureClient } from '@/lib/vendure/client';
 import {
   groupFacetValuesByFacet,
@@ -42,7 +43,7 @@ export default async function SearchPage({
   const activeFacetValueIds = (resolvedSearchParams.facets ?? '').split(',').filter(Boolean);
   const sortKey: PlpSortKey = resolvedSearchParams.sort && isPlpSortKey(resolvedSearchParams.sort) ? resolvedSearchParams.sort : 'relevance';
   const page = Math.max(1, Number.parseInt(resolvedSearchParams.page ?? '1', 10) || 1);
-  const basePath = `/${channel.code}/search`;
+  const basePath = routes.search(channel.code);
 
   const { search } = term
     ? await getVendureClient(channel.code).PlpSearch({

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { ChannelDefinition } from '@/lib/channel';
 import { withChannel } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 import type { NavItem } from '@/lib/strapi/types';
 import { getSiteNav } from '@/lib/strapi/queries';
 import { getVendureClient } from '@/lib/vendure/client';
@@ -68,7 +69,7 @@ export async function NavBar({ channel }: { channel: ChannelDefinition }) {
       <div className={`flex h-16 items-center justify-between ${CONTAINER}`}>
         <div className="flex items-center gap-3">
           <MobileMenu items={items} channelCode={channel.code} />
-          <Link href={`/${channel.code}`} className="font-serif text-lg font-semibold tracking-wide text-[var(--nav-fg)]">
+          <Link href={routes.home(channel.code)} className="font-serif text-lg font-semibold tracking-wide text-[var(--nav-fg)]">
             Hakeems
           </Link>
         </div>
@@ -81,7 +82,7 @@ export async function NavBar({ channel }: { channel: ChannelDefinition }) {
 
         <div className="flex items-center gap-5">
           <SearchOverlay channelCode={channel.code} />
-          <Link href={`/${channel.code}/account`} aria-label="Account" className="hidden text-[var(--nav-fg)] sm:block">
+          <Link href={routes.account(channel.code)} aria-label="Account" className="hidden text-[var(--nav-fg)] sm:block">
             <UserIcon className="h-5 w-5" />
           </Link>
           <CartWidget

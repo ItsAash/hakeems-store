@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { ChannelCode } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 import { adjustOrderLineAction, removeOrderLineAction } from '@/lib/vendure/actions';
 import { formatPrice } from '@/lib/format';
 import { CloseIcon } from '@/components/ui/icons';
@@ -39,7 +40,7 @@ export function CartLineItem({ line, channelCode }: { line: CartLine; channelCod
 
   return (
     <div className={`flex gap-4 border-b hairline py-6 transition-opacity ${isUpdating ? 'opacity-50' : ''}`}>
-      <Link href={`/${channelCode}/products/${line.productSlug}`} className="block h-28 w-24 shrink-0 overflow-hidden bg-[var(--color-hairline)]">
+      <Link href={routes.product(channelCode, line.productSlug)} className="block h-28 w-24 shrink-0 overflow-hidden bg-[var(--color-hairline)]">
         {line.imageUrl && (
           /* eslint-disable-next-line @next/next/no-img-element */
           <img src={line.imageUrl} alt={line.productName} className="h-full w-full object-cover" />
@@ -49,7 +50,7 @@ export function CartLineItem({ line, channelCode }: { line: CartLine; channelCod
       <div className="flex flex-1 flex-col gap-1">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <Link href={`/${channelCode}/products/${line.productSlug}`} className="text-sm font-medium text-[var(--color-ink)]">
+            <Link href={routes.product(channelCode, line.productSlug)} className="text-sm font-medium text-[var(--color-ink)]">
               {line.productName}
             </Link>
             {line.variantLabel && <p className="text-xs text-[var(--color-ink-muted)]">{line.variantLabel}</p>}

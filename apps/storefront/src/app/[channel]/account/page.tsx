@@ -1,5 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
 import { getChannel, isChannelCode } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 import { getVendureClient } from '@/lib/vendure/client';
 import { getVendureSessionCookies } from '@/lib/session';
 import { ProfileForm } from '@/components/account/profile-form';
@@ -12,7 +13,7 @@ export default async function AccountProfilePage({ params }: { params: Promise<{
 
   const sessionCookies = await getVendureSessionCookies();
   const { activeCustomer } = await getVendureClient(channel.code, sessionCookies).ActiveCustomer();
-  if (!activeCustomer) redirect(`/${channel.code}/login?next=/${channel.code}/account`);
+  if (!activeCustomer) redirect(routes.login(channel.code, routes.account(channel.code)));
 
   return (
     <div className="flex flex-col gap-12">

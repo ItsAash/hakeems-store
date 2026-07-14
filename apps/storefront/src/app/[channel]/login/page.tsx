@@ -1,5 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
 import { getChannel, isChannelCode } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 import { getVendureClient } from '@/lib/vendure/client';
 import { getVendureSessionCookies } from '@/lib/session';
 import { CONTAINER } from '@/lib/ui';
@@ -18,13 +19,13 @@ export default async function LoginPage({
 
   const sessionCookies = await getVendureSessionCookies();
   const { activeCustomer } = await getVendureClient(channel.code, sessionCookies).ActiveCustomer();
-  if (activeCustomer) redirect(next && next.startsWith('/') ? next : `/${channel.code}/account`);
+  if (activeCustomer) redirect(next && next.startsWith('/') ? next : routes.account(channel.code));
 
   return (
     <main className={`flex-1 py-section-sm ${CONTAINER}`}>
       <div className="mx-auto flex max-w-sm flex-col gap-8">
         <h1 className="font-serif text-3xl text-[var(--color-ink)]">Sign In</h1>
-        <LoginForm channelCode={channel.code} next={next && next.startsWith('/') ? next : `/${channel.code}/account`} />
+        <LoginForm channelCode={channel.code} next={next && next.startsWith('/') ? next : routes.account(channel.code)} />
       </div>
     </main>
   );

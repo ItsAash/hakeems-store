@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { ChannelDefinition } from '@/lib/channel';
 import { withChannel } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 import { getSiteNav, getSiteSetting } from '@/lib/strapi/queries';
 import { CONTAINER } from '@/lib/ui';
 import { SocialIcon, socialLabel } from '@/components/ui/social-icons';
@@ -48,7 +49,7 @@ export async function Footer({ channel }: { channel: ChannelDefinition }) {
         {/* Brand */}
         <div className="col-span-2 md:col-span-4">
           <Link
-            href={`/${channel.code}`}
+            href={routes.home(channel.code)}
             className="font-serif text-2xl font-semibold tracking-wide text-[var(--color-paper)]"
           >
             {siteName}
@@ -93,7 +94,7 @@ export async function Footer({ channel }: { channel: ChannelDefinition }) {
           <ColumnHeading>Support</ColumnHeading>
           <ul className="mt-5 flex flex-col gap-3.5">
             <li>
-              <FooterLink href={`/${channel.code}/account`}>My Account</FooterLink>
+              <FooterLink href={routes.account(channel.code)}>My Account</FooterLink>
             </li>
             {siteSetting?.supportEmail && (
               <li>

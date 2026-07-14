@@ -3,18 +3,18 @@ import type { ChannelCode } from '@/lib/channel';
 import type { FacetCategoryTile, SectionHeader } from '@/lib/strapi/types';
 import { pickImageUrl } from '@/lib/strapi/client';
 import { getVendureClient } from '@/lib/vendure/client';
+import { routes } from '@/lib/routes';
 import { CONTAINER } from '@/lib/ui';
 
 /**
- * Facet-driven category tiles — deliberately independent of Vendure Collections
- * (see the collection-tile component for that). Each tile's live "N items" count comes
- * straight from Vendure's `search`; the label/tagline/image are Strapi's to own, so
- * merchandisers manage the whole grid from Strapi without touching code.
+ * "Shop By Category" tiles. Each tile is a category entry point, so it always links to that
+ * category's Collection page (`/{channel}/collections/{slug}`) — never `/shop?facet=…`.
  *
  * Strapi stores a stable facet-value **code** (`"<facetCode>:<valueCode>"`, e.g.
- * "categories:tops"), never a database id. We resolve it to Vendure's live facet-value id
- * here at render time — so re-seeds or environment moves (which reassign ids) never break
- * the grid.
+ * "categories:tops"), never a database id. The value segment mirrors the Vendure collection
+ * slug by convention (the seed guarantees `categories:*` ⇄ collection slugs), so we route by
+ * that slug. The facet-value id is still resolved from Vendure's live facets — but only to
+ * show each tile's "N items" count, never for the link.
  */
 export async function FacetCategoryGrid({
   tiles,
@@ -67,8 +67,11 @@ export async function FacetCategoryGrid({
         {resolved.map(({ tile, facetValueId }, i) => {
           const imageUrl = tile.image ? pickImageUrl(tile.image, ['medium', 'small']) : null;
           const count = counts[i];
-          // Resolved → filtered shop; unresolved code → the unfiltered shop, never a broken link.
-          const href = facetValueId ? `/${channelCode}/shop?facetValueId=${facetValueId}` : `/${channelCode}/shop`;
+          // The value segment of "<facetCode>:<valueCode>" is the collection slug. Route to
+          // that collection; if the code carries no value segment, fall back to /shop rather
+          // than emit a broken link.
+          const collectionSlug = tile.vendureFacetValueCode.split(':')[1] ?? '';
+          const href = collectionSlug ? routes.collection(channelCode, collectionSlug) : routes.shop(channelCode);
 
           return (
             <Link

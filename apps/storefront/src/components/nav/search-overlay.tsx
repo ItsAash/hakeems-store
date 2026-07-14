@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { ChannelCode } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 import type { PlpProduct } from '@/lib/vendure/plp';
 import { searchSuggestionsAction } from '@/lib/vendure/search-actions';
 import { formatPriceRange } from '@/lib/format';
@@ -62,7 +63,7 @@ export function SearchOverlay({ channelCode }: { channelCode: ChannelCode }) {
     event?.preventDefault();
     const trimmed = term.trim();
     if (!trimmed) return;
-    router.push(`/${channelCode}/search?q=${encodeURIComponent(trimmed)}`);
+    router.push(routes.search(channelCode, trimmed));
     close();
   };
 
@@ -104,7 +105,7 @@ export function SearchOverlay({ channelCode }: { channelCode: ChannelCode }) {
                         {suggestions.map((product) => (
                           <li key={product.productId}>
                             <Link
-                              href={`/${channelCode}/products/${product.slug}`}
+                              href={routes.product(channelCode, product.slug)}
                               onClick={close}
                               className="flex items-center gap-4 rounded-sm px-2 py-2 transition-colors hover:bg-[var(--color-paper)]"
                             >

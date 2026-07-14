@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { ChannelCode } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 import { loginAction } from '@/lib/vendure/auth-actions';
 import { Field } from '@/components/ui/field';
 
@@ -54,7 +55,7 @@ export function LoginForm({ channelCode, next }: { channelCode: ChannelCode; nex
           />
           Remember me
         </label>
-        <Link href={`/${channelCode}/forgot-password`} className="text-[var(--color-ink-muted)] hover:text-[var(--color-ink)]">
+        <Link href={routes.forgotPassword(channelCode)} className="text-[var(--color-ink-muted)] hover:text-[var(--color-ink)]">
           Forgot password?
         </Link>
       </div>
@@ -62,7 +63,7 @@ export function LoginForm({ channelCode, next }: { channelCode: ChannelCode; nex
       {error && (
         <p className="text-sm text-red-600">
           {error}{' '}
-          <Link href={`/${channelCode}/verify`} className="underline underline-offset-2">
+          <Link href={routes.verify(channelCode)} className="underline underline-offset-2">
             Resend verification email?
           </Link>
         </p>
@@ -78,7 +79,7 @@ export function LoginForm({ channelCode, next }: { channelCode: ChannelCode; nex
 
       <p className="text-center text-sm text-[var(--color-ink-muted)]">
         New here?{' '}
-        <Link href={`/${channelCode}/register`} className="text-[var(--color-ink)] underline underline-offset-2">
+        <Link href={routes.register(channelCode)} className="text-[var(--color-ink)] underline underline-offset-2">
           Create an account
         </Link>
       </p>

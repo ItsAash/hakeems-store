@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getChannel, isChannelCode } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 import { getVendureClient } from '@/lib/vendure/client';
 import { getVendureSessionCookies } from '@/lib/session';
 import { CONTAINER } from '@/lib/ui';
@@ -72,7 +73,7 @@ export default async function CartPage({ params }: { params: Promise<{ channel: 
             </div>
 
             <Link
-              href={`/${channel.code}/checkout`}
+              href={routes.checkout(channel.code)}
               className="mt-4 flex w-full items-center justify-center bg-[var(--color-ink)] py-4 text-sm font-medium tracking-[0.1em] text-[var(--color-paper)] uppercase transition-opacity hover:opacity-90"
             >
               Proceed to Checkout

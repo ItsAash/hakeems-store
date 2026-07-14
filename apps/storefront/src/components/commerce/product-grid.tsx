@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { ChannelCode } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 import type { PlpProduct } from '@/lib/vendure/plp';
 import { formatPriceRange } from '@/lib/format';
 
@@ -21,7 +22,7 @@ export function ProductGrid({ products, channelCode }: { products: PlpProduct[];
   return (
     <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-5">
       {products.map((product) => (
-        <Link key={product.productId} href={`/${channelCode}/products/${product.slug}`} className="group block">
+        <Link key={product.productId} href={routes.product(channelCode, product.slug)} className="group block">
           <div className="aspect-[4/5] overflow-hidden bg-[var(--color-hairline)]">
             {product.imageUrl && (
               /* eslint-disable-next-line @next/next/no-img-element */

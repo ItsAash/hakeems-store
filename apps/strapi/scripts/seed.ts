@@ -233,7 +233,9 @@ async function seedSiteNavs(strapi: Core.Strapi) {
   ];
   const items = [
     { label: 'Spotlight', href: '/collections/spotlight' },
-    { label: 'Shop', href: '/collections/tops', children: shopChildren },
+    // "Shop" is the explicit full-catalog entry point (/shop). Its children are category
+    // entry points, which each go to their Collection page.
+    { label: 'Shop', href: '/shop', children: shopChildren },
     { label: 'Our Story', href: '/story' },
   ];
 

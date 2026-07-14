@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ChannelCode } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 import { refreshCustomerVerificationAction, verifyCustomerAccountAction } from '@/lib/vendure/auth-actions';
 import { Field } from '@/components/ui/field';
 
@@ -34,7 +35,7 @@ export function VerifyStatus({ channelCode, token }: { channelCode: ChannelCode;
       <div className="flex flex-col gap-4">
         <p className="text-sm text-[var(--color-ink)]">Your email is verified and you're signed in.</p>
         <a
-          href={`/${channelCode}/account`}
+          href={routes.account(channelCode)}
           className="border-b border-[var(--color-ink)] pb-1 text-sm font-medium text-[var(--color-ink)] transition-opacity hover:opacity-70 self-start"
         >
           Go to your account

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import type { ChannelCode } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 import { createStripePaymentIntentAction } from '@/lib/vendure/actions';
 
 const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
@@ -66,7 +67,7 @@ function StripeCheckoutForm({ channelCode, orderCode }: { channelCode: ChannelCo
     setIsSubmitting(true);
     setError(null);
 
-    const confirmationPath = `/${channelCode}/checkout/confirmation?code=${orderCode}`;
+    const confirmationPath = routes.checkoutConfirmation(channelCode, orderCode);
 
     const { error: confirmError } = await stripe.confirmPayment({
       elements,

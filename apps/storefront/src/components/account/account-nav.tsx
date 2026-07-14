@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { ChannelCode } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 import { LogoutButton } from '@/components/account/logout-button';
 
 const LINKS = [
@@ -14,7 +15,7 @@ export function AccountNav({ channelCode }: { channelCode: ChannelCode }) {
       {LINKS.map((link) => (
         <Link
           key={link.label}
-          href={`/${channelCode}/account${link.href}`}
+          href={routes.account(channelCode, link.href)}
           className="text-[var(--color-ink-muted)] hover:text-[var(--color-ink)]"
         >
           {link.label}

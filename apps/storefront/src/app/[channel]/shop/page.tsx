@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
 import { getChannel, isChannelCode } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 import { getVendureClient } from '@/lib/vendure/client';
 import {
   groupFacetValuesByFacet,
@@ -22,10 +23,11 @@ export const metadata: Metadata = { title: 'Shop' };
 
 /**
  * The channel-wide catalog browse, filtered by facet (not scoped to a single Vendure
- * collection like /collections/[slug]). `facetValueId` is the single-value entry point the
- * home page's category tiles link with (see FacetCategoryGrid); it's merged into the same
- * `facets` (comma list) the sidebar/pagination read and write, so toggling further filters
- * here behaves identically to /search and /collections/[slug].
+ * collection like /collections/[slug]). This page is only reached by an explicit "Shop"
+ * click — category entry points route to /collections/[slug] instead. Facets live entirely
+ * in the query string and are applied from within the page: `facetValueId` is a single-value
+ * deep-link that's normalized into the same `facets` (comma list) the sidebar/pagination read
+ * and write, so toggling further filters here behaves identically to /search and /collections.
  */
 export default async function ShopPage({
   params,
@@ -45,17 +47,19 @@ export default async function ShopPage({
     const merged = Array.from(
       new Set([...(resolvedSearchParams.facets ?? '').split(',').filter(Boolean), resolvedSearchParams.facetValueId]),
     );
-    const params = new URLSearchParams();
-    params.set('facets', merged.join(','));
-    if (resolvedSearchParams.sort) params.set('sort', resolvedSearchParams.sort);
-    if (resolvedSearchParams.page) params.set('page', resolvedSearchParams.page);
-    redirect(`/${channel.code}/shop?${params.toString()}`);
+    redirect(
+      routes.shop(channel.code, {
+        facets: merged.join(','),
+        sort: resolvedSearchParams.sort,
+        page: resolvedSearchParams.page,
+      }),
+    );
   }
 
   const activeFacetValueIds = (resolvedSearchParams.facets ?? '').split(',').filter(Boolean);
   const sortKey: PlpSortKey = resolvedSearchParams.sort && isPlpSortKey(resolvedSearchParams.sort) ? resolvedSearchParams.sort : 'relevance';
   const page = Math.max(1, Number.parseInt(resolvedSearchParams.page ?? '1', 10) || 1);
-  const basePath = `/${channel.code}/shop`;
+  const basePath = routes.shop(channel.code);
 
   const { search } = await getVendureClient(channel.code).PlpSearch({
     input: {

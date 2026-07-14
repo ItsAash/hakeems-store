@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { ChannelCode } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 import type { SpotlightProduct } from '@/lib/vendure/spotlight';
 import { formatPrice } from '@/lib/format';
 import { QuickAddButton } from '@/components/commerce/quick-add-button';
@@ -7,7 +8,7 @@ import { QuickAddButton } from '@/components/commerce/quick-add-button';
 const MAX_VISIBLE_SWATCHES = 4;
 
 export function ProductCard({ product, channelCode }: { product: SpotlightProduct; channelCode: ChannelCode }) {
-  const href = `/${channelCode}/products/${product.slug}`;
+  const href = routes.product(channelCode, product.slug);
   const visibleSwatches = product.swatches.slice(0, MAX_VISIBLE_SWATCHES);
   const hiddenSwatchCount = product.swatches.length - visibleSwatches.length;
 

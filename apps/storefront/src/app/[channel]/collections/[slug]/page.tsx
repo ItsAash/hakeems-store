@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getChannel, isChannelCode, type ChannelCode } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 import { getCollectionPage } from '@/lib/strapi/queries';
 import { pickImageUrl } from '@/lib/strapi/client';
 import { getVendureClient } from '@/lib/vendure/client';
@@ -89,7 +90,7 @@ export default async function CollectionPage({
   const products = mapSearchResultsToProducts(searchResult.search.items);
   const facetGroups = groupFacetValuesByFacet(searchResult.search.facetValues);
   const totalPages = Math.max(1, Math.ceil(searchResult.search.totalItems / PLP_PAGE_SIZE));
-  const basePath = `/${channel.code}/collections/${slug}`;
+  const basePath = routes.collection(channel.code, slug);
 
   const bannerImage = collectionPage?.heroImage ? pickImageUrl(collectionPage.heroImage, ['large', 'medium']) : null;
   const title = collectionPage?.title || vendureCollection.name;

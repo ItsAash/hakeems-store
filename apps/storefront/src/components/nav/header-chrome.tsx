@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import type { ChannelCode } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 
 const SCROLL_THRESHOLD = 60;
 
@@ -23,7 +24,7 @@ const SCROLL_THRESHOLD = 60;
  */
 export function HeaderChrome({ channelCode, children }: { channelCode: ChannelCode; children: React.ReactNode }) {
   const pathname = usePathname();
-  const isHome = pathname === `/${channelCode}`;
+  const isHome = pathname === routes.home(channelCode);
   const [scrolled, setScrolled] = useState(!isHome);
   const headerRef = useRef<HTMLDivElement>(null);
   const [headerHeight, setHeaderHeight] = useState(0);

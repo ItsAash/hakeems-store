@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { getChannel, isChannelCode } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 import { getVendureClient } from '@/lib/vendure/client';
 import { getVendureSessionCookies } from '@/lib/session';
 import { formatOrderState, formatPrice } from '@/lib/format';
@@ -12,7 +13,7 @@ export default async function AccountOrdersPage({ params }: { params: Promise<{ 
 
   const sessionCookies = await getVendureSessionCookies();
   const { activeCustomer } = await getVendureClient(channel.code, sessionCookies).CustomerOrders({ take: 50, skip: 0 });
-  if (!activeCustomer) redirect(`/${channel.code}/login?next=/${channel.code}/account/orders`);
+  if (!activeCustomer) redirect(routes.login(channel.code, routes.account(channel.code, '/orders')));
 
   // Excludes carts that were never placed (AddingItems/ArrangingPayment abandoned mid-checkout) —
   // those have no orderPlacedAt and aren't "orders" from the customer's point of view.
@@ -29,7 +30,7 @@ export default async function AccountOrdersPage({ params }: { params: Promise<{ 
           {orders.map((order) => (
             <Link
               key={order.id}
-              href={`/${channel.code}/account/orders/${order.code}`}
+              href={routes.account(channel.code, `/orders/${order.code}`)}
               className="flex items-center justify-between gap-4 py-4 text-sm hover:bg-[var(--color-paper-raised)]"
             >
               <div className="flex flex-col gap-0.5">

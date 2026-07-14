@@ -1,5 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
 import { getChannel, isChannelCode } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 import { getVendureClient } from '@/lib/vendure/client';
 import { getVendureSessionCookies } from '@/lib/session';
 import { AddressBook } from '@/components/account/address-book';
@@ -12,7 +13,7 @@ export default async function AccountAddressesPage({ params }: { params: Promise
   const sessionCookies = await getVendureSessionCookies();
   const client = getVendureClient(channel.code, sessionCookies);
   const [{ activeCustomer }, { availableCountries }] = await Promise.all([client.ActiveCustomer(), client.Countries()]);
-  if (!activeCustomer) redirect(`/${channel.code}/login?next=/${channel.code}/account/addresses`);
+  if (!activeCustomer) redirect(routes.login(channel.code, routes.account(channel.code, '/addresses')));
 
   return (
     <div className="flex flex-col gap-8">
