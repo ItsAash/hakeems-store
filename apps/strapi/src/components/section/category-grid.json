@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_section_category_grids",
+  "info": {
+    "displayName": "Section: Category Grid",
+    "icon": "grid",
+    "description": "\"Shop by category\" grid of facet-value tiles."
+  },
+  "options": {},
+  "attributes": {
+    "header": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.section-header"
+    },
+    "tiles": {
+      "type": "component",
+      "repeatable": true,
+      "component": "layout.facet-category-tile"
+    }
+  }
+}

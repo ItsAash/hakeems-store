@@ -441,6 +441,38 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiBrandStoryBrandStory extends Struct.SingleTypeSchema {
+  collectionName: 'brand_stories';
+  info: {
+    description: "The global, channel-agnostic brand story \u2014 authored once and shared across every channel's home page. A page's section.brand-story block renders this by default; a block may set its own fields to override it per page/channel.";
+    displayName: 'Brand Story';
+    pluralName: 'brand-stories';
+    singularName: 'brand-story';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    eyebrow: Schema.Attribute.String;
+    heading: Schema.Attribute.String & Schema.Attribute.Required;
+    image: Schema.Attribute.Media<'images'>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::brand-story.brand-story'
+    > &
+      Schema.Attribute.Private;
+    paragraphs: Schema.Attribute.Component<'shared.paragraph', true>;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiCollectionPageCollectionPage
   extends Struct.CollectionTypeSchema {
   collectionName: 'collection_pages';
@@ -477,6 +509,7 @@ export interface ApiCollectionPageCollectionPage
     vendureCollectionSlug: Schema.Attribute.String & Schema.Attribute.Required;
     vendureId: Schema.Attribute.String &
       Schema.Attribute.Required &
+      Schema.Attribute.Private &
       Schema.Attribute.Unique;
   };
 }
@@ -526,41 +559,41 @@ export interface ApiHomePageHomePage extends Struct.CollectionTypeSchema {
   };
 }
 
-export interface ApiNewArrivalNewArrival extends Struct.SingleTypeSchema {
-  collectionName: 'new_arrivals';
+export interface ApiPagePage extends Struct.CollectionTypeSchema {
+  collectionName: 'pages';
   info: {
-    description: 'The single, global "New Arrivals" rail shown on every channel\'s home page \u2014 one curated Vendure collection paired with an editorial statement. Not channel-specific: the same collection is featured everywhere, priced per-channel by Vendure at render time.';
-    displayName: 'New Arrivals';
-    pluralName: 'new-arrivals';
-    singularName: 'new-arrival';
+    description: "A composable page built from a dynamic zone of section blocks. One entry per (slug, channel) \u2014 e.g. slug 'home' for nepal and hongkong. Marketing reorders/adds/removes sections here without code changes.";
+    displayName: 'Page';
+    pluralName: 'pages';
+    singularName: 'page';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   attributes: {
-    backgroundColor: Schema.Attribute.String &
-      Schema.Attribute.DefaultTo<'#f7e8e6'>;
+    channel: Schema.Attribute.Enumeration<['nepal', 'hongkong']> &
+      Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    ctaHref: Schema.Attribute.String;
-    ctaLabel: Schema.Attribute.String;
-    eyebrow: Schema.Attribute.String;
-    heading: Schema.Attribute.String & Schema.Attribute.Required;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::new-arrival.new-arrival'
-    > &
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::page.page'> &
       Schema.Attribute.Private;
-    paragraphs: Schema.Attribute.Component<'shared.paragraph', true>;
     publishedAt: Schema.Attribute.DateTime;
+    sections: Schema.Attribute.DynamicZone<
+      [
+        'section.hero-slider',
+        'section.category-grid',
+        'section.product-rail',
+        'section.editorial-banner',
+        'section.brand-story',
+      ]
+    >;
+    seo: Schema.Attribute.Component<'shared.seo', false>;
+    slug: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    vendureCollectionSlug: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<'new-arrivals'>;
   };
 }
 
@@ -630,42 +663,6 @@ export interface ApiSiteSettingSiteSetting extends Struct.SingleTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-  };
-}
-
-export interface ApiSpotlightSpotlight extends Struct.SingleTypeSchema {
-  collectionName: 'spotlights';
-  info: {
-    description: "The single, global product spotlight shown on every channel's home page \u2014 one curated Vendure collection, paired with an editorial statement. Not channel-specific: the same spotlight collection is featured everywhere, priced per-channel by Vendure at render time.";
-    displayName: 'Spotlight';
-    pluralName: 'spotlights';
-    singularName: 'spotlight';
-  };
-  options: {
-    draftAndPublish: false;
-  };
-  attributes: {
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    ctaHref: Schema.Attribute.String;
-    ctaLabel: Schema.Attribute.String;
-    eyebrow: Schema.Attribute.String;
-    heading: Schema.Attribute.String & Schema.Attribute.Required;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::spotlight.spotlight'
-    > &
-      Schema.Attribute.Private;
-    paragraphs: Schema.Attribute.Component<'shared.paragraph', true>;
-    publishedAt: Schema.Attribute.DateTime;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    vendureCollectionSlug: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<'spotlight'>;
   };
 }
 
@@ -1180,12 +1177,12 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
+      'api::brand-story.brand-story': ApiBrandStoryBrandStory;
       'api::collection-page.collection-page': ApiCollectionPageCollectionPage;
       'api::home-page.home-page': ApiHomePageHomePage;
-      'api::new-arrival.new-arrival': ApiNewArrivalNewArrival;
+      'api::page.page': ApiPagePage;
       'api::site-nav.site-nav': ApiSiteNavSiteNav;
       'api::site-setting.site-setting': ApiSiteSettingSiteSetting;
-      'api::spotlight.spotlight': ApiSpotlightSpotlight;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

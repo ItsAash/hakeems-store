@@ -1,0 +1,26 @@
+{
+  "collectionName": "components_section_brand_stories",
+  "info": {
+    "displayName": "Section: Brand Story",
+    "icon": "quote",
+    "description": "Editorial brand-story block: header, prose paragraphs, and an optional image."
+  },
+  "options": {},
+  "attributes": {
+    "header": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.section-header"
+    },
+    "paragraphs": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.paragraph"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    }
+  }
+}

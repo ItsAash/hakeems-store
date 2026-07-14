@@ -1,0 +1,33 @@
+{
+  "kind": "singleType",
+  "collectionName": "brand_stories",
+  "info": {
+    "singularName": "brand-story",
+    "pluralName": "brand-stories",
+    "displayName": "Brand Story",
+    "description": "The global, channel-agnostic brand story — authored once and shared across every channel's home page. A page's section.brand-story block renders this by default; a block may set its own fields to override it per page/channel."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "eyebrow": {
+      "type": "string"
+    },
+    "heading": {
+      "type": "string",
+      "required": true
+    },
+    "paragraphs": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.paragraph"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    }
+  }
+}

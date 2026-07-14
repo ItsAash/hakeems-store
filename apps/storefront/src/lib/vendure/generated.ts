@@ -3983,6 +3983,11 @@ export type FacetValueCountQueryVariables = Exact<{
 
 export type FacetValueCountQuery = { __typename?: 'Query', search: { __typename?: 'SearchResponse', totalItems: number } };
 
+export type FacetValuesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type FacetValuesQuery = { __typename?: 'Query', facets: { __typename?: 'FacetList', items: Array<{ __typename?: 'Facet', id: string, code: string, values: Array<{ __typename?: 'FacetValue', id: string, code: string }> }> } };
+
 export type NewArrivalsCollectionQueryVariables = Exact<{
   slug: Scalars['String']['input'];
   take: Scalars['Int']['input'];
@@ -3996,7 +4001,7 @@ export type PdpProductQueryVariables = Exact<{
 }>;
 
 
-export type PdpProductQuery = { __typename?: 'Query', product?: { __typename?: 'Product', id: string, name: string, slug: string, description: string, customFields?: { __typename?: 'ProductCustomFields', enrichedDescription?: string | null, seoTitle?: string | null, seoDescription?: string | null, fitAndFabric?: string | null, shippingReturns?: string | null } | null, assets: Array<{ __typename?: 'Asset', id: string, preview: string, width: number, height: number }>, collections: Array<{ __typename?: 'Collection', id: string, name: string, slug: string, breadcrumbs: Array<{ __typename?: 'CollectionBreadcrumb', id: string, name: string, slug: string }> }>, variants: Array<{ __typename?: 'ProductVariant', id: string, name: string, sku: string, priceWithTax: number, currencyCode: CurrencyCode, stockLevel: string, featuredAsset?: { __typename?: 'Asset', preview: string } | null, options: Array<{ __typename?: 'ProductOption', id: string, code: string, name: string, groupId: string, group: { __typename?: 'ProductOptionGroup', code: string, name: string }, customFields?: { __typename?: 'ProductOptionCustomFields', swatch?: string | null } | null }> }> } | null };
+export type PdpProductQuery = { __typename?: 'Query', product?: { __typename?: 'Product', id: string, name: string, slug: string, description: string, customFields?: { __typename?: 'ProductCustomFields', enrichedDescription?: string | null, seoTitle?: string | null, seoDescription?: string | null, fitAndFabric?: string | null, shippingReturns?: string | null } | null, assets: Array<{ __typename?: 'Asset', id: string, preview: string, width: number, height: number }>, collections: Array<{ __typename?: 'Collection', id: string, name: string, slug: string, breadcrumbs: Array<{ __typename?: 'CollectionBreadcrumb', id: string, name: string, slug: string }> }>, variants: Array<{ __typename?: 'ProductVariant', id: string, name: string, sku: string, priceWithTax: number, currencyCode: CurrencyCode, stockLevel: string, featuredAsset?: { __typename?: 'Asset', preview: string } | null, assets: Array<{ __typename?: 'Asset', id: string, preview: string }>, options: Array<{ __typename?: 'ProductOption', id: string, code: string, name: string, groupId: string, group: { __typename?: 'ProductOptionGroup', code: string, name: string }, customFields?: { __typename?: 'ProductOptionCustomFields', swatch?: string | null } | null }> }> } | null };
 
 export type PlpCollectionQueryVariables = Exact<{
   slug: Scalars['String']['input'];
@@ -4524,6 +4529,20 @@ export const FacetValueCountDocument = gql`
   }
 }
     `;
+export const FacetValuesDocument = gql`
+    query FacetValues {
+  facets(options: {take: 100}) {
+    items {
+      id
+      code
+      values {
+        id
+        code
+      }
+    }
+  }
+}
+    `;
 export const NewArrivalsCollectionDocument = gql`
     query NewArrivalsCollection($slug: String!, $take: Int!) {
   collection(slug: $slug) {
@@ -4602,6 +4621,10 @@ export const PdpProductDocument = gql`
       currencyCode
       stockLevel
       featuredAsset {
+        preview
+      }
+      assets {
+        id
         preview
       }
       options {
@@ -4813,6 +4836,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     FacetValueCount(variables: FacetValueCountQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<FacetValueCountQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<FacetValueCountQuery>({ document: FacetValueCountDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'FacetValueCount', 'query', variables);
+    },
+    FacetValues(variables?: FacetValuesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<FacetValuesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<FacetValuesQuery>({ document: FacetValuesDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'FacetValues', 'query', variables);
     },
     NewArrivalsCollection(variables: NewArrivalsCollectionQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<NewArrivalsCollectionQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<NewArrivalsCollectionQuery>({ document: NewArrivalsCollectionDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'NewArrivalsCollection', 'query', variables);

@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_section_product_rails",
+  "info": {
+    "displayName": "Section: Product Rail",
+    "icon": "bulletList",
+    "description": "Horizontal product carousel for a Vendure collection (referenced by slug), with an editorial header and CTA."
+  },
+  "options": {},
+  "attributes": {
+    "header": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.section-header"
+    },
+    "vendureCollectionSlug": {
+      "type": "string",
+      "required": true
+    },
+    "cta": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.cta"
+    }
+  }
+}

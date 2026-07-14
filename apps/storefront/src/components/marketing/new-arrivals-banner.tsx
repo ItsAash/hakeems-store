@@ -1,9 +1,10 @@
-import Link from 'next/link';
-import { withChannel, type ChannelCode } from '@/lib/channel';
+import type { ChannelCode } from '@/lib/channel';
+import { resolveColorToken } from '@/lib/design/color-tokens';
+import { Cta } from '@/components/ui/cta';
 
-/** Blush fallback matching the reference (athleta.gap.com New Arrivals) when Strapi
- * doesn't supply a background colour. */
-const DEFAULT_BG = '#f7e8e6';
+/** Blush fallback (matches the athleta.gap.com reference) when neither a palette token nor
+ * a legacy hex is set. */
+const DEFAULT_BG = 'var(--color-blush)';
 
 type NewArrivalsBannerProps = {
   channelCode: ChannelCode;
@@ -12,20 +13,20 @@ type NewArrivalsBannerProps = {
   paragraph: string | null;
   ctaLabel: string | null;
   ctaHref: string | null;
+  /** Legacy free-hex background (kept for backward compatibility). */
   backgroundColor: string | null;
+  /** Preferred: a constrained palette token (see lib/design/color-tokens.ts). */
+  backgroundToken: string | null;
   /** Montage images, ordered; supplied by the caller from the Vendure collection. */
   images: string[];
 };
 
 /**
- * Full-bleed "New Arrivals" editorial banner modelled on athleta.gap.com: a solid blush
- * text panel on the left (eyebrow pinned top, headline centred, copy + pill CTA at the
- * bottom) and a tight image montage on the right that bleeds to the screen edge. Stacks
- * to a single column on mobile.
- *
- * Presentational only: the left-hand content comes from Strapi and the montage images from
- * the Vendure "new-arrivals" collection, both passed in — so nothing here needs to change
- * when the copy or the collection does.
+ * Full-bleed "New Arrivals" editorial banner (athleta.gap.com reference): a solid text
+ * panel on the left (eyebrow top, headline centred, copy + CTA bottom) and an image montage
+ * on the right that bleeds to the screen edge. Left padding mirrors the site CONTAINER so
+ * the copy lines up with the nav's wordmark. Presentational only — content comes from
+ * Strapi, images from the Vendure "new-arrivals" collection.
  */
 export function NewArrivalsBanner({
   channelCode,
@@ -35,17 +36,18 @@ export function NewArrivalsBanner({
   ctaLabel,
   ctaHref,
   backgroundColor,
+  backgroundToken,
   images,
 }: NewArrivalsBannerProps) {
-  const ctaTo = ctaHref ? withChannel(channelCode, ctaHref) : null;
+  // Prefer the constrained palette token; fall back to a legacy free hex, then the default.
+  const background = resolveColorToken(backgroundToken) ?? backgroundColor ?? DEFAULT_BG;
 
   return (
-    <section className="w-full" style={{ backgroundColor: backgroundColor ?? DEFAULT_BG }}>
+    <section className="w-full" style={{ backgroundColor: background }}>
       <div className="grid md:grid-cols-[2fr_3fr]">
         {/* Left — editorial text panel. justify-between spreads eyebrow (top), headline
-            (middle) and copy+CTA (bottom) like the reference. The left padding mirrors the
-            site CONTAINER (max-w-6xl centered + px) so the text lines up on the same vertical
-            edge as the nav bar's "Hakeems" title, even though the banner itself is full-bleed. */}
+            (middle) and copy+CTA (bottom). Left padding matches the site CONTAINER so the
+            text lines up with the nav bar's wordmark even though the banner is full-bleed. */}
         <div className="flex flex-col justify-between gap-10 py-12 pr-6 pl-6 md:py-16 md:pr-12 md:pl-[calc(max((100vw-72rem)/2,0px)+2.5rem)] lg:pr-16">
           <p className="eyebrow">{eyebrow ?? 'New Arrivals'}</p>
           <h2 className="text-4xl leading-[1.02] tracking-[0.02em] text-[var(--color-ink)] uppercase md:text-5xl lg:text-6xl">
@@ -53,14 +55,7 @@ export function NewArrivalsBanner({
           </h2>
           <div className="flex flex-col gap-6">
             {paragraph && <p className="max-w-sm text-[var(--color-ink)]">{paragraph}</p>}
-            {ctaLabel && ctaTo && (
-              <Link
-                href={ctaTo}
-                className="inline-flex w-fit items-center rounded-full bg-[var(--color-ink)] px-8 py-3.5 text-sm font-medium tracking-wide text-[var(--color-paper)] transition-opacity hover:opacity-90"
-              >
-                {ctaLabel}
-              </Link>
-            )}
+            {ctaLabel && ctaHref && <Cta label={ctaLabel} href={ctaHref} channelCode={channelCode} variant="primary" />}
           </div>
         </div>
 

@@ -11,6 +11,11 @@ export type PdpVariant = {
   currencyCode: string;
   inStock: boolean;
   imageUrl: string | null;
+  /** This variant's own gallery (featuredAsset first, then its assets, de-duplicated).
+   * Variants of the same colour share the same imagery, so selecting a colour swaps the
+   * gallery. Empty when the variant has no dedicated images — the caller falls back to
+   * the product-level images. */
+  images: string[];
   /** option group code -> the option code selected for this variant, e.g. `{ size: 'm', color: 'black' }` */
   selections: Record<string, string>;
 };
@@ -64,6 +69,14 @@ export function buildVariantMatrix(variants: Variant[]): PdpVariantMatrix {
       selections[groupCode] = option.code;
     }
 
+    const variantImages = Array.from(
+      new Set(
+        [variant.featuredAsset?.preview, ...(variant.assets ?? []).map((asset) => asset.preview)].filter(
+          (preview): preview is string => Boolean(preview),
+        ),
+      ),
+    );
+
     const pdpVariant: PdpVariant = {
       id: variant.id,
       sku: variant.sku,
@@ -71,6 +84,7 @@ export function buildVariantMatrix(variants: Variant[]): PdpVariantMatrix {
       currencyCode: variant.currencyCode,
       inStock: variant.stockLevel === 'IN_STOCK',
       imageUrl: variant.featuredAsset?.preview ?? null,
+      images: variantImages,
       selections,
     };
 

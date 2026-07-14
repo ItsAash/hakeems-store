@@ -1,3 +1,5 @@
+import qs from 'qs';
+import { z } from 'zod';
 import type { StrapiMedia } from '@/lib/strapi/types';
 
 const STRAPI_API_URL = process.env.STRAPI_API_URL || 'http://localhost:1337';
@@ -31,26 +33,39 @@ export type StrapiSingleResponse<T> = {
 };
 
 type StrapiFetchOptions = {
-  /** Field/component paths to populate, e.g. ['heroSlides.image', 'seo.ogImage']. */
-  populate?: string[];
+  /** Populate paths. A `string[]` covers flat cases (e.g. ['heroSlides.image']); an object
+   * is stringified with `qs` for deep/dynamic-zone populate (the `{ on: { ... } }` form). */
+  populate?: string[] | Record<string, unknown>;
   filters?: Record<string, unknown>;
   /** Revalidation window in seconds for Next.js fetch caching. */
   revalidate?: number;
+  /** Runtime shape guard for the response. On mismatch we log and fall back to the raw
+   * payload (fail-soft) rather than crash the page. */
+  schema?: z.ZodType;
+  /** For single types: a 404 (no entry created yet) resolves to `{ data: null }` instead
+   * of throwing — so an unpublished/empty single type omits its section instead of 500-ing. */
+  notFoundAsNull?: boolean;
 };
 
 function buildQueryString(options: StrapiFetchOptions): string {
-  const params = new URLSearchParams();
+  // Object populate (deep / dynamic-zone) — stringify the whole query with qs.
+  if (options.populate && !Array.isArray(options.populate)) {
+    return qs.stringify(
+      { populate: options.populate, filters: options.filters },
+      { encodeValuesOnly: true },
+    );
+  }
 
+  // Flat populate — simple indexed params.
+  const params = new URLSearchParams();
   options.populate?.forEach((path, index) => {
     params.set(`populate[${index}]`, path);
   });
-
   if (options.filters) {
     for (const [key, value] of Object.entries(options.filters)) {
       params.set(`filters[${key}]`, String(value));
     }
   }
-
   return params.toString();
 }
 
@@ -67,8 +82,25 @@ export async function strapiFetch<T>(path: string, options: StrapiFetchOptions =
   });
 
   if (!response.ok) {
+    // A single type with no entry 404s; treat that as "empty", not a hard failure.
+    if (response.status === 404 && options.notFoundAsNull) {
+      return { data: null } as T;
+    }
     throw new Error(`Strapi request failed: ${response.status} ${path}`);
   }
 
-  return response.json() as Promise<T>;
+  const json = await response.json();
+
+  if (options.schema) {
+    const parsed = options.schema.safeParse(json);
+    if (!parsed.success) {
+      // Fail-soft: don't crash the page on shape drift — log the exact issues and fall
+      // back to the raw payload so the rest of the page still renders.
+      console.error(`[strapi] response validation failed for "${path}":`, parsed.error.issues);
+      return json as T;
+    }
+    return parsed.data as T;
+  }
+
+  return json as T;
 }

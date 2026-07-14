@@ -3,11 +3,11 @@
   "info": {
     "displayName": "Facet Category Tile",
     "icon": "grid",
-    "description": "A visual category grid tile linking to a Vendure facet value (e.g. a 'Category' facet), independent of collection structure."
+    "description": "A visual category grid tile linking to a Vendure facet value by its stable code (e.g. 'categories:tops'), not a brittle database id."
   },
   "options": {},
   "attributes": {
-    "vendureFacetValueId": {
+    "vendureFacetValueCode": {
       "type": "string",
       "required": true
     },

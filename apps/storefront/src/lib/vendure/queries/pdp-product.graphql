@@ -37,6 +37,10 @@ query PdpProduct($slug: String!) {
       featuredAsset {
         preview
       }
+      assets {
+        id
+        preview
+      }
       options {
         id
         code

@@ -1,0 +1,12 @@
+query FacetValues {
+  facets(options: { take: 100 }) {
+    items {
+      id
+      code
+      values {
+        id
+        code
+      }
+    }
+  }
+}

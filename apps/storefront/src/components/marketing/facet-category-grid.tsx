@@ -1,52 +1,79 @@
 import Link from 'next/link';
 import type { ChannelCode } from '@/lib/channel';
-import type { FacetCategoryTile } from '@/lib/strapi/types';
+import type { FacetCategoryTile, SectionHeader } from '@/lib/strapi/types';
 import { pickImageUrl } from '@/lib/strapi/client';
 import { getVendureClient } from '@/lib/vendure/client';
 import { CONTAINER } from '@/lib/ui';
 
 /**
  * Facet-driven category tiles — deliberately independent of Vendure Collections
- * (see the collection-tile component for that). Each tile's live "N items" count
- * comes straight from Vendure's `search`; the label/tagline/image are Strapi's to own,
- * so merchandisers manage the whole grid (which categories, in what order, with what
- * photography) from Strapi without touching code.
+ * (see the collection-tile component for that). Each tile's live "N items" count comes
+ * straight from Vendure's `search`; the label/tagline/image are Strapi's to own, so
+ * merchandisers manage the whole grid from Strapi without touching code.
+ *
+ * Strapi stores a stable facet-value **code** (`"<facetCode>:<valueCode>"`, e.g.
+ * "categories:tops"), never a database id. We resolve it to Vendure's live facet-value id
+ * here at render time — so re-seeds or environment moves (which reassign ids) never break
+ * the grid.
  */
 export async function FacetCategoryGrid({
   tiles,
   channelCode,
+  header,
 }: {
   tiles: FacetCategoryTile[];
   channelCode: ChannelCode;
+  /** Optional Strapi-authored header; falls back to the default copy when absent. */
+  header?: SectionHeader | null;
 }) {
   if (tiles.length === 0) return null;
 
   const client = getVendureClient(channelCode);
+
+  // Build a "<facetCode>:<valueCode>" -> facetValueId map from Vendure's live facets.
+  const facetData = await client.FacetValues().catch(() => null);
+  const codeToId = new Map<string, string>();
+  for (const facet of facetData?.facets.items ?? []) {
+    for (const value of facet.values) {
+      codeToId.set(`${facet.code}:${value.code}`, value.id);
+    }
+  }
+
+  const resolved = tiles.map((tile) => ({ tile, facetValueId: codeToId.get(tile.vendureFacetValueCode) ?? null }));
+
   const counts = await Promise.all(
-    tiles.map((tile) =>
-      client
-        .FacetValueCount({ facetValueId: tile.vendureFacetValueId })
-        .then((result) => result.search.totalItems)
-        .catch(() => null),
+    resolved.map(({ facetValueId }) =>
+      facetValueId
+        ? client
+            .FacetValueCount({ facetValueId })
+            .then((result) => result.search.totalItems)
+            .catch(() => null)
+        : Promise.resolve(null),
     ),
   );
 
   return (
     <section className={`py-section ${CONTAINER}`}>
       <div className="mb-10 md:mb-14">
-        <p className="mb-3 text-xs tracking-[0.2em] text-[var(--color-ink-muted)] uppercase">Shop By Category</p>
-        <h2 className="font-serif text-3xl text-[var(--color-ink)] md:text-4xl">Shop The Edit</h2>
+        <p className="mb-3 text-xs tracking-[0.2em] text-[var(--color-ink-muted)] uppercase">
+          {header?.eyebrow ?? 'Shop By Category'}
+        </p>
+        <h2 className="font-serif text-3xl text-[var(--color-ink)] md:text-4xl">
+          {header?.heading ?? 'Shop The Edit'}
+        </h2>
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">
-        {tiles.map((tile, i) => {
+        {resolved.map(({ tile, facetValueId }, i) => {
           const imageUrl = tile.image ? pickImageUrl(tile.image, ['medium', 'small']) : null;
           const count = counts[i];
+          // Resolved → filtered shop; unresolved code → the unfiltered shop, never a broken link.
+          const href = facetValueId ? `/${channelCode}/shop?facetValueId=${facetValueId}` : `/${channelCode}/shop`;
 
           return (
             <Link
               key={tile.id}
-              href={`/${channelCode}/shop?facetValueId=${tile.vendureFacetValueId}`}
+              href={href}
               className="group relative block aspect-[3/4] overflow-hidden bg-[var(--color-ink)]"
             >
               {imageUrl && (

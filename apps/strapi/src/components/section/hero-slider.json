@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_section_hero_sliders",
+  "info": {
+    "displayName": "Section: Hero Slider",
+    "icon": "images",
+    "description": "Full-bleed hero image slider block for a page's dynamic zone."
+  },
+  "options": {},
+  "attributes": {
+    "slides": {
+      "type": "component",
+      "repeatable": true,
+      "component": "layout.hero-slide"
+    }
+  }
+}
