@@ -1,5 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
 import { getChannel, isChannelCode } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 import { getVendureClient } from '@/lib/vendure/client';
 import { getVendureSessionCookies } from '@/lib/session';
 import { CONTAINER } from '@/lib/ui';
@@ -23,7 +24,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ chann
   ]);
 
   if (!activeOrder || activeOrder.lines.length === 0) {
-    redirect(`/${channel.code}/cart`);
+    redirect(routes.cart(channel.code));
   }
 
   const lines: CartLine[] = activeOrder.lines.map((line) => ({
@@ -50,8 +51,17 @@ export default async function CheckoutPage({ params }: { params: Promise<{ chann
           hasShippingMethod={activeOrder.shippingLines.length > 0}
           countries={availableCountries}
           defaultCountryCode={channel.countryCode}
-          defaultEmail={activeCustomer?.emailAddress}
-          isLoggedIn={!!activeCustomer}
+          customer={
+            activeCustomer
+              ? {
+                  firstName: activeCustomer.firstName,
+                  lastName: activeCustomer.lastName,
+                  emailAddress: activeCustomer.emailAddress,
+                  phoneNumber: activeCustomer.phoneNumber,
+                  addresses: activeCustomer.addresses ?? [],
+                }
+              : null
+          }
           shippingMethods={eligibleShippingMethods.map((method) => ({
             id: method.id,
             name: method.name,

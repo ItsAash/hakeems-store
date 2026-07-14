@@ -1,5 +1,5 @@
 import type { ChannelCode } from '@/lib/channel';
-import { AddressForm, type Country } from '@/components/checkout/address-form';
+import { AddressForm, type Country, type CheckoutCustomer } from '@/components/checkout/address-form';
 import { ShippingMethodStep, type ShippingMethodOption } from '@/components/checkout/shipping-method-step';
 import { PaymentStep } from '@/components/checkout/payment-step';
 
@@ -26,8 +26,8 @@ export function CheckoutFlow({
   hasShippingMethod,
   countries,
   defaultCountryCode,
+  customer,
   defaultEmail,
-  isLoggedIn,
   shippingMethods,
   currencyCode,
 }: {
@@ -38,8 +38,9 @@ export function CheckoutFlow({
   hasShippingMethod: boolean;
   countries: Country[];
   defaultCountryCode: string;
+  /** The signed-in customer's profile + saved addresses, or null for guests. */
+  customer?: CheckoutCustomer | null;
   defaultEmail?: string;
-  isLoggedIn?: boolean;
   shippingMethods: ShippingMethodOption[];
   currencyCode: string;
 }) {
@@ -54,8 +55,8 @@ export function CheckoutFlow({
           channelCode={channelCode}
           countries={countries}
           defaultCountryCode={defaultCountryCode}
+          customer={customer}
           defaultEmail={defaultEmail}
-          isLoggedIn={isLoggedIn}
         />
       )}
       {step === 'shipping' && (
