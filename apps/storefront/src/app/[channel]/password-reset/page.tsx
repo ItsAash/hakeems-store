@@ -1,4 +1,7 @@
 import { notFound } from 'next/navigation';
+import { NOINDEX_METADATA } from '@/lib/seo/metadata';
+
+export const metadata = { ...NOINDEX_METADATA, title: 'Reset Password' };
 import { getChannel, isChannelCode } from '@/lib/channel';
 import { CONTAINER } from '@/lib/ui';
 import { PasswordResetForm } from '@/components/auth/password-reset-form';

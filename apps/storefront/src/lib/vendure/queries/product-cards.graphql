@@ -1,0 +1,39 @@
+query ProductCards($ids: [String!]!) {
+  products(options: { filter: { id: { in: $ids } }, take: 100 }) {
+    items {
+      id
+      slug
+      name
+      featuredAsset {
+        preview
+      }
+      customFields {
+        discountPercent
+        promoLabel
+        badge
+      }
+      variants {
+        id
+        priceWithTax
+        currencyCode
+        featuredAsset {
+          preview
+        }
+        assets {
+          preview
+        }
+        options {
+          id
+          code
+          name
+          group {
+            code
+          }
+          customFields {
+            swatch
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,13 +1,19 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getChannel, isChannelCode } from '@/lib/channel';
+import { routes } from '@/lib/routes';
 import { getVendureClient } from '@/lib/vendure/client';
 import { buildVariantMatrix } from '@/lib/vendure/pdp';
+import { buildMetadata } from '@/lib/seo/metadata';
+import { SITE_NAME, absoluteUrl, toMetaDescription } from '@/lib/seo/site';
+import { JsonLd, breadcrumbSchema, productSchema } from '@/lib/seo/structured-data';
 import { CONTAINER } from '@/lib/ui';
 import { Breadcrumbs } from '@/components/commerce/breadcrumbs';
 import { ProductDetail } from '@/components/commerce/product-detail';
 
 type PdpParams = { channel: string; slug: string };
+
+const VENDURE_ROOT_COLLECTION_SLUG = '__root_collection__';
 
 async function loadProduct(channelParam: string, slug: string) {
   if (!isChannelCode(channelParam)) return null;
@@ -21,13 +27,16 @@ async function loadProduct(channelParam: string, slug: string) {
 export async function generateMetadata({ params }: { params: Promise<PdpParams> }): Promise<Metadata> {
   const { channel: channelParam, slug } = await params;
   const data = await loadProduct(channelParam, slug);
-  if (!data?.product) return {};
+  if (!data?.product) return { title: 'Product not found', robots: { index: false, follow: false } };
 
-  const { product } = data;
-  return {
+  const { channel, product } = data;
+  return buildMetadata({
     title: product.customFields?.seoTitle || product.name,
-    description: product.customFields?.seoDescription || product.description,
-  };
+    description: product.customFields?.seoDescription || toMetaDescription(product.description),
+    path: routes.product(channel.code, product.slug),
+    channel: channel.code,
+    images: product.assets.map((asset) => asset.preview).slice(0, 4),
+  });
 }
 
 export default async function ProductDetailPage({ params }: { params: Promise<PdpParams> }) {
@@ -41,8 +50,32 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pd
   const description = product.customFields?.enrichedDescription || product.description;
   const images = product.assets.map((asset) => asset.preview);
 
+  // --- Structured data (Schema.org) — all values from live Vendure product data ---
+  const prices = product.variants.map((variant) => variant.priceWithTax);
+  const productLd = productSchema({
+    name: product.name,
+    description: product.customFields?.seoDescription || toMetaDescription(product.description),
+    images,
+    url: absoluteUrl(routes.product(channel.code, product.slug)),
+    sku: product.variants[0]?.sku,
+    brand: SITE_NAME,
+    currency: product.variants[0]?.currencyCode ?? channel.currencyCode,
+    priceMin: prices.length ? Math.min(...prices) : 0,
+    priceMax: prices.length ? Math.max(...prices) : 0,
+    inStock: product.variants.some((variant) => variant.stockLevel !== 'OUT_OF_STOCK'),
+  });
+  const crumbLd = breadcrumbSchema([
+    { name: 'Home', url: absoluteUrl(routes.home(channel.code)) },
+    ...breadcrumbItems
+      .filter((crumb) => crumb.slug !== VENDURE_ROOT_COLLECTION_SLUG)
+      .map((crumb) => ({ name: crumb.name, url: absoluteUrl(routes.collection(channel.code, crumb.slug)) })),
+    { name: product.name, url: absoluteUrl(routes.product(channel.code, product.slug)) },
+  ]);
+
   return (
     <main className={`flex-1 py-section-sm ${CONTAINER}`}>
+      <JsonLd data={productLd} />
+      <JsonLd data={crumbLd} />
       <Breadcrumbs items={[...breadcrumbItems, { name: product.name, slug: product.slug }]} channelCode={channel.code} />
 
       <ProductDetail

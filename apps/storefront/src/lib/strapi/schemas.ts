@@ -99,11 +99,23 @@ export const siteSettingSchema = z.object({
   id: z.number(),
   siteName: z.string(),
   tagline: z.string().nullable(),
+  /** Site-wide SEO defaults (title/description/OG) — the fallback for any page without its own. */
+  defaultSeo: seoSchema.nullable(),
   supportEmail: z.string().nullable(),
   supportPhone: z.string().nullable(),
   footerNote: z.string().nullable(),
   socialLinks: z.array(z.object({ id: z.number(), platform: socialPlatformSchema, url: z.string() })),
   legalLinks: z.array(z.object({ id: z.number(), label: z.string(), href: z.string() })),
+});
+
+/** Standalone Markdown/rich-text policy page (Privacy, Terms, Shipping & Returns, …). */
+export const legalPageSchema = z.object({
+  id: z.number(),
+  slug: z.string(),
+  title: z.string(),
+  content: z.string(),
+  seo: seoSchema.nullable(),
+  updatedAt: z.string().nullable(),
 });
 
 export const collectionPageSchema = z.object({

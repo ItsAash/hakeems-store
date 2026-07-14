@@ -3,9 +3,24 @@ import type { Metadata } from 'next';
 import { getChannel, isChannelCode } from '@/lib/channel';
 import { getBrandStory } from '@/lib/strapi/queries';
 import { pickImageUrl } from '@/lib/strapi/client';
+import { buildMetadata } from '@/lib/seo/metadata';
+import { toMetaDescription } from '@/lib/seo/site';
 import { CONTAINER } from '@/lib/ui';
 
-export const metadata: Metadata = { title: 'Our Story' };
+export async function generateMetadata({ params }: { params: Promise<{ channel: string }> }): Promise<Metadata> {
+  const { channel: channelParam } = await params;
+  if (!isChannelCode(channelParam)) return {};
+  const story = await getBrandStory();
+  const image = story?.image ? pickImageUrl(story.image, ['large', 'medium']) : undefined;
+  return buildMetadata({
+    title: story?.heading ? `Our Story — ${story.heading}` : 'Our Story',
+    description: toMetaDescription(story?.paragraphs.map((p) => p.text).join(' ')),
+    path: `/${channelParam}/story`,
+    channel: channelParam,
+    type: 'article',
+    images: image ? [image] : [],
+  });
+}
 
 /**
  * Standalone rendering of the same global brand story shown as a section on the home page
@@ -32,7 +47,7 @@ export default async function StoryPage({ params }: { params: Promise<{ channel:
         {imageUrl && (
           <div className="aspect-[16/9] w-full overflow-hidden bg-[var(--color-hairline)]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+            <img src={imageUrl} alt={story.heading} className="h-full w-full object-cover" />
           </div>
         )}
 

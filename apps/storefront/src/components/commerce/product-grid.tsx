@@ -1,17 +1,14 @@
-import Link from 'next/link';
 import type { ChannelCode } from '@/lib/channel';
-import { routes } from '@/lib/routes';
-import type { PlpProduct } from '@/lib/vendure/plp';
-import { formatPriceRange } from '@/lib/format';
+import type { ProductCardModel } from '@/lib/vendure/product-card';
+import { ProductCard } from '@/components/commerce/product-card';
 
 /**
- * PLP cards are deliberately simpler than the spotlight's ProductCard — no swatches,
- * no quick-add. `search()` (the query backing this grid) only returns facetValueIds,
- * not full variant/option data, so per-color swatches aren't available without an
- * extra round-trip per product; that detail belongs on the PDP anyway.
+ * Collection / shop / search results grid. Each cell is the shared ProductCard, so listings
+ * get the same colour swatches, sale pricing and badges as the spotlight rail. Cards are built
+ * upstream (see loadProductCards) from Vendure `search` + the `ProductCards` enrichment.
  */
-export function ProductGrid({ products, channelCode }: { products: PlpProduct[]; channelCode: ChannelCode }) {
-  if (products.length === 0) {
+export function ProductGrid({ cards, channelCode }: { cards: ProductCardModel[]; channelCode: ChannelCode }) {
+  if (cards.length === 0) {
     return (
       <p className="py-16 text-center text-sm text-[var(--color-ink-muted)]">
         No products match the current filters.
@@ -20,27 +17,9 @@ export function ProductGrid({ products, channelCode }: { products: PlpProduct[];
   }
 
   return (
-    <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-5">
-      {products.map((product) => (
-        <Link key={product.productId} href={routes.product(channelCode, product.slug)} className="group block">
-          <div className="aspect-[4/5] overflow-hidden bg-[var(--color-hairline)]">
-            {product.imageUrl && (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                src={product.imageUrl}
-                alt={product.name}
-                className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                loading="lazy"
-              />
-            )}
-          </div>
-          <div className="mt-3 flex flex-col gap-1">
-            <h3 className="truncate text-sm font-medium text-[var(--color-ink)]">{product.name}</h3>
-            <p className="text-sm text-[var(--color-ink-muted)]">
-              {formatPriceRange(product.priceMin, product.priceMax, product.currencyCode)}
-            </p>
-          </div>
-        </Link>
+    <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-5">
+      {cards.map((card) => (
+        <ProductCard key={card.productId} card={card} channelCode={channelCode} />
       ))}
     </div>
   );

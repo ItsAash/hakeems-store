@@ -93,6 +93,14 @@ export const config: VendureConfig = {
       { name: 'seoDescription', type: 'text', public: true, nullable: true },
       { name: 'fitAndFabric', type: 'text', public: true, nullable: true },
       { name: 'shippingReturns', type: 'text', public: true, nullable: true },
+      // Merchandising: sale + badge for product cards. `discountPercent` is the source of
+      // truth (0–100); the "was" price is derived per-channel from the live priceWithTax, so
+      // the current price stays the amount actually charged and the strikethrough is always in
+      // the right currency. `promoLabel` is the small caption ("Price as Marked"), `badge` the
+      // corner tag ("Best Seller" / "Just Reduced").
+      { name: 'discountPercent', type: 'int', public: true, nullable: true, min: 0, max: 100 },
+      { name: 'promoLabel', type: 'string', public: true, nullable: true },
+      { name: 'badge', type: 'string', public: true, nullable: true },
     ],
   },
   plugins: [

@@ -9,6 +9,12 @@ query SpotlightCollection($slug: String!, $take: Int!) {
         priceWithTax
         currencyCode
         stockLevel
+        featuredAsset {
+          preview
+        }
+        assets {
+          preview
+        }
         product {
           id
           slug
@@ -16,10 +22,16 @@ query SpotlightCollection($slug: String!, $take: Int!) {
           featuredAsset {
             preview
           }
+          customFields {
+            discountPercent
+            promoLabel
+            badge
+          }
         }
         options {
           id
           code
+          name
           groupId
           group {
             code

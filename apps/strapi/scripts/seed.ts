@@ -46,7 +46,7 @@ async function uploadImage(strapi: Core.Strapi, url: string, fileName: string): 
   return uploaded.id;
 }
 
-type DraftUID = 'api::site-nav.site-nav';
+type DraftUID = 'api::site-nav.site-nav' | 'api::legal-page.legal-page';
 
 // Seed data is assembled as plain object literals below, which won't structurally match
 // the Document Service's generated per-content-type Input types (components in particular
@@ -121,6 +121,120 @@ async function seedSiteNavs(strapi: Core.Strapi) {
   await upsertAndPublish(strapi, 'api::site-nav.site-nav', { channel: 'hongkong' }, { channel: 'hongkong', items });
 
   console.log('Seeded site-nav (nepal, hongkong)');
+}
+
+/**
+ * Seeds the standalone legal/policy pages linked from the footer. The body is Markdown, edited
+ * freely by admins in Strapi afterwards; these are just sensible starting drafts. Idempotent by
+ * slug (matches the footer legalLinks: /privacy, /terms, /shipping-returns).
+ */
+async function seedLegalPages(strapi: Core.Strapi) {
+  const pages: Array<{ slug: string; title: string; content: string; seo: { metaTitle: string; metaDescription: string } }> = [
+    {
+      slug: 'privacy',
+      title: 'Privacy Policy',
+      seo: {
+        metaTitle: 'Privacy Policy — Hakeems',
+        metaDescription: 'How Hakeems collects, uses, and protects your personal information when you shop with us.',
+      },
+      content: `Your privacy matters to us. This policy explains what we collect, why we collect it, and the choices you have. It applies to hakeems.com and every order placed with Hakeems in Nepal and Hong Kong.
+
+## Information We Collect
+
+- **Details you give us** — name, email, phone, shipping and billing address, and order history when you create an account or check out.
+- **Payment information** — processed securely by our payment providers. We never store your full card number on our servers.
+- **Usage data** — pages viewed, items browsed, and device/browser information, collected to improve the store.
+
+## How We Use Your Information
+
+We use your information to:
+
+1. Process and deliver your orders, and send order updates.
+2. Provide customer support and respond to your requests.
+3. Improve our products, site, and shopping experience.
+4. Send marketing emails **only** when you have opted in — you can unsubscribe at any time.
+
+## Sharing Your Information
+
+We do not sell your personal information. We share it only with the service providers who help us run the store — payment processors, delivery partners, and email providers — and only to the extent they need it to perform their service, or where required by law.
+
+## Cookies
+
+We use cookies to keep you signed in, remember your cart, and understand how the site is used. You can control cookies through your browser settings; disabling them may affect parts of the site.
+
+## Your Rights
+
+You may request access to, correction of, or deletion of your personal data, and you may object to certain processing. To exercise any of these rights, contact us using the details below.
+
+## Data Retention
+
+We keep your information for as long as your account is active or as needed to provide our services and meet legal, tax, and accounting obligations.
+
+## Contact Us
+
+Questions about this policy? Email us at [support@hakeems.com](mailto:support@hakeems.com) and we'll be happy to help.`,
+    },
+    {
+      slug: 'terms',
+      title: 'Terms of Service',
+      seo: {
+        metaTitle: 'Terms of Service — Hakeems',
+        metaDescription: 'The terms that govern your use of the Hakeems store and any purchase you make with us.',
+      },
+      content: `Welcome to Hakeems. By using our site or placing an order, you agree to these terms.
+
+## Orders
+
+All orders are subject to acceptance and product availability. We reserve the right to refuse or cancel an order, and will refund any payment in full if we do.
+
+## Pricing
+
+Prices are shown in your channel's currency and include tax where applicable. Shipping is calculated at checkout based on your delivery zone. We may update prices at any time, but changes will not affect orders already placed.
+
+## Products
+
+We work hard to show our products accurately, but colours and details may vary slightly between screens and the finished garment.
+
+## Intellectual Property
+
+All content on this site — text, imagery, and designs — belongs to Hakeems and may not be reused without permission.
+
+## Contact
+
+For anything about these terms, reach us at [support@hakeems.com](mailto:support@hakeems.com).`,
+    },
+    {
+      slug: 'shipping-returns',
+      title: 'Shipping & Returns',
+      seo: {
+        metaTitle: 'Shipping & Returns — Hakeems',
+        metaDescription: 'Delivery timelines, shipping rates, and how to return or exchange an item bought from Hakeems.',
+      },
+      content: `## Shipping
+
+Orders are dispatched within 1–2 business days. Shipping is calculated at checkout by delivery zone. Free shipping applies within the Kathmandu Valley on orders over NPR 5,000, and on Hong Kong Island for orders over HKD 800.
+
+## Returns
+
+Unworn items with their original tags can be returned within **14 days** of delivery. Final-sale pieces, marked at checkout, cannot be returned.
+
+## How to Return
+
+1. Email [support@hakeems.com](mailto:support@hakeems.com) with your order number.
+2. We'll share return instructions and the nearest drop-off or pickup option.
+3. Once we receive and inspect your item, your refund is issued to the original payment method.
+
+## Exchanges
+
+Need a different size or colour? Start a return and place a new order — it's the fastest way to get what you want before it sells out.`,
+    },
+  ];
+
+  for (const page of pages) {
+    await upsertAndPublish(strapi, 'api::legal-page.legal-page', { slug: page.slug }, page);
+  }
+
+  console.log('Seeded legal-pages (privacy, terms, shipping-returns)');
 }
 
 /**
@@ -388,6 +502,7 @@ async function main() {
 
   await seedSiteSetting(app);
   await seedSiteNavs(app);
+  await seedLegalPages(app);
   await seedBrandStory(app);
   await seedCollectionPages(app);
   await seedPages(app);

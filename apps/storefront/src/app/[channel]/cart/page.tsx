@@ -1,4 +1,7 @@
 import { notFound } from 'next/navigation';
+import { NOINDEX_METADATA } from '@/lib/seo/metadata';
+
+export const metadata = { ...NOINDEX_METADATA, title: 'Cart' };
 import Link from 'next/link';
 import { getChannel, isChannelCode } from '@/lib/channel';
 import { routes } from '@/lib/routes';

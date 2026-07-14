@@ -4,15 +4,18 @@ import { getChannel, isChannelCode, type ChannelCode } from '@/lib/channel';
 import { routes } from '@/lib/routes';
 import { getCollectionPage } from '@/lib/strapi/queries';
 import { pickImageUrl } from '@/lib/strapi/client';
+import { buildMetadata } from '@/lib/seo/metadata';
+import { absoluteUrl, toMetaDescription } from '@/lib/seo/site';
+import { JsonLd, breadcrumbSchema } from '@/lib/seo/structured-data';
 import { getVendureClient } from '@/lib/vendure/client';
 import {
   groupFacetValuesByFacet,
   isPlpSortKey,
-  mapSearchResultsToProducts,
   PLP_PAGE_SIZE,
   sortKeyToSearchSort,
   type PlpSortKey,
 } from '@/lib/vendure/plp';
+import { loadProductCards } from '@/lib/vendure/product-cards-loader';
 import { CONTAINER } from '@/lib/ui';
 import { Breadcrumbs } from '@/components/commerce/breadcrumbs';
 import { ProductGrid } from '@/components/commerce/product-grid';
@@ -62,10 +65,20 @@ export async function generateMetadata({
       .catch(() => null),
   ]);
 
+  const channel = getChannel(channelParam);
   const title = collectionPage?.seo?.metaTitle || vendureCollection?.name || 'Collection';
-  const description = collectionPage?.seo?.metaDescription || vendureCollection?.description || undefined;
+  const description =
+    collectionPage?.seo?.metaDescription || toMetaDescription(vendureCollection?.description) || undefined;
+  const ogImage = collectionPage?.heroImage ? pickImageUrl(collectionPage.heroImage, ['large', 'medium']) : undefined;
 
-  return { title, description };
+  return buildMetadata({
+    title,
+    description,
+    // Canonical points to the clean collection URL so facet/sort/page variants don't fork it.
+    path: routes.collection(channel.code, slug),
+    channel: channel.code,
+    images: ogImage ? [ogImage] : [],
+  });
 }
 
 export default async function CollectionPage({
@@ -87,7 +100,7 @@ export default async function CollectionPage({
   const vendureCollection = collectionResult.collection;
   if (!vendureCollection) notFound();
 
-  const products = mapSearchResultsToProducts(searchResult.search.items);
+  const cards = await loadProductCards(channel.code, searchResult.search.items);
   const facetGroups = groupFacetValuesByFacet(searchResult.search.facetValues);
   const totalPages = Math.max(1, Math.ceil(searchResult.search.totalItems / PLP_PAGE_SIZE));
   const basePath = routes.collection(channel.code, slug);
@@ -96,12 +109,20 @@ export default async function CollectionPage({
   const title = collectionPage?.title || vendureCollection.name;
   const tagline = collectionPage?.tagline;
 
+  const crumbLd = breadcrumbSchema([
+    { name: 'Home', url: absoluteUrl(routes.home(channel.code)) },
+    ...vendureCollection.breadcrumbs
+      .filter((crumb) => crumb.slug !== '__root_collection__')
+      .map((crumb) => ({ name: crumb.name, url: absoluteUrl(routes.collection(channel.code, crumb.slug)) })),
+  ]);
+
   return (
     <main className="flex flex-1 flex-col">
+      <JsonLd data={crumbLd} />
       {bannerImage && (
         <div className="relative aspect-[3/1] w-full overflow-hidden bg-[var(--color-hairline)]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={bannerImage} alt="" className="h-full w-full object-cover" />
+          <img src={bannerImage} alt={`${title} collection`} className="h-full w-full object-cover" />
         </div>
       )}
 
@@ -135,7 +156,7 @@ export default async function CollectionPage({
             <SortSelect currentSort={sortKey} />
           </div>
 
-          <ProductGrid products={products} channelCode={channel.code} />
+          <ProductGrid cards={cards} channelCode={channel.code} />
 
           <Pagination currentPage={page} totalPages={totalPages} basePath={basePath} searchParams={resolvedSearchParams} />
         </div>
