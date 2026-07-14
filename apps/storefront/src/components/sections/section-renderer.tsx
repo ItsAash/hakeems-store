@@ -19,19 +19,22 @@ export function SectionRenderer({ sections, channelCode }: { sections: PageSecti
   return (
     <>
       {sections.map((section) => {
+        // Dynamic-zone component ids are only unique *within* a component type, so two
+        // different blocks can share `id: 1`. Compose the type in for a stable unique key.
+        const key = `${section.__component}-${section.id}`;
         switch (section.__component) {
           case 'section.hero-slider':
-            return <HeroSlider key={section.id} slides={section.slides} channelCode={channelCode} />;
+            return <HeroSlider key={key} slides={section.slides} channelCode={channelCode} />;
           case 'section.category-grid':
             return (
-              <FacetCategoryGrid key={section.id} tiles={section.tiles} header={section.header} channelCode={channelCode} />
+              <FacetCategoryGrid key={key} tiles={section.tiles} header={section.header} channelCode={channelCode} />
             );
           case 'section.product-rail':
-            return <ProductRailBlock key={section.id} section={section} channelCode={channelCode} />;
+            return <ProductRailBlock key={key} section={section} channelCode={channelCode} />;
           case 'section.editorial-banner':
-            return <EditorialBannerBlock key={section.id} section={section} channelCode={channelCode} />;
+            return <EditorialBannerBlock key={key} section={section} channelCode={channelCode} />;
           case 'section.brand-story':
-            return <BrandStoryBlock key={section.id} section={section} />;
+            return <BrandStoryBlock key={key} section={section} />;
           default:
             return null;
         }
