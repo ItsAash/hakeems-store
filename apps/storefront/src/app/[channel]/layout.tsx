@@ -6,7 +6,7 @@ import { NavBar } from '@/components/nav/nav-bar';
 import { HeaderChrome } from '@/components/nav/header-chrome';
 import { Footer } from '@/components/nav/footer';
 import { getVisibleAnnouncements } from '@/lib/announcements';
-import { getHomePage } from '@/lib/strapi/queries';
+import { getPage } from '@/lib/strapi/queries';
 
 export function generateStaticParams() {
   return CHANNEL_CODES.map((channel) => ({ channel }));
@@ -26,7 +26,9 @@ export default async function ChannelLayout({
   }
 
   const channel = getChannel(channelParam);
-  const homePage = await getHomePage(channel.code);
+  // The announcement bar is site-wide (every route), but its content is authored on the
+  // 'home' Page — the old home-page content type used to own it (see lib/announcements.ts).
+  const homePage = await getPage('home', channel.code);
   const activeAnnouncements = getVisibleAnnouncements(
     homePage?.announcementBarEnabled ?? null,
     homePage?.announcements ?? [],

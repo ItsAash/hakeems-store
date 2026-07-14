@@ -8,11 +8,9 @@ import type {
   announcementSchema,
   brandStorySchema,
   collectionPageSchema,
-  collectionTileSchema,
   ctaSchema,
   facetCategoryTileSchema,
   heroSlideSchema,
-  homePageSchema,
   mediaBlockSchema,
   mediaSchema,
   navItemSchema,
@@ -29,7 +27,6 @@ import type {
 export type StrapiMedia = z.infer<typeof mediaSchema>;
 export type Announcement = z.infer<typeof announcementSchema>;
 export type HeroSlide = z.infer<typeof heroSlideSchema>;
-export type CollectionTile = z.infer<typeof collectionTileSchema>;
 export type FacetCategoryTile = z.infer<typeof facetCategoryTileSchema>;
 
 export type SocialPlatform = z.infer<typeof socialPlatformSchema>;
@@ -45,8 +42,6 @@ export type BrandStory = z.infer<typeof brandStorySchema>;
  * banner/tagline/description/SEO on top of what Vendure owns.
  */
 export type CollectionPage = z.infer<typeof collectionPageSchema>;
-
-export type HomePage = z.infer<typeof homePageSchema>;
 
 export type NavLink = z.infer<typeof navLinkSchema>;
 export type NavItem = z.infer<typeof navItemSchema>;

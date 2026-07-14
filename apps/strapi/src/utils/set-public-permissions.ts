@@ -2,7 +2,6 @@ import type { Core } from '@strapi/strapi';
 
 /** Content the storefront reads directly over the public REST/GraphQL content API. */
 const PUBLIC_READ_ACTIONS: Record<string, string[]> = {
-  'api::home-page.home-page': ['find', 'findOne'],
   'api::page.page': ['find', 'findOne'],
   'api::collection-page.collection-page': ['find', 'findOne'],
   'api::site-setting.site-setting': ['find'],
@@ -27,7 +26,7 @@ export async function setPublicPermissions(strapi: Core.Strapi) {
   for (const [uid, controllerActions] of Object.entries(PUBLIC_READ_ACTIONS)) {
     // Content-API action ids are `${api}.${controller}.${action}`, and for a standard
     // core-generated controller `${api}.${controller}` is exactly the content-type uid
-    // itself (e.g. "api::home-page.home-page") — so no extra segment is needed here.
+    // itself (e.g. "api::page.page") — so no extra segment is needed here.
     for (const action of controllerActions) {
       const actionId = `${uid}.${action}`;
 

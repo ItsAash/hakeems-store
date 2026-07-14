@@ -3,14 +3,13 @@ import type { StrapiListResponse, StrapiSingleResponse } from '@/lib/strapi/clie
 import {
   brandStorySchema,
   collectionPageSchema,
-  homePageSchema,
   listResponse,
   pageSchema,
   singleResponse,
   siteNavSchema,
   siteSettingSchema,
 } from '@/lib/strapi/schemas';
-import type { BrandStory, CollectionPage, HomePage, Page, SiteNav, SiteSetting } from '@/lib/strapi/types';
+import type { BrandStory, CollectionPage, Page, SiteNav, SiteSetting } from '@/lib/strapi/types';
 import type { ChannelCode } from '@/lib/channel';
 
 /**
@@ -19,16 +18,6 @@ import type { ChannelCode } from '@/lib/channel';
  * dropped because one query forgot a `populate` path.
  */
 const POPULATE: Record<string, string[]> = {
-  homePage: [
-    'announcements',
-    'heroSlides.image',
-    'heroSlides.imageMobile',
-    'collectionTiles.image',
-    'facetCategoryTiles.image',
-    'storyParagraphs',
-    'storyImage',
-    'values',
-  ],
   siteNav: ['items.children'],
   siteSetting: ['socialLinks', 'legalLinks'],
   brandStory: ['paragraphs', 'image'],
@@ -41,6 +30,7 @@ const POPULATE: Record<string, string[]> = {
  */
 const PAGE_POPULATE = {
   seo: { populate: '*' },
+  announcements: true,
   sections: {
     on: {
       'section.hero-slider': { populate: { slides: { populate: '*' } } },
@@ -53,23 +43,15 @@ const PAGE_POPULATE = {
 };
 
 /**
- * A composable page (Phase 3). One entry per (slug, channel). Returns null if none exists,
- * so callers can fall back to a legacy layout during migration.
+ * A composable page. One entry per (slug, channel) — e.g. slug 'home' also carries the
+ * site-wide announcement-bar config the root layout reads regardless of route (the retired
+ * home-page content type used to own that). Returns null if none exists.
  */
 export async function getPage(slug: string, channel: ChannelCode): Promise<Page | null> {
   const response = await strapiFetch<StrapiListResponse<Page>>('pages', {
     filters: { slug, channel },
     populate: PAGE_POPULATE,
     schema: listResponse(pageSchema),
-  });
-  return response.data[0] ?? null;
-}
-
-export async function getHomePage(channel: ChannelCode): Promise<HomePage | null> {
-  const response = await strapiFetch<StrapiListResponse<HomePage>>('home-pages', {
-    filters: { channel },
-    populate: POPULATE.homePage,
-    schema: listResponse(homePageSchema),
   });
   return response.data[0] ?? null;
 }

@@ -46,7 +46,7 @@ async function uploadImage(strapi: Core.Strapi, url: string, fileName: string): 
   return uploaded.id;
 }
 
-type DraftUID = 'api::home-page.home-page' | 'api::site-nav.site-nav';
+type DraftUID = 'api::site-nav.site-nav';
 
 // Seed data is assembled as plain object literals below, which won't structurally match
 // the Document Service's generated per-content-type Input types (components in particular
@@ -97,128 +97,6 @@ async function seedSiteSetting(strapi: Core.Strapi) {
     await strapi.documents('api::site-setting.site-setting').create({ data });
   }
   console.log('Seeded site-setting');
-}
-
-async function seedHomePages(strapi: Core.Strapi) {
-  const storyImage = await uploadImage(strapi, unsplash('photo-1441986300917-64674bd600d8', 'w=1400&h=1120&fit=crop&q=80'), 'brand-story.jpg');
-  const tileTops = await uploadImage(strapi, unsplash('photo-1445205170230-053b83016050', 'w=1200&h=1500&fit=crop&q=80'), 'tile-tops.jpg');
-  const tileBottoms = await uploadImage(strapi, unsplash('photo-1560243563-062bfc001d68', 'w=1200&h=1500&fit=crop&q=80'), 'tile-bottoms.jpg');
-  const tileAccessories = await uploadImage(strapi, unsplash('photo-1606522754091-a3bbf9ad4cb3', 'w=1200&h=1500&fit=crop&q=80'), 'tile-accessories.jpg');
-  const tileEssentials = await uploadImage(strapi, unsplash('photo-1487222477894-8943e31ef7b2', 'w=1200&h=1500&fit=crop&q=80'), 'tile-essentials.jpg');
-
-  const heroBlockUp = await uploadImage(strapi, unsplash('photo-1558769132-cb1aea458c5e'), 'hero-block-up.jpg');
-  const heroEssentials = await uploadImage(strapi, unsplash('photo-1487222477894-8943e31ef7b2'), 'hero-essentials.jpg');
-  const heroAccessories = await uploadImage(strapi, unsplash('photo-1553062407-98eeb64c6a62'), 'hero-accessories.jpg');
-  const heroBottoms = await uploadImage(strapi, unsplash('photo-1594633312681-425c7b97ccd1'), 'hero-bottoms.jpg');
-
-  const values = [
-    { heading: 'Small batches', body: 'Every run is limited. When a drop sells through, it’s gone — no landfill overstock.' },
-    { heading: 'Cut in Kathmandu', body: 'Designed and sewn in our own studio, with fabric sourced from mills we visit ourselves.' },
-    { heading: 'Unisex by design', body: 'Fit is a personal choice, not an aisle. Every piece is cut to be worn by anyone.' },
-  ];
-  const storyParagraphs = [
-    {
-      text: 'Hakeems started as a pop-up table at a Kathmandu street event and grew into a full collection without losing that instinct — small batches, real fabric, and pieces built to survive an actual event, not just a lookbook.',
-    },
-    { text: 'Every drop is unisex by design. Fit and gender are personal choices, not aisles you have to pick a side of.' },
-  ];
-
-  await upsertAndPublish(strapi, 'api::home-page.home-page', { channel: 'nepal' }, {
-    channel: 'nepal',
-    announcements: [
-      { text: 'FREE SHIPPING WITHIN KATHMANDU VALLEY ON ORDERS OVER NPR 5,000' },
-      { text: 'NEW DROP — SS26 NOW AVAILABLE' },
-      { text: 'POP-UP AT JAWALAKHEL — EVERY LAST SATURDAY' },
-    ],
-    heroSlides: [
-      {
-        image: heroBlockUp,
-        heading: 'Built From The Block Up',
-        subheading: 'Streetwear made with the community, for the community — designed in Kathmandu, worn from Jhamsikhel to Jomsom.',
-        ctaLabel: 'Shop The Spotlight',
-        ctaHref: '/nepal/collections/spotlight',
-      },
-      {
-        image: heroEssentials,
-        heading: 'Worn Daily, Made To Last',
-        subheading: 'Core pieces we cut in every drop and restock season after season.',
-        ctaLabel: 'Shop Tops',
-        ctaHref: '/nepal/collections/tops',
-      },
-      {
-        image: heroAccessories,
-        heading: 'Finish The Fit',
-        subheading: 'Totes, slings and caps — the details that make the difference, from the pop-up to the street.',
-        ctaLabel: 'Shop Accessories',
-        ctaHref: '/nepal/collections/accessories',
-      },
-    ],
-    facetCategoryTiles: [
-      { vendureFacetValueCode: 'categories:tops', label: 'Tops', tagline: 'Tees, sweats, hoodies & overshirts', image: tileTops },
-      { vendureFacetValueCode: 'categories:bottoms', label: 'Bottoms', tagline: 'Utility pants, joggers & denim', image: tileBottoms },
-      { vendureFacetValueCode: 'categories:accessories', label: 'Accessories', tagline: 'Totes, slings & caps', image: tileAccessories },
-      { vendureFacetValueCode: 'categories:sets', label: 'Sets', tagline: 'Matching pieces, worn together', image: tileEssentials },
-    ],
-    storyEyebrow: 'The Brand',
-    storyHeading: 'Not made in a boardroom.',
-    storyParagraphs,
-    storyImage,
-    values,
-    seo: {
-      metaTitle: 'Hakeems Nepal — Community Streetwear',
-      metaDescription: 'Streetwear designed in Kathmandu, worn from Jhamsikhel to Jomsom. Shop tops, bottoms, accessories, and the weekly spotlight.',
-    },
-  });
-
-  await upsertAndPublish(strapi, 'api::home-page.home-page', { channel: 'hongkong' }, {
-    channel: 'hongkong',
-    announcements: [
-      { text: 'FREE HK ISLAND DELIVERY ON ORDERS OVER HKD 800' },
-      { text: 'NEW DROP — SS26 NOW AVAILABLE' },
-      { text: 'POP-UP AT PMQ — FIRST WEEKEND OF EVERY MONTH' },
-    ],
-    heroSlides: [
-      {
-        image: heroBlockUp,
-        heading: 'Built From The Block Up',
-        subheading:
-          'Streetwear made with the community, for the community — designed in Kathmandu, cut for Hong Kong humidity and harbour nights.',
-        ctaLabel: 'Shop The Spotlight',
-        ctaHref: '/hongkong/collections/spotlight',
-      },
-      {
-        image: heroEssentials,
-        heading: 'Worn Daily, Made To Last',
-        subheading: 'Core pieces we cut in every drop and restock season after season.',
-        ctaLabel: 'Shop Tops',
-        ctaHref: '/hongkong/collections/tops',
-      },
-      {
-        image: heroBottoms,
-        heading: 'Built To Move',
-        subheading: 'Utility pants, joggers and denim, cut for the street and the stage — Hong Kong humidity included.',
-        ctaLabel: 'Shop Bottoms',
-        ctaHref: '/hongkong/collections/bottoms',
-      },
-    ],
-    facetCategoryTiles: [
-      { vendureFacetValueCode: 'categories:tops', label: 'Tops', tagline: 'Tees, sweats, hoodies & overshirts', image: tileTops },
-      { vendureFacetValueCode: 'categories:bottoms', label: 'Bottoms', tagline: 'Utility pants, joggers & denim', image: tileBottoms },
-      { vendureFacetValueCode: 'categories:accessories', label: 'Accessories', tagline: 'Totes, slings & caps', image: tileAccessories },
-      { vendureFacetValueCode: 'categories:sets', label: 'Sets', tagline: 'Matching pieces, worn together', image: tileEssentials },
-    ],
-    storyEyebrow: 'The Brand',
-    storyHeading: 'Not made in a boardroom.',
-    storyParagraphs,
-    storyImage,
-    values,
-    seo: {
-      metaTitle: 'Hakeems Hong Kong — Community Streetwear',
-      metaDescription: 'Streetwear designed in Kathmandu, cut for Hong Kong humidity and harbour nights. Shop tops, bottoms, accessories, and the weekly spotlight.',
-    },
-  });
-
-  console.log('Seeded home-page (nepal, hongkong)');
 }
 
 async function seedSiteNavs(strapi: Core.Strapi) {
@@ -334,21 +212,22 @@ async function seedCollectionPages(strapi: Core.Strapi) {
 }
 
 /**
- * Phase 4 — the global, channel-agnostic brand story, authored once here (read from the
- * nepal home-page's story fields, which were identical across channels). Section blocks
- * render this shared story by default, so it's no longer duplicated per channel.
+ * The global, channel-agnostic brand story — authored once here as the single source of
+ * truth. Section blocks render this shared story by default, so it's never duplicated
+ * per channel. No longer sourced from home-page (retired in favor of the Page builder).
  */
 async function seedBrandStory(strapi: Core.Strapi) {
-  const home: any = await strapi.documents('api::home-page.home-page').findFirst({
-    filters: { channel: 'nepal' },
-    status: 'draft',
-    populate: { storyParagraphs: true, storyImage: true },
-  });
+  const storyImage = await uploadImage(strapi, unsplash('photo-1441986300917-64674bd600d8', 'w=1400&h=1120&fit=crop&q=80'), 'brand-story.jpg');
   const data: any = {
-    eyebrow: home?.storyEyebrow ?? 'The Brand',
-    heading: home?.storyHeading ?? 'Not made in a boardroom.',
-    paragraphs: (home?.storyParagraphs ?? []).map((p: any) => ({ text: p.text })),
-    image: home?.storyImage ? (typeof home.storyImage === 'object' ? home.storyImage.id : home.storyImage) : null,
+    eyebrow: 'The Brand',
+    heading: 'Not made in a boardroom.',
+    paragraphs: [
+      {
+        text: 'Hakeems started as a pop-up table at a Kathmandu street event and grew into a full collection without losing that instinct — small batches, real fabric, and pieces built to survive an actual event, not just a lookbook.',
+      },
+      { text: 'Every drop is unisex by design. Fit and gender are personal choices, not aisles you have to pick a side of.' },
+    ],
+    image: storyImage,
   };
   const existing = await strapi.documents('api::brand-story.brand-story').findFirst({});
   if (existing) {
@@ -359,50 +238,102 @@ async function seedBrandStory(strapi: Core.Strapi) {
   console.log('Seeded brand-story (global)');
 }
 
+/** Per-channel announcement-bar copy — the only piece of the retired home-page content
+ * type that's genuinely per-channel rather than page content; it lives directly on each
+ * channel's 'home' Page now (see seedPages) and the root layout reads it from there. */
+const CHANNEL_ANNOUNCEMENTS: Record<'nepal' | 'hongkong', Array<{ text: string }>> = {
+  nepal: [
+    { text: 'FREE SHIPPING WITHIN KATHMANDU VALLEY ON ORDERS OVER NPR 5,000' },
+    { text: 'NEW DROP — SS26 NOW AVAILABLE' },
+    { text: 'POP-UP AT JAWALAKHEL — EVERY LAST SATURDAY' },
+  ],
+  hongkong: [
+    { text: 'FREE HK ISLAND DELIVERY ON ORDERS OVER HKD 800' },
+    { text: 'NEW DROP — SS26 NOW AVAILABLE' },
+    { text: 'POP-UP AT PMQ — FIRST WEEKEND OF EVERY MONTH' },
+  ],
+};
+
 /**
- * Phase 3 migration — composes a Page (dynamic zone) per channel from the content already
- * seeded into home-page / spotlight / new-arrival, in the current homepage order. Reads the
- * seeded docs (single source of truth) and maps them into section blocks, so there's no
- * duplicated content here. Must run AFTER the seeders it reads from.
+ * Composes each channel's 'home' Page (dynamic zone) directly — the sole source of truth
+ * for home-page content now that the home-page collection type is retired. Sections are
+ * literal here (previously they were migrated from home-page's fields); reorder/add/remove
+ * them straight in Strapi afterwards with no code change needed.
  */
 async function seedPages(strapi: Core.Strapi) {
-  const mediaId = (m: any): number | null => (m && typeof m === 'object' ? (m.id ?? null) : (m ?? null));
+  const tileTops = await uploadImage(strapi, unsplash('photo-1445205170230-053b83016050', 'w=1200&h=1500&fit=crop&q=80'), 'tile-tops.jpg');
+  const tileBottoms = await uploadImage(strapi, unsplash('photo-1560243563-062bfc001d68', 'w=1200&h=1500&fit=crop&q=80'), 'tile-bottoms.jpg');
+  const tileAccessories = await uploadImage(strapi, unsplash('photo-1606522754091-a3bbf9ad4cb3', 'w=1200&h=1500&fit=crop&q=80'), 'tile-accessories.jpg');
+  const tileEssentials = await uploadImage(strapi, unsplash('photo-1487222477894-8943e31ef7b2', 'w=1200&h=1500&fit=crop&q=80'), 'tile-essentials.jpg');
+  const facetCategoryTiles = [
+    { vendureFacetValueCode: 'categories:tops', label: 'Tops', tagline: 'Tees, sweats, hoodies & overshirts', image: tileTops },
+    { vendureFacetValueCode: 'categories:bottoms', label: 'Bottoms', tagline: 'Utility pants, joggers & denim', image: tileBottoms },
+    { vendureFacetValueCode: 'categories:accessories', label: 'Accessories', tagline: 'Totes, slings & caps', image: tileAccessories },
+    { vendureFacetValueCode: 'categories:sets', label: 'Sets', tagline: 'Matching pieces, worn together', image: tileEssentials },
+  ];
+
+  const heroBlockUp = await uploadImage(strapi, unsplash('photo-1558769132-cb1aea458c5e'), 'hero-block-up.jpg');
+  const heroEssentials = await uploadImage(strapi, unsplash('photo-1487222477894-8943e31ef7b2'), 'hero-essentials.jpg');
+  const heroAccessories = await uploadImage(strapi, unsplash('photo-1553062407-98eeb64c6a62'), 'hero-accessories.jpg');
+  const heroBottoms = await uploadImage(strapi, unsplash('photo-1594633312681-425c7b97ccd1'), 'hero-bottoms.jpg');
+
+  const HERO_SLIDES: Record<'nepal' | 'hongkong', any[]> = {
+    nepal: [
+      {
+        image: heroBlockUp,
+        heading: 'Built From The Block Up',
+        subheading: 'Streetwear made with the community, for the community — designed in Kathmandu, worn from Jhamsikhel to Jomsom.',
+        ctaLabel: 'Shop The Spotlight',
+        ctaHref: '/nepal/collections/spotlight',
+      },
+      {
+        image: heroEssentials,
+        heading: 'Worn Daily, Made To Last',
+        subheading: 'Core pieces we cut in every drop and restock season after season.',
+        ctaLabel: 'Shop Tops',
+        ctaHref: '/nepal/collections/tops',
+      },
+      {
+        image: heroAccessories,
+        heading: 'Finish The Fit',
+        subheading: 'Totes, slings and caps — the details that make the difference, from the pop-up to the street.',
+        ctaLabel: 'Shop Accessories',
+        ctaHref: '/nepal/collections/accessories',
+      },
+    ],
+    hongkong: [
+      {
+        image: heroBlockUp,
+        heading: 'Built From The Block Up',
+        subheading:
+          'Streetwear made with the community, for the community — designed in Kathmandu, cut for Hong Kong humidity and harbour nights.',
+        ctaLabel: 'Shop The Spotlight',
+        ctaHref: '/hongkong/collections/spotlight',
+      },
+      {
+        image: heroEssentials,
+        heading: 'Worn Daily, Made To Last',
+        subheading: 'Core pieces we cut in every drop and restock season after season.',
+        ctaLabel: 'Shop Tops',
+        ctaHref: '/hongkong/collections/tops',
+      },
+      {
+        image: heroBottoms,
+        heading: 'Built To Move',
+        subheading: 'Utility pants, joggers and denim, cut for the street and the stage — Hong Kong humidity included.',
+        ctaLabel: 'Shop Bottoms',
+        ctaHref: '/hongkong/collections/bottoms',
+      },
+    ],
+  };
 
   for (const channel of ['nepal', 'hongkong'] as const) {
-    const home: any = await strapi.documents('api::home-page.home-page').findFirst({
-      filters: { channel },
-      status: 'draft',
-      populate: {
-        heroSlides: { populate: '*' },
-        facetCategoryTiles: { populate: '*' },
-        storyParagraphs: true,
-        storyImage: true,
-      },
-    });
-    if (!home) continue;
-
     const sections: any[] = [
-      {
-        __component: 'section.hero-slider',
-        slides: (home.heroSlides ?? []).map((s: any) => ({
-          image: mediaId(s.image),
-          imageMobile: mediaId(s.imageMobile),
-          alt: s.alt ?? null,
-          heading: s.heading,
-          subheading: s.subheading ?? null,
-          ctaLabel: s.ctaLabel ?? null,
-          ctaHref: s.ctaHref ?? null,
-        })),
-      },
+      { __component: 'section.hero-slider', slides: HERO_SLIDES[channel] },
       {
         __component: 'section.category-grid',
         header: { eyebrow: 'Shop By Category', heading: 'Shop The Edit', align: 'left' },
-        tiles: (home.facetCategoryTiles ?? []).map((t: any) => ({
-          vendureFacetValueCode: t.vendureFacetValueCode,
-          label: t.label,
-          tagline: t.tagline ?? null,
-          image: mediaId(t.image),
-        })),
+        tiles: facetCategoryTiles,
       },
       {
         __component: 'section.product-rail',
@@ -411,7 +342,7 @@ async function seedPages(strapi: Core.Strapi) {
         cta: { label: 'Shop The Spotlight', href: '/collections/spotlight', variant: 'link', openInNewTab: false },
       },
       {
-        // Content-less marker — renders the shared global brand story (Phase 4). Set header /
+        // Content-less marker — renders the shared global brand story. Set header /
         // paragraphs on this block to override the shared story for this channel only.
         __component: 'section.brand-story',
       },
@@ -424,15 +355,23 @@ async function seedPages(strapi: Core.Strapi) {
       },
     ];
 
+    const data = {
+      slug: 'home',
+      channel,
+      sections,
+      announcementBarEnabled: true,
+      announcements: CHANNEL_ANNOUNCEMENTS[channel],
+    };
+
     const existing: any = await strapi
       .documents('api::page.page')
       .findFirst({ filters: { slug: 'home', channel }, status: 'draft' });
 
     if (existing) {
-      await strapi.documents('api::page.page').update({ documentId: existing.documentId, data: { sections } as any });
+      await strapi.documents('api::page.page').update({ documentId: existing.documentId, data: data as any });
       await strapi.documents('api::page.page').publish({ documentId: existing.documentId });
     } else {
-      const created = await strapi.documents('api::page.page').create({ data: { slug: 'home', channel, sections } as any });
+      const created = await strapi.documents('api::page.page').create({ data: data as any });
       await strapi.documents('api::page.page').publish({ documentId: created.documentId });
     }
   }
@@ -448,7 +387,6 @@ async function main() {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'hakeems-strapi-seed-'));
 
   await seedSiteSetting(app);
-  await seedHomePages(app);
   await seedSiteNavs(app);
   await seedBrandStory(app);
   await seedCollectionPages(app);

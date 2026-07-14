@@ -18,8 +18,11 @@
     },
     "channel": {
       "type": "enumeration",
-      "enum": ["nepal", "hongkong"],
-      "required": true
+      "required": true,
+      "enum": [
+        "nepal",
+        "hongkong"
+      ]
     },
     "sections": {
       "type": "dynamiczone",
@@ -28,13 +31,23 @@
         "section.category-grid",
         "section.product-rail",
         "section.editorial-banner",
-        "section.brand-story"
+        "section.brand-story",
+        "layout.collection-tile"
       ]
     },
     "seo": {
       "type": "component",
-      "repeatable": false,
-      "component": "shared.seo"
+      "component": "shared.seo",
+      "repeatable": false
+    },
+    "announcementBarEnabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "announcements": {
+      "type": "component",
+      "repeatable": true,
+      "component": "layout.announcement"
     }
   }
 }

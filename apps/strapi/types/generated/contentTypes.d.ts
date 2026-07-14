@@ -514,51 +514,6 @@ export interface ApiCollectionPageCollectionPage
   };
 }
 
-export interface ApiHomePageHomePage extends Struct.CollectionTypeSchema {
-  collectionName: 'home_pages';
-  info: {
-    description: 'One entry per storefront channel (Nepal, Hong Kong): marquee, hero slider, shop-by-collection tiles, brand story, values.';
-    displayName: 'Home Page';
-    pluralName: 'home-pages';
-    singularName: 'home-page';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    announcementBarEnabled: Schema.Attribute.Boolean &
-      Schema.Attribute.DefaultTo<true>;
-    announcements: Schema.Attribute.Component<'layout.announcement', true>;
-    channel: Schema.Attribute.Enumeration<['nepal', 'hongkong']> &
-      Schema.Attribute.Required;
-    collectionTiles: Schema.Attribute.Component<'layout.collection-tile', true>;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    facetCategoryTiles: Schema.Attribute.Component<
-      'layout.facet-category-tile',
-      true
-    >;
-    heroSlides: Schema.Attribute.Component<'layout.hero-slide', true>;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::home-page.home-page'
-    > &
-      Schema.Attribute.Private;
-    publishedAt: Schema.Attribute.DateTime;
-    seo: Schema.Attribute.Component<'shared.seo', false>;
-    storyEyebrow: Schema.Attribute.String;
-    storyHeading: Schema.Attribute.String;
-    storyImage: Schema.Attribute.Media<'images'>;
-    storyParagraphs: Schema.Attribute.Component<'shared.paragraph', true>;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    values: Schema.Attribute.Component<'layout.value-item', true>;
-  };
-}
-
 export interface ApiPagePage extends Struct.CollectionTypeSchema {
   collectionName: 'pages';
   info: {
@@ -571,6 +526,9 @@ export interface ApiPagePage extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    announcementBarEnabled: Schema.Attribute.Boolean &
+      Schema.Attribute.DefaultTo<true>;
+    announcements: Schema.Attribute.Component<'layout.announcement', true>;
     channel: Schema.Attribute.Enumeration<['nepal', 'hongkong']> &
       Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
@@ -587,6 +545,7 @@ export interface ApiPagePage extends Struct.CollectionTypeSchema {
         'section.product-rail',
         'section.editorial-banner',
         'section.brand-story',
+        'layout.collection-tile',
       ]
     >;
     seo: Schema.Attribute.Component<'shared.seo', false>;
@@ -1179,7 +1138,6 @@ declare module '@strapi/strapi' {
       'admin::user': AdminUser;
       'api::brand-story.brand-story': ApiBrandStoryBrandStory;
       'api::collection-page.collection-page': ApiCollectionPageCollectionPage;
-      'api::home-page.home-page': ApiHomePageHomePage;
       'api::page.page': ApiPagePage;
       'api::site-nav.site-nav': ApiSiteNavSiteNav;
       'api::site-setting.site-setting': ApiSiteSettingSiteSetting;

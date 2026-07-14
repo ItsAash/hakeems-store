@@ -31,7 +31,6 @@ export const mediaSchema = z.object({
 });
 
 const paragraphSchema = z.object({ id: z.number(), text: z.string() });
-const valueItemSchema = z.object({ id: z.number(), heading: z.string(), body: z.string() });
 
 export const socialPlatformSchema = z.enum(['instagram', 'tiktok', 'facebook', 'youtube', 'x', 'whatsapp']);
 const channelSchema = z.enum(['nepal', 'hongkong']);
@@ -86,14 +85,6 @@ export const heroSlideSchema = z.object({
   ctaHref: z.string().nullable(),
 });
 
-export const collectionTileSchema = z.object({
-  id: z.number(),
-  vendureCollectionSlug: z.string(),
-  label: z.string(),
-  tagline: z.string().nullable(),
-  image: mediaSchema.nullable(),
-});
-
 export const facetCategoryTileSchema = z.object({
   id: z.number(),
   /** Stable Vendure facet-value reference, `"<facetCode>:<valueCode>"` (e.g.
@@ -125,21 +116,6 @@ export const collectionPageSchema = z.object({
   description: z.string().nullable(),
   heroImage: mediaSchema.nullable(),
   seo: seoSchema.nullable(),
-});
-
-export const homePageSchema = z.object({
-  id: z.number(),
-  channel: channelSchema,
-  announcementBarEnabled: z.boolean().nullable(),
-  announcements: z.array(announcementSchema),
-  heroSlides: z.array(heroSlideSchema),
-  collectionTiles: z.array(collectionTileSchema),
-  facetCategoryTiles: z.array(facetCategoryTileSchema),
-  storyEyebrow: z.string().nullable(),
-  storyHeading: z.string().nullable(),
-  storyParagraphs: z.array(paragraphSchema),
-  storyImage: mediaSchema.nullable(),
-  values: z.array(valueItemSchema),
 });
 
 const navLinkSchema = z.object({ id: z.number(), label: z.string(), href: z.string() });
@@ -209,6 +185,10 @@ export const pageSchema = z.object({
   slug: z.string(),
   channel: channelSchema,
   sections: z.array(pageSectionSchema),
+  /** Site-wide announcement marquee, authored on the 'home' page per channel and read by
+   * the root layout regardless of route (retired from the old home-page content type). */
+  announcementBarEnabled: z.boolean().nullable(),
+  announcements: z.array(announcementSchema),
 });
 
 // ---------- response envelopes ----------

@@ -1,8 +1,8 @@
 import type { Announcement } from '@/lib/strapi/types';
 
 /**
- * The marquee is toggled as a whole via `home-page.announcementBarEnabled`, not per
- * announcement. `null` means the row predates this field and must read as "on", the
+ * The marquee is toggled as a whole via the 'home' Page's `announcementBarEnabled`, not
+ * per announcement. `null` means the row predates this field and must read as "on", the
  * same convention used by every other boolean toggle in this schema.
  */
 export function getVisibleAnnouncements(
