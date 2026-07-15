@@ -59,7 +59,10 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${fraunces.variable}`}>
-      <body>{children}</body>
+      {/* Browser extensions (e.g. Bitdefender's `bis_register`/`__processed_*`) inject
+          attributes onto <body> before React hydrates, which trips the hydration-mismatch
+          warning. suppressHydrationWarning ignores attribute diffs on this one element only. */}
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }
