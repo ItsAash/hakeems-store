@@ -10,6 +10,7 @@ import type {
   collectionPageSchema,
   ctaSchema,
   facetCategoryTileSchema,
+  footerSchema,
   heroSlideSchema,
   legalPageSchema,
   mediaBlockSchema,
@@ -33,6 +34,10 @@ export type FacetCategoryTile = z.infer<typeof facetCategoryTileSchema>;
 
 export type SocialPlatform = z.infer<typeof socialPlatformSchema>;
 export type SiteSetting = z.infer<typeof siteSettingSchema>;
+
+/** Fully editor-managed site footer (Strapi `footer` single type). Named `FooterContent`
+ * to avoid colliding with the `Footer` React component that consumes it. */
+export type FooterContent = z.infer<typeof footerSchema>;
 export type Seo = z.infer<typeof seoSchema>;
 
 /** Global shared brand story (Phase 4). */

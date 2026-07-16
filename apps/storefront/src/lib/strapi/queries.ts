@@ -3,6 +3,7 @@ import type { StrapiListResponse, StrapiSingleResponse } from '@/lib/strapi/clie
 import {
   brandStorySchema,
   collectionPageSchema,
+  footerSchema,
   legalPageSchema,
   listResponse,
   pageSchema,
@@ -14,6 +15,7 @@ import {
 import type {
   BrandStory,
   CollectionPage,
+  FooterContent,
   LegalPage,
   Page,
   ProductPage,
@@ -30,6 +32,7 @@ import type { ChannelCode } from '@/lib/channel';
 const POPULATE: Record<string, string[]> = {
   siteNav: ['items.children'],
   siteSetting: ['socialLinks', 'legalLinks', 'defaultSeo', 'defaultSeo.ogImage'],
+  footer: ['columns.links', 'contact', 'socialLinks', 'newsletter', 'legalLinks'],
   brandStory: ['paragraphs', 'image'],
   collectionPage: ['heroImage', 'seo.ogImage'],
   legalPage: ['seo.ogImage'],
@@ -85,6 +88,18 @@ export async function getSiteSetting(): Promise<SiteSetting | null> {
   const response = await strapiFetch<StrapiSingleResponse<SiteSetting>>('site-setting', {
     populate: POPULATE.siteSetting,
     schema: singleResponse(siteSettingSchema),
+    notFoundAsNull: true,
+  });
+  return response.data;
+}
+
+/** Global, editor-managed site footer (single type). Everything the footer renders —
+ * brand blurb, link columns, contact, socials, newsletter copy, legal links, copyright —
+ * comes from here. Returns null when no entry exists yet, so the footer can fall back. */
+export async function getFooter(): Promise<FooterContent | null> {
+  const response = await strapiFetch<StrapiSingleResponse<FooterContent>>('footer', {
+    populate: POPULATE.footer,
+    schema: singleResponse(footerSchema),
     notFoundAsNull: true,
   });
   return response.data;
