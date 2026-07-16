@@ -78,6 +78,7 @@ export const config: VendureConfig = {
     username: process.env.DB_USERNAME || 'hakeems',
     password: process.env.DB_PASSWORD || 'hakeems',
     schema: process.env.DB_SCHEMA || 'public',
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
   },
   paymentOptions: {
     paymentMethodHandlers: [dummyPaymentHandler, fonepayPlaceholderHandler],
