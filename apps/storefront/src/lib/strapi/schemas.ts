@@ -108,6 +108,43 @@ export const siteSettingSchema = z.object({
   legalLinks: z.array(z.object({ id: z.number(), label: z.string(), href: z.string() })),
 });
 
+// ---------- footer (fully editor-managed via the `footer` single type) ----------
+const footerLinkSchema = z.object({ id: z.number(), label: z.string(), href: z.string() });
+const footerColumnSchema = z.object({
+  id: z.number(),
+  heading: z.string(),
+  links: z.array(footerLinkSchema),
+});
+const footerContactSchema = z.object({
+  id: z.number(),
+  heading: z.string().nullable(),
+  email: z.string().nullable(),
+  phone: z.string().nullable(),
+  address: z.string().nullable(),
+});
+const footerNewsletterSchema = z.object({
+  id: z.number(),
+  enabled: z.boolean(),
+  heading: z.string().nullable(),
+  description: z.string().nullable(),
+  placeholder: z.string().nullable(),
+  buttonLabel: z.string().nullable(),
+  successMessage: z.string().nullable(),
+});
+
+export const footerSchema = z.object({
+  id: z.number(),
+  brandName: z.string(),
+  brandTagline: z.string().nullable(),
+  columns: z.array(footerColumnSchema),
+  contact: footerContactSchema.nullable(),
+  socialLinks: z.array(z.object({ id: z.number(), platform: socialPlatformSchema, url: z.string() })),
+  newsletter: footerNewsletterSchema.nullable(),
+  legalLinks: z.array(footerLinkSchema),
+  copyrightText: z.string().nullable(),
+  footerNote: z.string().nullable(),
+});
+
 /** Standalone Markdown/rich-text policy page (Privacy, Terms, Shipping & Returns, …). */
 export const legalPageSchema = z.object({
   id: z.number(),
