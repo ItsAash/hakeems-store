@@ -27,6 +27,15 @@ export function BagIcon({ className }: IconProps) {
   );
 }
 
+export function LockIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden="true">
+      <rect x="5" y="11" width="14" height="9" rx="1.5" />
+      <path d="M8 11V7.5a4 4 0 0 1 8 0V11" />
+    </svg>
+  );
+}
+
 export function UserIcon({ className }: IconProps) {
   return (
     <svg {...base} className={className} aria-hidden="true">

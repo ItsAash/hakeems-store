@@ -10,7 +10,7 @@ import { ProductCard } from '@/components/commerce/product-card';
 export function ProductGrid({ cards, channelCode }: { cards: ProductCardModel[]; channelCode: ChannelCode }) {
   if (cards.length === 0) {
     return (
-      <p className="py-16 text-center text-sm text-[var(--color-ink-muted)]">
+      <p className="py-section-sm text-center text-sm text-[var(--color-ink-muted)]">
         No products match the current filters.
       </p>
     );

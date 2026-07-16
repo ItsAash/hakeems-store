@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { ChannelCode } from '@/lib/channel';
 import { addItemToOrderAction } from '@/lib/vendure/actions';
+import { requestCartOpen } from '@/lib/cart-events';
 import { PlusIcon, CheckIcon } from '@/components/ui/icons';
 
 type Status = 'idle' | 'loading' | 'added' | 'error';
@@ -24,6 +25,7 @@ export function QuickAddButton({ channelCode, variantId }: { channelCode: Channe
     if (result.success) {
       setStatus('added');
       router.refresh();
+      requestCartOpen();
       setTimeout(() => setStatus('idle'), 1800);
     } else {
       setStatus('error');

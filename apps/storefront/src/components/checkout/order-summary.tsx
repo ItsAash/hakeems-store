@@ -1,5 +1,10 @@
+import Image from 'next/image';
 import type { CartLine } from '@/components/commerce/cart-line-item';
+import type { ChannelCode } from '@/lib/channel';
 import { formatPrice } from '@/lib/format';
+import { PromoCodeForm } from '@/components/checkout/promo-code-form';
+
+export type OrderDiscount = { description: string; amountWithTax: number };
 
 /**
  * A single line in the order summary: fixed-ratio thumbnail with a quantity badge, the
@@ -12,10 +17,9 @@ function OrderSummaryLine({ line, currencyCode }: { line: CartLine; currencyCode
       {/* Outer wrapper is NOT clipped, so the badge can sit on the thumbnail's corner.
           The inner wrapper clips the image to a consistent 4:5 product ratio. */}
       <div className="relative shrink-0">
-        <div className="aspect-[4/5] w-16 overflow-hidden rounded-md bg-[var(--color-hairline)]">
+        <div className="relative aspect-[4/5] w-16 overflow-hidden rounded-md bg-[var(--color-hairline)]">
           {line.imageUrl && (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img src={line.imageUrl} alt={line.productName} className="h-full w-full object-cover" />
+            <Image src={line.imageUrl} alt={line.productName} fill sizes="64px" className="object-cover" />
           )}
         </div>
         <span
@@ -44,12 +48,19 @@ export function OrderSummary({
   shippingWithTax,
   totalWithTax,
   currencyCode,
+  channelCode,
+  discounts = [],
+  appliedCouponCodes = [],
 }: {
   lines: CartLine[];
   subTotalWithTax: number;
   shippingWithTax: number;
   totalWithTax: number;
   currencyCode: string;
+  channelCode?: ChannelCode;
+  /** Vendure order-level discounts (promotions + coupons); rendered as negative lines. */
+  discounts?: OrderDiscount[];
+  appliedCouponCodes?: string[];
 }) {
   return (
     <div className="flex flex-col gap-5">
@@ -61,11 +72,23 @@ export function OrderSummary({
         ))}
       </ul>
 
+      {channelCode && (
+        <div className="border-b hairline pb-5">
+          <PromoCodeForm channelCode={channelCode} appliedCouponCodes={appliedCouponCodes} />
+        </div>
+      )}
+
       <div className="flex flex-col gap-2 text-sm">
         <div className="flex items-center justify-between">
           <span className="text-[var(--color-ink-muted)]">Subtotal</span>
           <span className="text-[var(--color-ink)]">{formatPrice(subTotalWithTax, currencyCode)}</span>
         </div>
+        {discounts.map((discount, index) => (
+          <div key={`${discount.description}-${index}`} className="flex items-center justify-between">
+            <span className="text-[var(--color-ink-muted)]">{discount.description || 'Discount'}</span>
+            <span className="text-[var(--color-sale)]">{formatPrice(discount.amountWithTax, currencyCode)}</span>
+          </div>
+        ))}
         <div className="flex items-center justify-between">
           <span className="text-[var(--color-ink-muted)]">Shipping</span>
           <span className="text-[var(--color-ink)]">

@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_section_faqs",
+  "info": {
+    "displayName": "Section: FAQ",
+    "icon": "question",
+    "description": "Accordion of question/answer pairs (sizing, shipping, care…). Answers are Markdown."
+  },
+  "options": {},
+  "attributes": {
+    "header": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.section-header"
+    },
+    "items": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.faq-item",
+      "required": true
+    }
+  }
+}

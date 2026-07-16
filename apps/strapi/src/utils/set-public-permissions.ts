@@ -4,6 +4,7 @@ import type { Core } from '@strapi/strapi';
 const PUBLIC_READ_ACTIONS: Record<string, string[]> = {
   'api::page.page': ['find', 'findOne'],
   'api::collection-page.collection-page': ['find', 'findOne'],
+  'api::product-page.product-page': ['find', 'findOne'],
   'api::site-setting.site-setting': ['find'],
   'api::site-nav.site-nav': ['find', 'findOne'],
   'api::brand-story.brand-story': ['find'],

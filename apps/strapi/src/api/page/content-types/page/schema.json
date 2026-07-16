@@ -34,7 +34,10 @@
         "section.product-rail",
         "section.editorial-banner",
         "section.brand-story",
-        "layout.collection-tile"
+        "section.value-props",
+        "section.testimonials",
+        "section.faq",
+        "section.prose"
       ]
     },
     "seo": {

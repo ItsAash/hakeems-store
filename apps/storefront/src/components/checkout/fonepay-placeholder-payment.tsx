@@ -35,7 +35,7 @@ export function FonepayPlaceholderPayment({ channelCode, orderCode }: { channelC
       <p className="text-sm text-[var(--color-ink-muted)]">
         Cash/mobile payment on delivery — a real Fonepay integration is coming soon. Placing your order confirms it now.
       </p>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
       <button
         type="button"
         onClick={handlePlaceOrder}

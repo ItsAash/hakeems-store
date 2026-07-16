@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useOptimistic, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import Link from 'next/link';
 import type { ChannelCode } from '@/lib/channel';
 import { routes } from '@/lib/routes';
@@ -20,30 +21,56 @@ export type CartLine = {
   variantLabel: string | null;
 };
 
+type OptimisticState = { quantity: number; removed: boolean };
+
+/**
+ * One cart line with optimistic quantity/remove: the UI updates the instant the button is
+ * pressed, the server action + router.refresh() reconcile in the background, and React
+ * rolls the optimistic state back automatically if the action fails (surfaced via the
+ * error line). The line price is scaled locally as an estimate — the refresh brings the
+ * authoritative total (promotions, stock clamps) right after.
+ */
 export function CartLineItem({ line, channelCode }: { line: CartLine; channelCode: ChannelCode }) {
   const router = useRouter();
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  const [optimistic, applyOptimistic] = useOptimistic(
+    { quantity: line.quantity, removed: false } satisfies OptimisticState,
+    (state: OptimisticState, update: Partial<OptimisticState>) => ({ ...state, ...update }),
+  );
 
-  const handleQuantityChange = async (nextQuantity: number) => {
-    if (nextQuantity < 1) return;
-    setIsUpdating(true);
-    await adjustOrderLineAction(channelCode, line.id, nextQuantity);
-    router.refresh();
-    setIsUpdating(false);
+  const unitPrice = line.quantity > 0 ? line.linePriceWithTax / line.quantity : 0;
+  const displayPrice = Math.round(unitPrice * optimistic.quantity);
+
+  const handleQuantityChange = (nextQuantity: number) => {
+    if (nextQuantity < 1 || isPending) return;
+    setError(null);
+    startTransition(async () => {
+      applyOptimistic({ quantity: nextQuantity });
+      const result = await adjustOrderLineAction(channelCode, line.id, nextQuantity);
+      if (!result.success) setError(result.message);
+      router.refresh();
+    });
   };
 
-  const handleRemove = async () => {
-    setIsUpdating(true);
-    await removeOrderLineAction(channelCode, line.id);
-    router.refresh();
+  const handleRemove = () => {
+    if (isPending) return;
+    setError(null);
+    startTransition(async () => {
+      applyOptimistic({ removed: true });
+      const result = await removeOrderLineAction(channelCode, line.id);
+      if (!result.success) setError(result.message);
+      router.refresh();
+    });
   };
+
+  if (optimistic.removed) return null;
 
   return (
-    <div className={`flex gap-4 border-b hairline py-6 transition-opacity ${isUpdating ? 'opacity-50' : ''}`}>
-      <Link href={routes.product(channelCode, line.productSlug)} className="block h-28 w-24 shrink-0 overflow-hidden bg-[var(--color-hairline)]">
+    <div className="flex gap-4 border-b hairline py-6">
+      <Link href={routes.product(channelCode, line.productSlug)} className="relative block h-28 w-24 shrink-0 overflow-hidden bg-[var(--color-hairline)]">
         {line.imageUrl && (
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img src={line.imageUrl} alt={line.productName} className="h-full w-full object-cover" />
+          <Image src={line.imageUrl} alt={line.productName} fill sizes="96px" className="object-cover" />
         )}
       </Link>
 
@@ -55,40 +82,44 @@ export function CartLineItem({ line, channelCode }: { line: CartLine; channelCod
             </Link>
             {line.variantLabel && <p className="text-xs text-[var(--color-ink-muted)]">{line.variantLabel}</p>}
           </div>
+          {/* after:-inset-* pseudo-elements expand each control's hit area to ~44px without
+              growing the visual footprint (WCAG 2.5.8 target size). */}
           <button
             type="button"
             onClick={handleRemove}
-            disabled={isUpdating}
             aria-label="Remove item"
-            className="text-[var(--color-ink-muted)] transition-colors hover:text-[var(--color-ink)]"
+            className="relative text-[var(--color-ink-muted)] transition-colors after:absolute after:-inset-3 hover:text-[var(--color-ink)]"
           >
             <CloseIcon className="h-4 w-4" />
           </button>
         </div>
 
+        {error && <p className="text-xs text-danger">{error}</p>}
+
         <div className="mt-auto flex items-center justify-between">
           <div className="flex items-center border border-[var(--color-hairline)]">
             <button
               type="button"
-              onClick={() => handleQuantityChange(line.quantity - 1)}
-              disabled={isUpdating}
+              onClick={() => handleQuantityChange(optimistic.quantity - 1)}
+              disabled={optimistic.quantity <= 1}
               aria-label="Decrease quantity"
-              className="flex h-8 w-8 items-center justify-center text-[var(--color-ink)] disabled:opacity-40"
+              className="relative flex h-8 w-8 items-center justify-center text-[var(--color-ink)] after:absolute after:-inset-y-2 after:inset-x-0 disabled:opacity-40"
             >
               −
             </button>
-            <span className="w-8 text-center text-sm text-[var(--color-ink)]">{line.quantity}</span>
+            <span className="w-8 text-center text-sm text-[var(--color-ink)]" aria-live="polite">
+              {optimistic.quantity}
+            </span>
             <button
               type="button"
-              onClick={() => handleQuantityChange(line.quantity + 1)}
-              disabled={isUpdating}
+              onClick={() => handleQuantityChange(optimistic.quantity + 1)}
               aria-label="Increase quantity"
-              className="flex h-8 w-8 items-center justify-center text-[var(--color-ink)] disabled:opacity-40"
+              className="relative flex h-8 w-8 items-center justify-center text-[var(--color-ink)] after:absolute after:-inset-y-2 after:inset-x-0"
             >
               +
             </button>
           </div>
-          <p className="text-sm text-[var(--color-ink)]">{formatPrice(line.linePriceWithTax, line.currencyCode)}</p>
+          <p className="text-sm text-[var(--color-ink)]">{formatPrice(displayPrice, line.currencyCode)}</p>
         </div>
       </div>
     </div>

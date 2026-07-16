@@ -52,7 +52,7 @@ export function PasswordForm({ channelCode }: { channelCode: ChannelCode }) {
         autoComplete="new-password"
       />
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
       {saved && <p className="text-sm text-[var(--color-ink)]">Password updated.</p>}
 
       <button

@@ -24,7 +24,7 @@ function DesktopNavItem({ item, channelCode }: { item: NavItem; channelCode: Cha
         {item.label}
       </Link>
       {hasChildren && (
-        <div className="invisible absolute left-1/2 top-full z-50 -translate-x-1/2 pt-4 opacity-0 transition-opacity duration-150 group-hover:visible group-hover:opacity-100">
+        <div className="invisible absolute left-1/2 top-full z-30 -translate-x-1/2 pt-4 opacity-0 transition-opacity duration-200 group-hover:visible group-hover:opacity-100">
           <div className="flex min-w-40 flex-col gap-3 border hairline bg-[var(--color-paper-raised)] p-5 shadow-sm">
             {item.children.map((child) => (
               <Link

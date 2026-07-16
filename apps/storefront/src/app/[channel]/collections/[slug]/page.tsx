@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getChannel, isChannelCode, type ChannelCode } from '@/lib/channel';
@@ -18,10 +19,7 @@ import {
 import { loadProductCards } from '@/lib/vendure/product-cards-loader';
 import { CONTAINER } from '@/lib/ui';
 import { Breadcrumbs } from '@/components/commerce/breadcrumbs';
-import { ProductGrid } from '@/components/commerce/product-grid';
-import { FacetFilterSidebar } from '@/components/commerce/facet-filter-sidebar';
-import { SortSelect } from '@/components/commerce/sort-select';
-import { Pagination } from '@/components/commerce/pagination';
+import { PlpResults } from '@/components/commerce/plp-results';
 
 type PlpParams = { channel: string; slug: string };
 type PlpSearchParams = { facets?: string; sort?: string; page?: string };
@@ -121,8 +119,7 @@ export default async function CollectionPage({
       <JsonLd data={crumbLd} />
       {bannerImage && (
         <div className="relative aspect-[3/1] w-full overflow-hidden bg-[var(--color-hairline)]">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={bannerImage} alt={`${title} collection`} className="h-full w-full object-cover" />
+          <Image src={bannerImage} alt={`${title} collection`} fill priority sizes="100vw" className="object-cover" />
         </div>
       )}
 
@@ -132,34 +129,19 @@ export default async function CollectionPage({
         {tagline && <p className="max-w-xl text-[var(--color-ink-muted)]">{tagline}</p>}
       </div>
 
-      <div
-        className={`grid gap-10 pb-section lg:gap-12 ${CONTAINER} ${
-          facetGroups.length > 0 ? 'lg:grid-cols-[220px_1fr]' : ''
-        }`}
-      >
-        {facetGroups.length > 0 && (
-          <aside className="hidden lg:block">
-            <FacetFilterSidebar
-              groups={facetGroups}
-              activeFacetValueIds={activeFacetValueIds}
-              basePath={basePath}
-              searchParams={resolvedSearchParams}
-            />
-          </aside>
-        )}
-
-        <div className={facetGroups.length > 0 ? 'lg:col-start-2' : undefined}>
-          <div className="mb-6 flex items-center justify-between gap-4">
-            <p className="text-sm text-[var(--color-ink-muted)]">
-              {searchResult.search.totalItems} {searchResult.search.totalItems === 1 ? 'item' : 'items'}
-            </p>
-            <SortSelect currentSort={sortKey} />
-          </div>
-
-          <ProductGrid cards={cards} channelCode={channel.code} />
-
-          <Pagination currentPage={page} totalPages={totalPages} basePath={basePath} searchParams={resolvedSearchParams} />
-        </div>
+      <div className={`pb-section ${CONTAINER}`}>
+        <PlpResults
+          cards={cards}
+          channelCode={channel.code}
+          facetGroups={facetGroups}
+          activeFacetValueIds={activeFacetValueIds}
+          basePath={basePath}
+          searchParams={resolvedSearchParams}
+          sortKey={sortKey}
+          totalItems={searchResult.search.totalItems}
+          currentPage={page}
+          totalPages={totalPages}
+        />
       </div>
     </main>
   );

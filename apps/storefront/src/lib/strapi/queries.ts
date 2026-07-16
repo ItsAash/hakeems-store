@@ -6,11 +6,20 @@ import {
   legalPageSchema,
   listResponse,
   pageSchema,
+  productPageSchema,
   singleResponse,
   siteNavSchema,
   siteSettingSchema,
 } from '@/lib/strapi/schemas';
-import type { BrandStory, CollectionPage, LegalPage, Page, SiteNav, SiteSetting } from '@/lib/strapi/types';
+import type {
+  BrandStory,
+  CollectionPage,
+  LegalPage,
+  Page,
+  ProductPage,
+  SiteNav,
+  SiteSetting,
+} from '@/lib/strapi/types';
 import type { ChannelCode } from '@/lib/channel';
 
 /**
@@ -24,6 +33,7 @@ const POPULATE: Record<string, string[]> = {
   brandStory: ['paragraphs', 'image'],
   collectionPage: ['heroImage', 'seo.ogImage'],
   legalPage: ['seo.ogImage'],
+  productPage: ['panels'],
 };
 
 /**
@@ -40,6 +50,10 @@ const PAGE_POPULATE = {
       'section.product-rail': { populate: { header: true, cta: true } },
       'section.editorial-banner': { populate: { header: true, cta: true } },
       'section.brand-story': { populate: { header: true, paragraphs: true, image: true } },
+      'section.value-props': { populate: { header: true, items: true } },
+      'section.testimonials': { populate: { header: true, items: true } },
+      'section.faq': { populate: { header: true, items: true } },
+      'section.prose': { populate: { header: true } },
     },
   },
 };
@@ -114,6 +128,17 @@ export async function getCollectionPage(vendureCollectionSlug: string): Promise<
     filters: { vendureCollectionSlug },
     populate: POPULATE.collectionPage,
     schema: listResponse(collectionPageSchema),
+  });
+  return response.data[0] ?? null;
+}
+
+/** Editorial Markdown panels for a product's PDP (matched by Vendure slug). Optional by
+ * design — most products have none, and the PDP renders identically without an entry. */
+export async function getProductPage(vendureProductSlug: string): Promise<ProductPage | null> {
+  const response = await strapiFetch<StrapiListResponse<ProductPage>>('product-pages', {
+    filters: { vendureProductSlug },
+    populate: POPULATE.productPage,
+    schema: listResponse(productPageSchema),
   });
   return response.data[0] ?? null;
 }

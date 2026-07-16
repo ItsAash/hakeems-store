@@ -1,0 +1,28 @@
+{
+  "kind": "collectionType",
+  "collectionName": "product_pages",
+  "info": {
+    "singularName": "product-page",
+    "pluralName": "product-pages",
+    "displayName": "Product Page",
+    "description": "Editorial layer over a Vendure product (matched by slug): rich Markdown panels (size guide, fabric tables…) appended to the PDP's detail tabs. Vendure stays the source of truth for the product itself."
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "vendureProductSlug": {
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "maxLength": 191
+    },
+    "panels": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.content-panel",
+      "required": true
+    }
+  }
+}

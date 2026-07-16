@@ -1,10 +1,11 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ChannelCode } from '@/lib/channel';
 import { findVariantForSelection, type PdpVariantMatrix } from '@/lib/vendure/pdp';
 import { addItemToOrderAction } from '@/lib/vendure/actions';
+import { requestCartOpen } from '@/lib/cart-events';
 import { formatPrice } from '@/lib/format';
 import { ProductGallery } from '@/components/commerce/product-gallery';
 import { ProductDetailsTabs, type ProductDetailsTab } from '@/components/commerce/product-details-tabs';
@@ -19,6 +20,10 @@ type Status = 'idle' | 'loading' | 'added' | 'error';
  * Everything is data-driven from the Vendure variant matrix: option groups, swatches, and
  * per-colour imagery all come from the variants, so adding a colour variant in Vendure makes
  * it appear here automatically — nothing is hardcoded.
+ *
+ * On mobile, a sticky buy bar pins the price + add-to-cart to the viewport bottom whenever
+ * the primary button has scrolled away (IntersectionObserver), so the purchase action is
+ * never more than a thumb-reach away. A successful add opens the nav's cart drawer.
  */
 export function ProductDetail({
   matrix,
@@ -38,6 +43,8 @@ export function ProductDetail({
   const [selections, setSelections] = useState<Record<string, string>>(() => matrix.variants[0]?.selections ?? {});
   const [status, setStatus] = useState<Status>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [buyButtonVisible, setBuyButtonVisible] = useState(true);
+  const buyButtonRef = useRef<HTMLButtonElement>(null);
 
   const selectedVariant = useMemo(() => findVariantForSelection(matrix, selections), [matrix, selections]);
 
@@ -48,6 +55,17 @@ export function ProductDetail({
   const selectedColorName = matrix.optionGroups
     .find((group) => group.code === 'color')
     ?.options.find((option) => option.code === selectedColorCode)?.name;
+
+  // Drive the mobile sticky bar from the primary button's viewport visibility.
+  useEffect(() => {
+    const button = buyButtonRef.current;
+    if (!button) return;
+    const observer = new IntersectionObserver(([entry]) => setBuyButtonVisible(entry?.isIntersecting ?? true), {
+      rootMargin: '0px 0px -10% 0px',
+    });
+    observer.observe(button);
+    return () => observer.disconnect();
+  }, []);
 
   const selectOption = (groupCode: string, optionCode: string) => {
     setSelections((current) => ({ ...current, [groupCode]: optionCode }));
@@ -62,6 +80,7 @@ export function ProductDetail({
     if (result.success) {
       setStatus('added');
       router.refresh();
+      requestCartOpen();
       setTimeout(() => setStatus('idle'), 2000);
     } else {
       setStatus('error');
@@ -78,6 +97,9 @@ export function ProductDetail({
         : status === 'added'
           ? 'Added to Cart'
           : 'Add to Cart';
+
+  const buttonDisabled = !selectedVariant || !selectedVariant.inStock || status === 'loading';
+  const showStickyBar = !buyButtonVisible && !!selectedVariant;
 
   return (
     <div className="mt-6 grid gap-10 lg:grid-cols-2 lg:gap-16">
@@ -122,19 +144,50 @@ export function ProductDetail({
           </div>
         ))}
 
+        {selectedVariant?.stockLevel === 'LOW_STOCK' && (
+          <p className="flex items-center gap-2 text-sm text-[var(--color-accent)]" role="status">
+            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" />
+            Low stock — only a few left
+          </p>
+        )}
+
         <button
+          ref={buyButtonRef}
           type="button"
           onClick={handleAddToCart}
-          disabled={!selectedVariant || !selectedVariant.inStock || status === 'loading'}
+          disabled={buttonDisabled}
           className="mt-2 w-full bg-[var(--color-ink)] py-4 text-sm font-medium tracking-[0.15em] text-[var(--color-paper)] uppercase transition-opacity duration-300 hover:opacity-90 disabled:opacity-40"
         >
           {buttonLabel}
         </button>
 
-        {status === 'error' && errorMessage && <p className="text-sm text-red-600">{errorMessage}</p>}
+        {status === 'error' && errorMessage && <p className="text-sm text-danger">{errorMessage}</p>}
 
         <ProductDetailsTabs tabs={detailTabs} />
       </div>
+
+      {/* Mobile sticky buy bar — mounted only while the primary button is off screen so
+          screen readers never see two identical buttons at once. */}
+      {showStickyBar && (
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t hairline bg-[var(--color-paper-raised)] px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_16px_rgba(20,18,15,0.08)] lg:hidden">
+          <div className="flex items-center gap-4">
+            <div className="flex min-w-0 flex-col">
+              <p className="truncate text-xs text-[var(--color-ink-muted)]">{productName}</p>
+              <p className="text-sm font-medium text-[var(--color-ink)]">
+                {selectedVariant ? formatPrice(selectedVariant.priceWithTax, selectedVariant.currencyCode) : ''}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              disabled={buttonDisabled}
+              className="flex-1 bg-[var(--color-ink)] py-3.5 text-sm font-medium tracking-[0.1em] text-[var(--color-paper)] uppercase transition-opacity hover:opacity-90 disabled:opacity-40"
+            >
+              {buttonLabel}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

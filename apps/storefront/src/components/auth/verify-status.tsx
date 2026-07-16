@@ -43,7 +43,7 @@ export function VerifyStatus({ channelCode, token }: { channelCode: ChannelCode;
       </div>
     );
   }
-  return <p className="text-sm text-red-600">{message}</p>;
+  return <p className="text-sm text-danger">{message}</p>;
 }
 
 export function ResendVerificationForm({ channelCode }: { channelCode: ChannelCode }) {

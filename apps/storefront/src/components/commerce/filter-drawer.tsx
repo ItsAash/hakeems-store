@@ -1,0 +1,156 @@
+'use client';
+
+import { useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import type { FacetFilterGroup } from '@/lib/vendure/plp';
+import { toURLSearchParams, type SearchParamsRecord } from '@/components/commerce/facet-filter-sidebar';
+import { Overlay } from '@/components/ui/overlay';
+import { CheckIcon, CloseIcon } from '@/components/ui/icons';
+
+/**
+ * The mobile/tablet filter surface (`< lg`, where the sidebar is hidden). Standard batch
+ * pattern: selections are staged locally while the drawer is open, then applied in one
+ * navigation — so toggling five facets is one round trip, and closing without applying
+ * discards cleanly. Desktop keeps the immediate link-driven sidebar.
+ */
+export function FilterDrawer({
+  groups,
+  activeFacetValueIds,
+  searchParams,
+}: {
+  groups: FacetFilterGroup[];
+  activeFacetValueIds: string[];
+  searchParams: SearchParamsRecord;
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
+  const [pending, setPending] = useState<Set<string>>(new Set());
+
+  if (groups.length === 0) return null;
+
+  const open = () => {
+    setPending(new Set(activeFacetValueIds));
+    setIsOpen(true);
+  };
+  const close = () => setIsOpen(false);
+
+  const togglePending = (valueId: string) => {
+    setPending((current) => {
+      const next = new Set(current);
+      if (next.has(valueId)) {
+        next.delete(valueId);
+      } else {
+        next.add(valueId);
+      }
+      return next;
+    });
+  };
+
+  const navigate = (facetIds: Set<string>) => {
+    const params = toURLSearchParams(searchParams);
+    if (facetIds.size > 0) {
+      params.set('facets', Array.from(facetIds).join(','));
+    } else {
+      params.delete('facets');
+    }
+    params.delete('page');
+    const query = params.toString();
+    router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    close();
+  };
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={open}
+        className="flex items-center gap-2 border border-[var(--color-hairline)] bg-[var(--color-paper)] px-3 py-2 text-sm text-[var(--color-ink)] lg:hidden"
+      >
+        Filter
+        {activeFacetValueIds.length > 0 && (
+          <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--color-ink)] px-1 text-[10px] font-medium text-[var(--color-paper)]">
+            {activeFacetValueIds.length}
+          </span>
+        )}
+      </button>
+
+      <Overlay
+        open={isOpen}
+        onClose={close}
+        label="Filters"
+        panelClassName="absolute right-0 top-0 flex h-full w-full max-w-sm flex-col bg-[var(--color-paper-raised)] shadow-xl"
+        panelClosedClassName="translate-x-full"
+        panelOpenClassName="translate-x-0"
+      >
+        <div className="flex items-center justify-between border-b hairline px-6 py-5">
+          <h2 className="text-sm tracking-wide uppercase">Filter</h2>
+          <button type="button" onClick={close} aria-label="Close filters">
+            <CloseIcon className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="flex flex-1 flex-col gap-8 overflow-y-auto px-6 py-6">
+          {groups.map((group) => (
+            <div key={group.facetId}>
+              <h3 className="mb-3 text-xs font-semibold tracking-[0.1em] text-[var(--color-ink)] uppercase">
+                {group.facetName}
+              </h3>
+              <ul className="flex flex-col gap-1">
+                {group.options.map((option) => {
+                  const isChecked = pending.has(option.valueId);
+                  return (
+                    <li key={option.valueId}>
+                      <button
+                        type="button"
+                        role="checkbox"
+                        aria-checked={isChecked}
+                        onClick={() => togglePending(option.valueId)}
+                        className={`flex w-full items-center justify-between gap-3 py-2 text-sm transition-colors ${
+                          isChecked ? 'text-[var(--color-ink)]' : 'text-[var(--color-ink-muted)]'
+                        }`}
+                      >
+                        <span className="flex items-center gap-2.5">
+                          <span
+                            aria-hidden
+                            className={`flex h-4 w-4 shrink-0 items-center justify-center border transition-colors ${
+                              isChecked
+                                ? 'border-[var(--color-ink)] bg-[var(--color-ink)]'
+                                : 'border-[var(--color-hairline)]'
+                            }`}
+                          >
+                            {isChecked && <CheckIcon className="h-3 w-3 text-[var(--color-paper)]" />}
+                          </span>
+                          {option.valueName}
+                        </span>
+                        <span className="text-xs text-[var(--color-ink-muted)]">{option.count}</span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex flex-col gap-3 border-t hairline p-6">
+          <button
+            type="button"
+            onClick={() => navigate(pending)}
+            className="flex w-full items-center justify-center bg-[var(--color-ink)] px-6 py-3.5 text-sm tracking-wide text-[var(--color-paper)] uppercase transition-opacity hover:opacity-90"
+          >
+            Apply filters
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate(new Set())}
+            disabled={pending.size === 0 && activeFacetValueIds.length === 0}
+            className="text-center text-xs text-[var(--color-ink-muted)] underline underline-offset-2 transition-colors hover:text-[var(--color-ink)] disabled:opacity-40"
+          >
+            Clear all
+          </button>
+        </div>
+      </Overlay>
+    </>
+  );
+}

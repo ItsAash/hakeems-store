@@ -1,0 +1,27 @@
+{
+  "collectionName": "components_section_testimonials",
+  "info": {
+    "displayName": "Section: Testimonials",
+    "icon": "quote",
+    "description": "Customer quote wall — a header plus repeatable Testimonial items."
+  },
+  "options": {},
+  "attributes": {
+    "header": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.section-header"
+    },
+    "items": {
+      "type": "component",
+      "repeatable": true,
+      "component": "layout.testimonial",
+      "required": true
+    },
+    "backgroundToken": {
+      "type": "enumeration",
+      "enum": ["paper", "paper-raised", "blush", "sand", "hairline"],
+      "default": "sand"
+    }
+  }
+}

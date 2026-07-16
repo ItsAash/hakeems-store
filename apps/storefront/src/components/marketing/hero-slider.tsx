@@ -193,7 +193,7 @@ export function HeroSlider({
               )
             }
             aria-label="Previous slide"
-            className="absolute left-5 top-1/2 z-50 -translate-y-1/2 rounded-full border border-white/20 bg-black/20 p-2.5 text-[var(--color-paper)] opacity-0 backdrop-blur-sm transition-all duration-300 hover:border-white/40 hover:bg-black/40 group-hover/hero:opacity-100 md:left-8"
+            className="absolute left-5 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/20 bg-black/20 p-2.5 text-[var(--color-paper)] opacity-0 backdrop-blur-sm transition-all duration-300 hover:border-white/40 hover:bg-black/40 group-hover/hero:opacity-100 md:left-8"
           >
             <svg
               className="h-5 w-5"
@@ -211,7 +211,7 @@ export function HeroSlider({
             type="button"
             onClick={() => goTo((currentRef.current + 1) % slides.length)}
             aria-label="Next slide"
-            className="absolute right-5 top-1/2 z-50 -translate-y-1/2 rounded-full border border-white/20 bg-black/20 p-2.5 text-[var(--color-paper)] opacity-0 backdrop-blur-sm transition-all duration-300 hover:border-white/40 hover:bg-black/40 group-hover/hero:opacity-100 md:right-8"
+            className="absolute right-5 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/20 bg-black/20 p-2.5 text-[var(--color-paper)] opacity-0 backdrop-blur-sm transition-all duration-300 hover:border-white/40 hover:bg-black/40 group-hover/hero:opacity-100 md:right-8"
           >
             <svg
               className="h-5 w-5"
@@ -227,7 +227,7 @@ export function HeroSlider({
           </button>
 
           {/* Dot indicators — thin bars, current expands */}
-          <div className="absolute bottom-7 left-1/2 z-50 flex -translate-x-1/2 gap-2.5">
+          <div className="absolute bottom-7 left-1/2 z-20 flex -translate-x-1/2 gap-2.5">
             {slides.map((slide, i) => {
               const isCurrent = i === current;
               return (

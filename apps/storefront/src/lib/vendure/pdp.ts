@@ -4,11 +4,16 @@ type Variant = NonNullable<PdpProductQuery['product']>['variants'][number];
 
 export type VariantOption = { id: string; code: string; name: string; swatch: string | null };
 
+/** Vendure's default StockDisplayStrategy vocabulary. LOW_STOCK drives urgency messaging
+ * on the PDP — collapsing it into a boolean would throw the signal away. */
+export type StockLevel = 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK';
+
 export type PdpVariant = {
   id: string;
   sku: string;
   priceWithTax: number;
   currencyCode: string;
+  stockLevel: StockLevel;
   inStock: boolean;
   imageUrl: string | null;
   /** This variant's own gallery (featuredAsset first, then its assets, de-duplicated).
@@ -77,12 +82,16 @@ export function buildVariantMatrix(variants: Variant[]): PdpVariantMatrix {
       ),
     );
 
+    const stockLevel: StockLevel =
+      variant.stockLevel === 'LOW_STOCK' || variant.stockLevel === 'OUT_OF_STOCK' ? variant.stockLevel : 'IN_STOCK';
+
     const pdpVariant: PdpVariant = {
       id: variant.id,
       sku: variant.sku,
       priceWithTax: variant.priceWithTax,
       currencyCode: variant.currencyCode,
-      inStock: variant.stockLevel === 'IN_STOCK',
+      stockLevel,
+      inStock: stockLevel !== 'OUT_OF_STOCK',
       imageUrl: variant.featuredAsset?.preview ?? null,
       images: variantImages,
       selections,

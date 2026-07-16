@@ -2,9 +2,9 @@ import Link from 'next/link';
 import type { FacetFilterGroup } from '@/lib/vendure/plp';
 import { CheckIcon } from '@/components/ui/icons';
 
-type SearchParamsRecord = Record<string, string | string[] | undefined>;
+export type SearchParamsRecord = Record<string, string | string[] | undefined>;
 
-function toURLSearchParams(searchParams: SearchParamsRecord): URLSearchParams {
+export function toURLSearchParams(searchParams: SearchParamsRecord): URLSearchParams {
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(searchParams)) {
     if (typeof value === 'string') params.set(key, value);
@@ -12,7 +12,7 @@ function toURLSearchParams(searchParams: SearchParamsRecord): URLSearchParams {
   return params;
 }
 
-function buildToggleHref(basePath: string, searchParams: SearchParamsRecord, valueId: string, isActive: boolean): string {
+export function buildToggleHref(basePath: string, searchParams: SearchParamsRecord, valueId: string, isActive: boolean): string {
   const params = toURLSearchParams(searchParams);
   const activeIds = new Set((params.get('facets') ?? '').split(',').filter(Boolean));
 

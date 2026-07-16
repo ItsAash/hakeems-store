@@ -623,7 +623,10 @@ export interface ApiPagePage extends Struct.CollectionTypeSchema {
         'section.product-rail',
         'section.editorial-banner',
         'section.brand-story',
-        'layout.collection-tile',
+        'section.value-props',
+        'section.testimonials',
+        'section.faq',
+        'section.prose',
       ]
     >;
     seo: Schema.Attribute.Component<'shared.seo', false>;
@@ -635,6 +638,42 @@ export interface ApiPagePage extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+  };
+}
+
+export interface ApiProductPageProductPage extends Struct.CollectionTypeSchema {
+  collectionName: 'product_pages';
+  info: {
+    description: "Editorial layer over a Vendure product (matched by slug): rich Markdown panels (size guide, fabric tables\u2026) appended to the PDP's detail tabs. Vendure stays the source of truth for the product itself.";
+    displayName: 'Product Page';
+    pluralName: 'product-pages';
+    singularName: 'product-page';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::product-page.product-page'
+    > &
+      Schema.Attribute.Private;
+    panels: Schema.Attribute.Component<'shared.content-panel', true> &
+      Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    vendureProductSlug: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 191;
+      }>;
   };
 }
 
@@ -1223,6 +1262,7 @@ declare module '@strapi/strapi' {
       'api::footer.footer': ApiFooterFooter;
       'api::legal-page.legal-page': ApiLegalPageLegalPage;
       'api::page.page': ApiPagePage;
+      'api::product-page.product-page': ApiProductPageProductPage;
       'api::site-nav.site-nav': ApiSiteNavSiteNav;
       'api::site-setting.site-setting': ApiSiteSettingSiteSetting;
       'plugin::content-releases.release': PluginContentReleasesRelease;

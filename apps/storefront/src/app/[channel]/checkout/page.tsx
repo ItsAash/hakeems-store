@@ -89,6 +89,9 @@ export default async function CheckoutPage({ params }: { params: Promise<{ chann
             shippingWithTax={activeOrder.shippingWithTax}
             totalWithTax={activeOrder.totalWithTax}
             currencyCode={activeOrder.currencyCode}
+            channelCode={channel.code}
+            discounts={activeOrder.discounts}
+            appliedCouponCodes={activeOrder.couponCodes}
           />
         </div>
       </div>

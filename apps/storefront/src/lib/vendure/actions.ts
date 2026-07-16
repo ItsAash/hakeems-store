@@ -11,7 +11,11 @@ import {
   SetOrderShippingMethodDocument,
   TransitionOrderToStateDocument,
   AddPaymentToOrderDocument,
+  ApplyCouponCodeDocument,
+  RemoveCouponCodeDocument,
   CreateStripePaymentIntentDocument,
+  type ApplyCouponCodeMutation,
+  type RemoveCouponCodeMutation,
   type AddItemToOrderMutation,
   type AdjustOrderLineMutation,
   type RemoveOrderLineMutation,
@@ -107,6 +111,26 @@ export async function transitionToArrangingPaymentAction(channelCode: ChannelCod
     { state: 'ArrangingPayment' },
   );
   return toOrderMutationResult(data.transitionOrderToState);
+}
+
+export async function applyCouponCodeAction(channelCode: ChannelCode, couponCode: string): Promise<MutationResult> {
+  const data = await callVendureWithSession<ApplyCouponCodeMutation, { couponCode: string }>(
+    channelCode,
+    ApplyCouponCodeDocument,
+    { couponCode },
+  );
+  const result = data.applyCouponCode;
+  if (result.__typename === 'Order') return { success: true };
+  return { success: false, message: result.message };
+}
+
+export async function removeCouponCodeAction(channelCode: ChannelCode, couponCode: string): Promise<MutationResult> {
+  await callVendureWithSession<RemoveCouponCodeMutation, { couponCode: string }>(
+    channelCode,
+    RemoveCouponCodeDocument,
+    { couponCode },
+  );
+  return { success: true };
 }
 
 export type AddPaymentResult = { success: true; orderCode: string } | { success: false; message: string };

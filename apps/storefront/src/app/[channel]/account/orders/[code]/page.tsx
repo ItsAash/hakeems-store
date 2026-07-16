@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { getChannel, isChannelCode } from '@/lib/channel';
@@ -41,8 +42,7 @@ export default async function AccountOrderDetailPage({
           <div key={line.id} className="flex items-center gap-4">
             <div className="relative h-16 w-14 shrink-0 overflow-hidden bg-[var(--color-hairline)]">
               {line.featuredAsset && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={line.featuredAsset.preview} alt={line.productVariant.name} className="h-full w-full object-cover" />
+                <Image src={line.featuredAsset.preview} alt={line.productVariant.name} fill sizes="56px" className="object-cover" />
               )}
             </div>
             <div className="flex flex-1 flex-col">

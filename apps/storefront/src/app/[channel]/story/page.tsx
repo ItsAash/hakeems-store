@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getChannel, isChannelCode } from '@/lib/channel';
@@ -45,9 +46,8 @@ export default async function StoryPage({ params }: { params: Promise<{ channel:
         <h1 className="font-serif text-4xl text-[var(--color-ink)] md:text-5xl">{story.heading}</h1>
 
         {imageUrl && (
-          <div className="aspect-[16/9] w-full overflow-hidden bg-[var(--color-hairline)]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={imageUrl} alt={story.heading} className="h-full w-full object-cover" />
+          <div className="relative aspect-[16/9] w-full overflow-hidden bg-[var(--color-hairline)]">
+            <Image src={imageUrl} alt={story.heading} fill priority sizes="(min-width: 1152px) 1152px, 100vw" className="object-cover" />
           </div>
         )}
 

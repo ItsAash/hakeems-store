@@ -24,7 +24,7 @@ export default async function PasswordResetPage({
         {token ? (
           <PasswordResetForm channelCode={channel.code} token={token} />
         ) : (
-          <p className="text-sm text-red-600">This reset link is missing its token. Please use the link from your email.</p>
+          <p className="text-sm text-danger">This reset link is missing its token. Please use the link from your email.</p>
         )}
       </div>
     </main>

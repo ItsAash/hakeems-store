@@ -13,10 +13,7 @@ import {
 } from '@/lib/vendure/plp';
 import { loadProductCards } from '@/lib/vendure/product-cards-loader';
 import { CONTAINER } from '@/lib/ui';
-import { ProductGrid } from '@/components/commerce/product-grid';
-import { FacetFilterSidebar } from '@/components/commerce/facet-filter-sidebar';
-import { SortSelect } from '@/components/commerce/sort-select';
-import { Pagination } from '@/components/commerce/pagination';
+import { PlpResults } from '@/components/commerce/plp-results';
 
 type ShopSearchParams = { facetValueId?: string; facets?: string; sort?: string; page?: string };
 
@@ -92,34 +89,19 @@ export default async function ShopPage({
         <h1 className="font-serif text-3xl text-[var(--color-ink)] md:text-4xl">Shop</h1>
       </div>
 
-      <div
-        className={`grid gap-10 pb-section lg:gap-12 ${CONTAINER} ${
-          facetGroups.length > 0 ? 'lg:grid-cols-[220px_1fr]' : ''
-        }`}
-      >
-        {facetGroups.length > 0 && (
-          <aside className="hidden lg:block">
-            <FacetFilterSidebar
-              groups={facetGroups}
-              activeFacetValueIds={activeFacetValueIds}
-              basePath={basePath}
-              searchParams={resolvedSearchParams}
-            />
-          </aside>
-        )}
-
-        <div className={facetGroups.length > 0 ? 'lg:col-start-2' : undefined}>
-          <div className="mb-6 flex items-center justify-between gap-4">
-            <p className="text-sm text-[var(--color-ink-muted)]">
-              {search.totalItems} {search.totalItems === 1 ? 'item' : 'items'}
-            </p>
-            <SortSelect currentSort={sortKey} />
-          </div>
-
-          <ProductGrid cards={cards} channelCode={channel.code} />
-
-          <Pagination currentPage={page} totalPages={totalPages} basePath={basePath} searchParams={resolvedSearchParams} />
-        </div>
+      <div className={`pb-section ${CONTAINER}`}>
+        <PlpResults
+          cards={cards}
+          channelCode={channel.code}
+          facetGroups={facetGroups}
+          activeFacetValueIds={activeFacetValueIds}
+          basePath={basePath}
+          searchParams={resolvedSearchParams}
+          sortKey={sortKey}
+          totalItems={search.totalItems}
+          currentPage={page}
+          totalPages={totalPages}
+        />
       </div>
     </main>
   );

@@ -5,6 +5,10 @@ import { FacetCategoryGrid } from '@/components/marketing/facet-category-grid';
 import { ProductRailBlock } from '@/components/sections/product-rail-block';
 import { EditorialBannerBlock } from '@/components/sections/editorial-banner-block';
 import { BrandStoryBlock } from '@/components/sections/brand-story-block';
+import { ValuePropsBlock } from '@/components/sections/value-props-block';
+import { TestimonialsBlock } from '@/components/sections/testimonials-block';
+import { FaqBlock } from '@/components/sections/faq-block';
+import { ProseBlock } from '@/components/sections/prose-block';
 
 /**
  * Renders a page's dynamic zone by mapping each block's Strapi `__component` to its React
@@ -35,6 +39,14 @@ export function SectionRenderer({ sections, channelCode }: { sections: PageSecti
             return <EditorialBannerBlock key={key} section={section} channelCode={channelCode} />;
           case 'section.brand-story':
             return <BrandStoryBlock key={key} section={section} />;
+          case 'section.value-props':
+            return <ValuePropsBlock key={key} section={section} />;
+          case 'section.testimonials':
+            return <TestimonialsBlock key={key} section={section} />;
+          case 'section.faq':
+            return <FaqBlock key={key} section={section} />;
+          case 'section.prose':
+            return <ProseBlock key={key} section={section} />;
           default:
             return null;
         }

@@ -1,13 +1,53 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import type { ChannelCode } from '@/lib/channel';
+import { getChannel, type ChannelCode } from '@/lib/channel';
 import { routes } from '@/lib/routes';
+import { onCartOpenRequest } from '@/lib/cart-events';
 import { formatPrice } from '@/lib/format';
-import { BagIcon, CloseIcon } from '@/components/ui/icons';
+import { BagIcon, CloseIcon, LockIcon } from '@/components/ui/icons';
 import { Overlay } from '@/components/ui/overlay';
 import { CartLineItem, type CartLine } from '@/components/commerce/cart-line-item';
+
+/** Marketing nudge above the drawer CTA: progress toward the channel's free-shipping
+ * threshold. Purely presentational — Vendure's shipping calculator owns the real pricing. */
+function FreeShippingMeter({
+  subTotalWithTax,
+  currencyCode,
+  channelCode,
+}: {
+  subTotalWithTax: number;
+  currencyCode: string;
+  channelCode: ChannelCode;
+}) {
+  const threshold = getChannel(channelCode).freeShippingThresholdMinor;
+  if (!threshold) return null;
+
+  const remaining = threshold - subTotalWithTax;
+  const progress = Math.min(1, subTotalWithTax / threshold);
+
+  return (
+    <div className="mb-4 flex flex-col gap-2">
+      <p className="text-xs text-[var(--color-ink-muted)]" role="status">
+        {remaining > 0 ? (
+          <>
+            You&rsquo;re <span className="font-medium text-[var(--color-ink)]">{formatPrice(remaining, currencyCode)}</span>{' '}
+            away from free shipping
+          </>
+        ) : (
+          <span className="font-medium text-[var(--color-ink)]">Your order ships free</span>
+        )}
+      </p>
+      <div className="h-1 w-full overflow-hidden rounded-full bg-[var(--color-hairline)]" aria-hidden>
+        <div
+          className="h-full rounded-full bg-[var(--color-ink)] transition-[width] duration-500 ease-out"
+          style={{ width: `${progress * 100}%` }}
+        />
+      </div>
+    </div>
+  );
+}
 
 export function CartWidget({
   initialCount,
@@ -24,6 +64,10 @@ export function CartWidget({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const close = () => setIsOpen(false);
+
+  // Adding to cart anywhere on the page (PDP buy box, quick-add) opens the drawer so the
+  // shopper sees the result and the checkout path immediately.
+  useEffect(() => onCartOpenRequest(() => setIsOpen(true)), []);
 
   return (
     <>
@@ -71,15 +115,37 @@ export function CartWidget({
 
         <div className="border-t hairline p-6">
           {initialLines.length > 0 && (
-            <div className="mb-4 flex items-center justify-between text-sm">
-              <span className="text-[var(--color-ink-muted)]">Subtotal</span>
-              <span className="text-[var(--color-ink)]">{formatPrice(subTotalWithTax, currencyCode)}</span>
-            </div>
+            <>
+              <FreeShippingMeter
+                subTotalWithTax={subTotalWithTax}
+                currencyCode={currencyCode}
+                channelCode={channelCode}
+              />
+              <div className="mb-4 flex items-center justify-between text-sm">
+                <span className="text-[var(--color-ink-muted)]">Subtotal</span>
+                <span className="text-[var(--color-ink)]">{formatPrice(subTotalWithTax, currencyCode)}</span>
+              </div>
+              <Link
+                href={routes.checkout(channelCode)}
+                onClick={close}
+                className="flex w-full items-center justify-center bg-[var(--color-ink)] px-6 py-3.5 text-sm tracking-wide text-[var(--color-paper)] uppercase transition-opacity hover:opacity-90"
+              >
+                Checkout
+              </Link>
+              <p className="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-[var(--color-ink-muted)]">
+                <LockIcon className="h-3 w-3" aria-hidden />
+                Secure checkout · {channelCode === 'hongkong' ? 'Stripe' : 'Fonepay'} · Free returns within 30 days
+              </p>
+            </>
           )}
           <Link
             href={routes.cart(channelCode)}
             onClick={close}
-            className="flex w-full items-center justify-center bg-[var(--color-ink)] px-6 py-3 text-sm tracking-wide text-[var(--color-paper)] uppercase hover:opacity-90"
+            className={`flex w-full items-center justify-center text-sm tracking-wide uppercase transition-opacity ${
+              initialLines.length > 0
+                ? 'mt-3 border border-[var(--color-ink)] px-6 py-3 text-[var(--color-ink)] hover:opacity-70'
+                : 'bg-[var(--color-ink)] px-6 py-3 text-[var(--color-paper)] hover:opacity-90'
+            }`}
           >
             View Cart
           </Link>

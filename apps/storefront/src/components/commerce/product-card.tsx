@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import type { ChannelCode } from '@/lib/channel';
 import { routes } from '@/lib/routes';
@@ -63,15 +64,15 @@ export function ProductCard({
   return (
     <div className="group/card flex h-full flex-col">
       <div className="group/media relative overflow-hidden bg-[var(--color-hairline)]">
-        <Link href={href} className="block aspect-[4/5]" tabIndex={-1}>
+        <Link href={href} className="relative block aspect-[4/5]" tabIndex={-1}>
           {currentImage && (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img
+            <Image
               key={currentImage}
               src={currentImage}
               alt={card.name}
-              className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover/card:scale-105"
-              loading="lazy"
+              fill
+              sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+              className="object-cover transition-transform duration-500 ease-out group-hover/card:scale-105"
             />
           )}
         </Link>

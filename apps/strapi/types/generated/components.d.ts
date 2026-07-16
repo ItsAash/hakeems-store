@@ -154,6 +154,20 @@ export interface LayoutNavItem extends Struct.ComponentSchema {
   };
 }
 
+export interface LayoutTestimonial extends Struct.ComponentSchema {
+  collectionName: 'components_layout_testimonials';
+  info: {
+    description: "One customer quote for the section.testimonials wall: quote, author, and optional context (e.g. 'Kathmandu' or 'Verified buyer').";
+    displayName: 'Testimonial';
+    icon: 'quote';
+  };
+  attributes: {
+    author: Schema.Attribute.String & Schema.Attribute.Required;
+    context: Schema.Attribute.String;
+    quote: Schema.Attribute.Text & Schema.Attribute.Required;
+  };
+}
+
 export interface LayoutValueItem extends Struct.ComponentSchema {
   collectionName: 'components_layout_value_items';
   info: {
@@ -212,6 +226,20 @@ export interface SectionEditorialBanner extends Struct.ComponentSchema {
   };
 }
 
+export interface SectionFaq extends Struct.ComponentSchema {
+  collectionName: 'components_section_faqs';
+  info: {
+    description: 'Accordion of question/answer pairs (sizing, shipping, care\u2026). Answers are Markdown.';
+    displayName: 'Section: FAQ';
+    icon: 'question';
+  };
+  attributes: {
+    header: Schema.Attribute.Component<'shared.section-header', false>;
+    items: Schema.Attribute.Component<'shared.faq-item', true> &
+      Schema.Attribute.Required;
+  };
+}
+
 export interface SectionHeroSlider extends Struct.ComponentSchema {
   collectionName: 'components_section_hero_sliders';
   info: {
@@ -238,6 +266,68 @@ export interface SectionProductRail extends Struct.ComponentSchema {
   };
 }
 
+export interface SectionProse extends Struct.ComponentSchema {
+  collectionName: 'components_section_proses';
+  info: {
+    description: "Free-form Markdown content block rendered in the site's long-form typography \u2014 for editorial copy that doesn't fit a structured section.";
+    displayName: 'Section: Prose';
+    icon: 'align-left';
+  };
+  attributes: {
+    content: Schema.Attribute.RichText & Schema.Attribute.Required;
+    header: Schema.Attribute.Component<'shared.section-header', false>;
+  };
+}
+
+export interface SectionTestimonials extends Struct.ComponentSchema {
+  collectionName: 'components_section_testimonials';
+  info: {
+    description: 'Customer quote wall \u2014 a header plus repeatable Testimonial items.';
+    displayName: 'Section: Testimonials';
+    icon: 'quote';
+  };
+  attributes: {
+    backgroundToken: Schema.Attribute.Enumeration<
+      ['paper', 'paper-raised', 'blush', 'sand', 'hairline']
+    > &
+      Schema.Attribute.DefaultTo<'sand'>;
+    header: Schema.Attribute.Component<'shared.section-header', false>;
+    items: Schema.Attribute.Component<'layout.testimonial', true> &
+      Schema.Attribute.Required;
+  };
+}
+
+export interface SectionValueProps extends Struct.ComponentSchema {
+  collectionName: 'components_section_value_props';
+  info: {
+    description: "Brand pillars strip (e.g. 'Small batches \u00B7 Technical fabrics \u00B7 Fair making') built from repeatable Value Items.";
+    displayName: 'Section: Value Props';
+    icon: 'star';
+  };
+  attributes: {
+    backgroundToken: Schema.Attribute.Enumeration<
+      ['paper', 'paper-raised', 'blush', 'sand', 'hairline']
+    > &
+      Schema.Attribute.DefaultTo<'paper'>;
+    header: Schema.Attribute.Component<'shared.section-header', false>;
+    items: Schema.Attribute.Component<'layout.value-item', true> &
+      Schema.Attribute.Required;
+  };
+}
+
+export interface SharedContentPanel extends Struct.ComponentSchema {
+  collectionName: 'components_shared_content_panels';
+  info: {
+    description: "A titled Markdown panel (size guide, fabric table, care ritual\u2026) appended to a product page's detail tabs.";
+    displayName: 'Content Panel';
+    icon: 'file';
+  };
+  attributes: {
+    content: Schema.Attribute.RichText & Schema.Attribute.Required;
+    title: Schema.Attribute.String & Schema.Attribute.Required;
+  };
+}
+
 export interface SharedCta extends Struct.ComponentSchema {
   collectionName: 'components_shared_ctas';
   info: {
@@ -252,6 +342,19 @@ export interface SharedCta extends Struct.ComponentSchema {
     variant: Schema.Attribute.Enumeration<['primary', 'secondary', 'link']> &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'primary'>;
+  };
+}
+
+export interface SharedFaqItem extends Struct.ComponentSchema {
+  collectionName: 'components_shared_faq_items';
+  info: {
+    description: 'One question/answer pair for a section.faq accordion. Answer is Markdown.';
+    displayName: 'FAQ Item';
+    icon: 'question';
+  };
+  attributes: {
+    answer: Schema.Attribute.RichText & Schema.Attribute.Required;
+    question: Schema.Attribute.String & Schema.Attribute.Required;
   };
 }
 
@@ -363,13 +466,20 @@ declare module '@strapi/strapi' {
       'layout.facet-category-tile': LayoutFacetCategoryTile;
       'layout.hero-slide': LayoutHeroSlide;
       'layout.nav-item': LayoutNavItem;
+      'layout.testimonial': LayoutTestimonial;
       'layout.value-item': LayoutValueItem;
       'section.brand-story': SectionBrandStory;
       'section.category-grid': SectionCategoryGrid;
       'section.editorial-banner': SectionEditorialBanner;
+      'section.faq': SectionFaq;
       'section.hero-slider': SectionHeroSlider;
       'section.product-rail': SectionProductRail;
+      'section.prose': SectionProse;
+      'section.testimonials': SectionTestimonials;
+      'section.value-props': SectionValueProps;
+      'shared.content-panel': SharedContentPanel;
       'shared.cta': SharedCta;
+      'shared.faq-item': SharedFaqItem;
       'shared.link': SharedLink;
       'shared.media': SharedMedia;
       'shared.paragraph': SharedParagraph;

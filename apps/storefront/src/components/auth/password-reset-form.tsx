@@ -40,7 +40,7 @@ export function PasswordResetForm({ channelCode, token }: { channelCode: Channel
         onChange={(e) => setPassword(e.target.value)}
         autoComplete="new-password"
       />
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
       <button
         type="submit"
         disabled={isSubmitting}

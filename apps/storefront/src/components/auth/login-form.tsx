@@ -61,7 +61,7 @@ export function LoginForm({ channelCode, next }: { channelCode: ChannelCode; nex
       </div>
 
       {error && (
-        <p className="text-sm text-red-600">
+        <p className="text-sm text-danger">
           {error}{' '}
           <Link href={routes.verify(channelCode)} className="underline underline-offset-2">
             Resend verification email?

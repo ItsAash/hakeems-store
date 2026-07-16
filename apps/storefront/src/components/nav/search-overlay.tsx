@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -107,10 +108,9 @@ export function SearchOverlay({ channelCode }: { channelCode: ChannelCode }) {
                               onClick={close}
                               className="flex items-center gap-4 rounded-sm px-2 py-2 transition-colors hover:bg-[var(--color-paper)]"
                             >
-                              <div className="h-14 w-12 shrink-0 overflow-hidden bg-[var(--color-hairline)]">
+                              <div className="relative h-14 w-12 shrink-0 overflow-hidden bg-[var(--color-hairline)]">
                                 {product.imageUrl && (
-                                  /* eslint-disable-next-line @next/next/no-img-element */
-                                  <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover" />
+                                  <Image src={product.imageUrl} alt={product.name} fill sizes="48px" className="object-cover" />
                                 )}
                               </div>
                               <div className="flex flex-1 flex-col gap-0.5">

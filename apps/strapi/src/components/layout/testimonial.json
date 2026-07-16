@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_layout_testimonials",
+  "info": {
+    "displayName": "Testimonial",
+    "icon": "quote",
+    "description": "One customer quote for the section.testimonials wall: quote, author, and optional context (e.g. 'Kathmandu' or 'Verified buyer')."
+  },
+  "options": {},
+  "attributes": {
+    "quote": {
+      "type": "text",
+      "required": true
+    },
+    "author": {
+      "type": "string",
+      "required": true
+    },
+    "context": {
+      "type": "string"
+    }
+  }
+}

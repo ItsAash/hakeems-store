@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import type { ChannelCode } from '@/lib/channel';
 import { resolveColorToken } from '@/lib/design/color-tokens';
 import { Cta } from '@/components/ui/cta';
@@ -66,13 +67,13 @@ export function NewArrivalsBanner({
               key={`${src}-${index}`}
               className="group/cell relative aspect-[3/4] overflow-hidden bg-[var(--color-hairline)]"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={src}
                 alt=""
                 aria-hidden="true"
-                loading="lazy"
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-[600ms] ease-out group-hover/cell:scale-105"
+                fill
+                sizes="(min-width: 768px) 25vw, 50vw"
+                className="object-cover transition-transform duration-[600ms] ease-out group-hover/cell:scale-105"
               />
             </div>
           ))}

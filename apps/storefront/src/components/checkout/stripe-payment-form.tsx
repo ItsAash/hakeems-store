@@ -44,7 +44,7 @@ export function StripePaymentForm({ channelCode, orderCode }: { channelCode: Cha
     );
   }
 
-  if (error) return <p className="text-sm text-red-600">{error}</p>;
+  if (error) return <p className="text-sm text-danger">{error}</p>;
   if (!clientSecret) return <p className="text-sm text-[var(--color-ink-muted)]">Preparing payment…</p>;
 
   return (
@@ -92,7 +92,7 @@ function StripeCheckoutForm({ channelCode, orderCode }: { channelCode: ChannelCo
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       <PaymentElement />
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
       <button
         type="submit"
         disabled={!stripe || isSubmitting}

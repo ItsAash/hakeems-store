@@ -146,7 +146,7 @@ function AddressCard({
     return (
       <form onSubmit={handleSave} className="flex flex-col gap-4 border hairline p-5">
         <AddressFields idPrefix={`address-${address.id}`} form={form} setForm={setForm} countries={countries} />
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-danger">{error}</p>}
         <div className="flex gap-3">
           <button
             type="submit"
@@ -192,7 +192,7 @@ function AddressCard({
           type="button"
           onClick={handleDelete}
           disabled={isSubmitting}
-          className="text-xs tracking-[0.1em] text-red-600 uppercase underline underline-offset-2 disabled:opacity-40"
+          className="text-xs tracking-[0.1em] text-danger uppercase underline underline-offset-2 disabled:opacity-40"
         >
           Remove
         </button>
@@ -246,7 +246,7 @@ export function AddressBook({
       {isAdding ? (
         <form onSubmit={handleAdd} className="flex max-w-sm flex-col gap-4 border hairline p-5">
           <AddressFields idPrefix="address-new" form={form} setForm={setForm} countries={countries} />
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-danger">{error}</p>}
           <div className="flex gap-3">
             <button
               type="submit"

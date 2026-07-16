@@ -60,7 +60,7 @@ export function ProfileForm({
       </div>
       <Field idPrefix="profile" label="Phone" type="tel" value={form.phoneNumber} onChange={setField('phoneNumber')} />
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
       {saved && <p className="text-sm text-[var(--color-ink)]">Saved.</p>}
 
       <button

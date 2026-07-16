@@ -7,6 +7,11 @@ fragment ActiveOrderFields on Order {
   shippingWithTax
   totalWithTax
   currencyCode
+  couponCodes
+  discounts {
+    description
+    amountWithTax
+  }
   lines {
     id
     quantity

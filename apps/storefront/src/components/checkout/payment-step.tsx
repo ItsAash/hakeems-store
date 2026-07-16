@@ -45,7 +45,7 @@ export function PaymentStep({
       <h2 className="font-serif text-xl text-[var(--color-ink)]">Payment</h2>
 
       {error ? (
-        <p className="text-sm text-red-600">{error}</p>
+        <p className="text-sm text-danger">{error}</p>
       ) : !isReady ? (
         <p className="text-sm text-[var(--color-ink-muted)]">Preparing payment…</p>
       ) : channelCode === 'hongkong' ? (

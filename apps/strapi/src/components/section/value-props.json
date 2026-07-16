@@ -1,0 +1,27 @@
+{
+  "collectionName": "components_section_value_props",
+  "info": {
+    "displayName": "Section: Value Props",
+    "icon": "star",
+    "description": "Brand pillars strip (e.g. 'Small batches · Technical fabrics · Fair making') built from repeatable Value Items."
+  },
+  "options": {},
+  "attributes": {
+    "header": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.section-header"
+    },
+    "items": {
+      "type": "component",
+      "repeatable": true,
+      "component": "layout.value-item",
+      "required": true
+    },
+    "backgroundToken": {
+      "type": "enumeration",
+      "enum": ["paper", "paper-raised", "blush", "sand", "hairline"],
+      "default": "paper"
+    }
+  }
+}

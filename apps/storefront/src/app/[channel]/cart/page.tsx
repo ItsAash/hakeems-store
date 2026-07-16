@@ -36,7 +36,7 @@ export default async function CartPage({ params }: { params: Promise<{ channel: 
       <h1 className="mb-8 font-serif text-3xl text-[var(--color-ink)] md:text-4xl">Cart</h1>
 
       {lines.length === 0 ? (
-        <div className="flex flex-col items-start gap-4 py-16">
+        <div className="flex flex-col items-start gap-4 py-section-sm">
           <p className="text-[var(--color-ink-muted)]">Your cart is empty.</p>
           <Link
             href={`/${channel.code}`}
@@ -60,6 +60,14 @@ export default async function CartPage({ params }: { params: Promise<{ channel: 
                 {formatPrice(activeOrder?.subTotalWithTax ?? 0, activeOrder?.currencyCode ?? 'NPR')}
               </span>
             </div>
+            {(activeOrder?.discounts ?? []).map((discount, index) => (
+              <div key={`${discount.description}-${index}`} className="flex items-center justify-between text-sm">
+                <span className="text-[var(--color-ink-muted)]">{discount.description || 'Discount'}</span>
+                <span className="text-[var(--color-sale)]">
+                  {formatPrice(discount.amountWithTax, activeOrder?.currencyCode ?? 'NPR')}
+                </span>
+              </div>
+            ))}
             <div className="flex items-center justify-between text-sm">
               <span className="text-[var(--color-ink-muted)]">Shipping</span>
               <span className="text-[var(--color-ink)]">

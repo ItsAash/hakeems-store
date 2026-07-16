@@ -77,7 +77,7 @@ export function HeaderChrome({
     <>
       <div
         ref={headerRef}
-        className={`fixed inset-x-0 top-0 z-40 transition-[background-color,box-shadow,border-color] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+        className={`fixed inset-x-0 top-0 z-30 transition-[background-color,box-shadow,border-color] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${
           transparent
             ? 'border-b border-transparent bg-transparent'
             : 'border-b hairline bg-[var(--color-paper)]/95 backdrop-blur'

@@ -3697,7 +3697,7 @@ export type Zone = Node & {
   updatedAt: Scalars['DateTime']['output'];
 };
 
-export type ActiveOrderFieldsFragment = { __typename?: 'Order', id: string, code: string, state: string, totalQuantity: number, subTotalWithTax: number, shippingWithTax: number, totalWithTax: number, currencyCode: CurrencyCode, lines: Array<{ __typename?: 'OrderLine', id: string, quantity: number, unitPriceWithTax: number, linePriceWithTax: number, featuredAsset?: { __typename?: 'Asset', preview: string } | null, productVariant: { __typename?: 'ProductVariant', id: string, name: string, sku: string, product: { __typename?: 'Product', slug: string }, options: Array<{ __typename?: 'ProductOption', code: string, name: string, group: { __typename?: 'ProductOptionGroup', code: string } }> } }>, shippingLines: Array<{ __typename?: 'ShippingLine', priceWithTax: number, shippingMethod: { __typename?: 'ShippingMethod', name: string } }>, shippingAddress?: { __typename?: 'OrderAddress', fullName?: string | null, streetLine1?: string | null, streetLine2?: string | null, city?: string | null, province?: string | null, postalCode?: string | null, countryCode?: string | null, phoneNumber?: string | null, customFields?: { __typename?: 'AddressCustomFields', shippingZoneId?: string | null } | null } | null, customer?: { __typename?: 'Customer', id: string, emailAddress: string } | null };
+export type ActiveOrderFieldsFragment = { __typename?: 'Order', id: string, code: string, state: string, totalQuantity: number, subTotalWithTax: number, shippingWithTax: number, totalWithTax: number, currencyCode: CurrencyCode, couponCodes: Array<string>, discounts: Array<{ __typename?: 'Discount', description: string, amountWithTax: number }>, lines: Array<{ __typename?: 'OrderLine', id: string, quantity: number, unitPriceWithTax: number, linePriceWithTax: number, featuredAsset?: { __typename?: 'Asset', preview: string } | null, productVariant: { __typename?: 'ProductVariant', id: string, name: string, sku: string, product: { __typename?: 'Product', slug: string }, options: Array<{ __typename?: 'ProductOption', code: string, name: string, group: { __typename?: 'ProductOptionGroup', code: string } }> } }>, shippingLines: Array<{ __typename?: 'ShippingLine', priceWithTax: number, shippingMethod: { __typename?: 'ShippingMethod', name: string } }>, shippingAddress?: { __typename?: 'OrderAddress', fullName?: string | null, streetLine1?: string | null, streetLine2?: string | null, city?: string | null, province?: string | null, postalCode?: string | null, countryCode?: string | null, phoneNumber?: string | null, customFields?: { __typename?: 'AddressCustomFields', shippingZoneId?: string | null } | null } | null, customer?: { __typename?: 'Customer', id: string, emailAddress: string } | null };
 
 export type ActiveOrderSummaryQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -3707,7 +3707,7 @@ export type ActiveOrderSummaryQuery = { __typename?: 'Query', activeOrder?: { __
 export type ActiveOrderFullQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ActiveOrderFullQuery = { __typename?: 'Query', activeOrder?: { __typename?: 'Order', id: string, code: string, state: string, totalQuantity: number, subTotalWithTax: number, shippingWithTax: number, totalWithTax: number, currencyCode: CurrencyCode, lines: Array<{ __typename?: 'OrderLine', id: string, quantity: number, unitPriceWithTax: number, linePriceWithTax: number, featuredAsset?: { __typename?: 'Asset', preview: string } | null, productVariant: { __typename?: 'ProductVariant', id: string, name: string, sku: string, product: { __typename?: 'Product', slug: string }, options: Array<{ __typename?: 'ProductOption', code: string, name: string, group: { __typename?: 'ProductOptionGroup', code: string } }> } }>, shippingLines: Array<{ __typename?: 'ShippingLine', priceWithTax: number, shippingMethod: { __typename?: 'ShippingMethod', name: string } }>, shippingAddress?: { __typename?: 'OrderAddress', fullName?: string | null, streetLine1?: string | null, streetLine2?: string | null, city?: string | null, province?: string | null, postalCode?: string | null, countryCode?: string | null, phoneNumber?: string | null, customFields?: { __typename?: 'AddressCustomFields', shippingZoneId?: string | null } | null } | null, customer?: { __typename?: 'Customer', id: string, emailAddress: string } | null } | null };
+export type ActiveOrderFullQuery = { __typename?: 'Query', activeOrder?: { __typename?: 'Order', id: string, code: string, state: string, totalQuantity: number, subTotalWithTax: number, shippingWithTax: number, totalWithTax: number, currencyCode: CurrencyCode, couponCodes: Array<string>, discounts: Array<{ __typename?: 'Discount', description: string, amountWithTax: number }>, lines: Array<{ __typename?: 'OrderLine', id: string, quantity: number, unitPriceWithTax: number, linePriceWithTax: number, featuredAsset?: { __typename?: 'Asset', preview: string } | null, productVariant: { __typename?: 'ProductVariant', id: string, name: string, sku: string, product: { __typename?: 'Product', slug: string }, options: Array<{ __typename?: 'ProductOption', code: string, name: string, group: { __typename?: 'ProductOptionGroup', code: string } }> } }>, shippingLines: Array<{ __typename?: 'ShippingLine', priceWithTax: number, shippingMethod: { __typename?: 'ShippingMethod', name: string } }>, shippingAddress?: { __typename?: 'OrderAddress', fullName?: string | null, streetLine1?: string | null, streetLine2?: string | null, city?: string | null, province?: string | null, postalCode?: string | null, countryCode?: string | null, phoneNumber?: string | null, customFields?: { __typename?: 'AddressCustomFields', shippingZoneId?: string | null } | null } | null, customer?: { __typename?: 'Customer', id: string, emailAddress: string } | null } | null };
 
 export type AddItemToOrderMutationVariables = Exact<{
   productVariantId: Scalars['ID']['input'];
@@ -3925,6 +3925,25 @@ export type OrderByCodeQueryVariables = Exact<{
 
 export type OrderByCodeQuery = { __typename?: 'Query', orderByCode?: { __typename?: 'Order', id: string, code: string, state: string, orderPlacedAt?: string | null, subTotalWithTax: number, shippingWithTax: number, totalWithTax: number, currencyCode: CurrencyCode, customer?: { __typename?: 'Customer', emailAddress: string } | null, shippingAddress?: { __typename?: 'OrderAddress', fullName?: string | null, streetLine1?: string | null, city?: string | null, countryCode?: string | null } | null, lines: Array<{ __typename?: 'OrderLine', id: string, quantity: number, linePriceWithTax: number, featuredAsset?: { __typename?: 'Asset', preview: string } | null, productVariant: { __typename?: 'ProductVariant', name: string, product: { __typename?: 'Product', slug: string } } }> } | null };
 
+export type ApplyCouponCodeMutationVariables = Exact<{
+  couponCode: Scalars['String']['input'];
+}>;
+
+
+export type ApplyCouponCodeMutation = { __typename?: 'Mutation', applyCouponCode:
+    | { __typename: 'CouponCodeExpiredError', errorCode: ErrorCode, message: string }
+    | { __typename: 'CouponCodeInvalidError', errorCode: ErrorCode, message: string }
+    | { __typename: 'CouponCodeLimitError', errorCode: ErrorCode, message: string }
+    | { __typename: 'Order', id: string, code: string, state: string, totalQuantity: number, subTotalWithTax: number, shippingWithTax: number, totalWithTax: number, currencyCode: CurrencyCode, couponCodes: Array<string>, discounts: Array<{ __typename?: 'Discount', description: string, amountWithTax: number }>, lines: Array<{ __typename?: 'OrderLine', id: string, quantity: number, unitPriceWithTax: number, linePriceWithTax: number, featuredAsset?: { __typename?: 'Asset', preview: string } | null, productVariant: { __typename?: 'ProductVariant', id: string, name: string, sku: string, product: { __typename?: 'Product', slug: string }, options: Array<{ __typename?: 'ProductOption', code: string, name: string, group: { __typename?: 'ProductOptionGroup', code: string } }> } }>, shippingLines: Array<{ __typename?: 'ShippingLine', priceWithTax: number, shippingMethod: { __typename?: 'ShippingMethod', name: string } }>, shippingAddress?: { __typename?: 'OrderAddress', fullName?: string | null, streetLine1?: string | null, streetLine2?: string | null, city?: string | null, province?: string | null, postalCode?: string | null, countryCode?: string | null, phoneNumber?: string | null, customFields?: { __typename?: 'AddressCustomFields', shippingZoneId?: string | null } | null } | null, customer?: { __typename?: 'Customer', id: string, emailAddress: string } | null }
+   };
+
+export type RemoveCouponCodeMutationVariables = Exact<{
+  couponCode: Scalars['String']['input'];
+}>;
+
+
+export type RemoveCouponCodeMutation = { __typename?: 'Mutation', removeCouponCode?: { __typename: 'Order', id: string, code: string, state: string, totalQuantity: number, subTotalWithTax: number, shippingWithTax: number, totalWithTax: number, currencyCode: CurrencyCode, couponCodes: Array<string>, discounts: Array<{ __typename?: 'Discount', description: string, amountWithTax: number }>, lines: Array<{ __typename?: 'OrderLine', id: string, quantity: number, unitPriceWithTax: number, linePriceWithTax: number, featuredAsset?: { __typename?: 'Asset', preview: string } | null, productVariant: { __typename?: 'ProductVariant', id: string, name: string, sku: string, product: { __typename?: 'Product', slug: string }, options: Array<{ __typename?: 'ProductOption', code: string, name: string, group: { __typename?: 'ProductOptionGroup', code: string } }> } }>, shippingLines: Array<{ __typename?: 'ShippingLine', priceWithTax: number, shippingMethod: { __typename?: 'ShippingMethod', name: string } }>, shippingAddress?: { __typename?: 'OrderAddress', fullName?: string | null, streetLine1?: string | null, streetLine2?: string | null, city?: string | null, province?: string | null, postalCode?: string | null, countryCode?: string | null, phoneNumber?: string | null, customFields?: { __typename?: 'AddressCustomFields', shippingZoneId?: string | null } | null } | null, customer?: { __typename?: 'Customer', id: string, emailAddress: string } | null } | null };
+
 export type CustomerAddressFieldsFragment = { __typename?: 'Address', id: string, fullName?: string | null, company?: string | null, streetLine1: string, streetLine2?: string | null, city?: string | null, province?: string | null, postalCode?: string | null, phoneNumber?: string | null, defaultShippingAddress?: boolean | null, defaultBillingAddress?: boolean | null, country: { __typename?: 'Country', code: string, name: string }, customFields?: { __typename?: 'AddressCustomFields', shippingZoneId?: string | null } | null };
 
 export type ActiveCustomerQueryVariables = Exact<{ [key: string]: never; }>;
@@ -4083,6 +4102,11 @@ export const ActiveOrderFieldsFragmentDoc = gql`
   shippingWithTax
   totalWithTax
   currencyCode
+  couponCodes
+  discounts {
+    description
+    amountWithTax
+  }
   lines {
     id
     quantity
@@ -4491,6 +4515,30 @@ export const OrderByCodeDocument = gql`
   }
 }
     `;
+export const ApplyCouponCodeDocument = gql`
+    mutation ApplyCouponCode($couponCode: String!) {
+  applyCouponCode(couponCode: $couponCode) {
+    __typename
+    ... on Order {
+      ...ActiveOrderFields
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+    ${ActiveOrderFieldsFragmentDoc}`;
+export const RemoveCouponCodeDocument = gql`
+    mutation RemoveCouponCode($couponCode: String!) {
+  removeCouponCode(couponCode: $couponCode) {
+    __typename
+    ... on Order {
+      ...ActiveOrderFields
+    }
+  }
+}
+    ${ActiveOrderFieldsFragmentDoc}`;
 export const ActiveCustomerDocument = gql`
     query ActiveCustomer {
   activeCustomer {
@@ -4963,6 +5011,12 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     OrderByCode(variables: OrderByCodeQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<OrderByCodeQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<OrderByCodeQuery>({ document: OrderByCodeDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'OrderByCode', 'query', variables);
+    },
+    ApplyCouponCode(variables: ApplyCouponCodeMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<ApplyCouponCodeMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ApplyCouponCodeMutation>({ document: ApplyCouponCodeDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'ApplyCouponCode', 'mutation', variables);
+    },
+    RemoveCouponCode(variables: RemoveCouponCodeMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<RemoveCouponCodeMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<RemoveCouponCodeMutation>({ document: RemoveCouponCodeDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'RemoveCouponCode', 'mutation', variables);
     },
     ActiveCustomer(variables?: ActiveCustomerQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<ActiveCustomerQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ActiveCustomerQuery>({ document: ActiveCustomerDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'ActiveCustomer', 'query', variables);

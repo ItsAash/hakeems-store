@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_shared_content_panels",
+  "info": {
+    "displayName": "Content Panel",
+    "icon": "file",
+    "description": "A titled Markdown panel (size guide, fabric table, care ritual…) appended to a product page's detail tabs."
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "content": {
+      "type": "richtext",
+      "required": true
+    }
+  }
+}

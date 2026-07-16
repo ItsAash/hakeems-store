@@ -18,6 +18,7 @@ import type {
   navLinkSchema,
   pageSchema,
   pageSectionSchema,
+  productPageSchema,
   sectionHeaderSchema,
   seoSchema,
   siteNavSchema,
@@ -46,6 +47,9 @@ export type CollectionPage = z.infer<typeof collectionPageSchema>;
 
 /** Standalone Markdown policy page (Privacy, Terms, Shipping & Returns, …). */
 export type LegalPage = z.infer<typeof legalPageSchema>;
+
+/** Editorial Markdown panels layered onto a Vendure product's PDP (matched by slug). */
+export type ProductPage = z.infer<typeof productPageSchema>;
 
 export type NavLink = z.infer<typeof navLinkSchema>;
 export type NavItem = z.infer<typeof navItemSchema>;

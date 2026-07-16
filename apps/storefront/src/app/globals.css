@@ -12,6 +12,9 @@
   /* Sale/markdown pricing. A token (not a raw Tailwind `red-700`) so sale styling stays
      themeable and consistent everywhere pricing renders. */
   --color-sale: #b91c1c;
+  /* Error/destructive messaging (form errors, failed actions). Deliberately a separate
+     semantic from `sale` even while the hue matches — retheming one must not drag the other. */
+  --color-danger: #b91c1c;
 
   /* Section-background palette tokens — the constrained set editors pick from (see
      lib/design/color-tokens.ts). Replaces free-form hex in the CMS. */
@@ -29,6 +32,10 @@
   --tracking-eyebrow: 0.14em;
 }
 
+/* Layering scale — every fixed/absolute layer picks from this ladder instead of inventing
+   its own z-index: content accents 10/20, sticky chrome (nav dropdowns, buy bars) 30,
+   full-screen overlays (drawers, sheets, lightboxes) 50, toasts 60. */
+
 @layer base {
   html {
     background-color: var(--color-paper);
@@ -42,6 +49,14 @@
   ::selection {
     background-color: var(--color-accent);
     color: var(--color-paper);
+  }
+
+  /* Keyboard-visible focus on every interactive element. The offset pushes the ring onto
+     the surrounding surface, so it stays visible even when the control itself is ink-solid.
+     :where() keeps specificity at zero so a component can override deliberately. */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
   }
 }
 
@@ -109,5 +124,15 @@ input[type="search"]::-webkit-search-cancel-button {
   .animate-hero-kenburns,
   .animate-fade-in {
     animation: none;
+  }
+
+  /* Transitions too — the Overlay drawer/backdrop and hover transforms all animate via
+     `transition-*`, which the keyframe rules above don't cover. Near-zero (not zero)
+     duration keeps transitionend events firing for JS that waits on them. */
+  *,
+  ::before,
+  ::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
   }
 }

@@ -118,6 +118,14 @@ export const legalPageSchema = z.object({
   updatedAt: z.string().nullable(),
 });
 
+/** Editorial layer over a Vendure product (matched by slug): titled Markdown panels
+ * appended to the PDP's detail tabs. */
+export const productPageSchema = z.object({
+  id: z.number(),
+  vendureProductSlug: z.string(),
+  panels: z.array(z.object({ id: z.number(), title: z.string(), content: z.string() })),
+});
+
 export const collectionPageSchema = z.object({
   id: z.number(),
   // `vendureId` is intentionally absent: it is now a private, sync-only key in Strapi. The
@@ -183,6 +191,34 @@ const brandStorySectionSchema = z.object({
   paragraphs: z.array(paragraphSchema),
   image: mediaSchema.nullable(),
 });
+const valuePropsSectionSchema = z.object({
+  __component: z.literal('section.value-props'),
+  id: z.number(),
+  header: sectionHeaderSchema.nullable(),
+  items: z.array(z.object({ id: z.number(), heading: z.string(), body: z.string() })),
+  backgroundToken: colorTokenSchema.nullable().catch(null),
+});
+const testimonialsSectionSchema = z.object({
+  __component: z.literal('section.testimonials'),
+  id: z.number(),
+  header: sectionHeaderSchema.nullable(),
+  items: z.array(
+    z.object({ id: z.number(), quote: z.string(), author: z.string(), context: z.string().nullable() }),
+  ),
+  backgroundToken: colorTokenSchema.nullable().catch(null),
+});
+const faqSectionSchema = z.object({
+  __component: z.literal('section.faq'),
+  id: z.number(),
+  header: sectionHeaderSchema.nullable(),
+  items: z.array(z.object({ id: z.number(), question: z.string(), answer: z.string() })),
+});
+const proseSectionSchema = z.object({
+  __component: z.literal('section.prose'),
+  id: z.number(),
+  header: sectionHeaderSchema.nullable(),
+  content: z.string(),
+});
 
 export const pageSectionSchema = z.discriminatedUnion('__component', [
   heroSliderSectionSchema,
@@ -190,13 +226,39 @@ export const pageSectionSchema = z.discriminatedUnion('__component', [
   productRailSectionSchema,
   editorialBannerSectionSchema,
   brandStorySectionSchema,
+  valuePropsSectionSchema,
+  testimonialsSectionSchema,
+  faqSectionSchema,
+  proseSectionSchema,
 ]);
+
+const KNOWN_SECTION_COMPONENTS: ReadonlySet<string> = new Set(
+  pageSectionSchema.options.map((option) => option.shape.__component.value),
+);
+
+/**
+ * The dynamic zone, made tolerant of blocks the storefront doesn't know yet: an editor
+ * adding a brand-new section type in Strapi (ahead of a code deploy) must degrade to "that
+ * one block is skipped", never "the whole page fails validation and renders empty".
+ */
+export const pageSectionsSchema = z.preprocess(
+  (value) =>
+    Array.isArray(value)
+      ? value.filter(
+          (entry) =>
+            entry &&
+            typeof entry === 'object' &&
+            KNOWN_SECTION_COMPONENTS.has((entry as { __component?: string }).__component ?? ''),
+        )
+      : value,
+  z.array(pageSectionSchema),
+);
 
 export const pageSchema = z.object({
   id: z.number(),
   slug: z.string(),
   channel: channelSchema,
-  sections: z.array(pageSectionSchema),
+  sections: pageSectionsSchema,
   /** Site-wide announcement marquee, authored on the 'home' page per channel and read by
    * the root layout regardless of route (retired from the old home-page content type). */
   announcementBarEnabled: z.boolean().nullable(),
