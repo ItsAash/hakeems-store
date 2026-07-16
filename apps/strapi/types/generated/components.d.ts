@@ -1,5 +1,77 @@
 import type { Schema, Struct } from '@strapi/strapi';
 
+export interface FooterContact extends Struct.ComponentSchema {
+  collectionName: 'components_footer_contacts';
+  info: {
+    description: 'Footer contact block: heading plus optional email, phone and postal address.';
+    displayName: 'Footer Contact';
+    icon: 'phone';
+  };
+  attributes: {
+    address: Schema.Attribute.Text;
+    email: Schema.Attribute.Email;
+    heading: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 40;
+      }>;
+    phone: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 40;
+      }>;
+  };
+}
+
+export interface FooterLinkColumn extends Struct.ComponentSchema {
+  collectionName: 'components_footer_link_columns';
+  info: {
+    description: 'One footer column: a heading plus an ordered list of links. Reusable for navigation, categories, support or policy groups \u2014 admins add/rename/reorder columns freely.';
+    displayName: 'Footer Link Column';
+    icon: 'bulletList';
+  };
+  attributes: {
+    heading: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 40;
+      }>;
+    links: Schema.Attribute.Component<'shared.link', true>;
+  };
+}
+
+export interface FooterNewsletter extends Struct.ComponentSchema {
+  collectionName: 'components_footer_newsletters';
+  info: {
+    description: 'Newsletter sign-up block copy. All text is editor-managed; toggle `enabled` to show or hide the whole band.';
+    displayName: 'Footer Newsletter';
+    icon: 'envelop';
+  };
+  attributes: {
+    buttonLabel: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 40;
+      }> &
+      Schema.Attribute.DefaultTo<'Subscribe'>;
+    description: Schema.Attribute.Text;
+    enabled: Schema.Attribute.Boolean &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<true>;
+    heading: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 80;
+      }>;
+    placeholder: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 80;
+      }> &
+      Schema.Attribute.DefaultTo<'Enter your email'>;
+    successMessage: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 160;
+      }> &
+      Schema.Attribute.DefaultTo<"Thanks \u2014 you're on the list.">;
+  };
+}
+
 export interface LayoutAnnouncement extends Struct.ComponentSchema {
   collectionName: 'components_layout_announcements';
   info: {
@@ -283,6 +355,9 @@ export interface SharedSocialLink extends Struct.ComponentSchema {
 declare module '@strapi/strapi' {
   export namespace Public {
     export interface ComponentSchemas {
+      'footer.contact': FooterContact;
+      'footer.link-column': FooterLinkColumn;
+      'footer.newsletter': FooterNewsletter;
       'layout.announcement': LayoutAnnouncement;
       'layout.collection-tile': LayoutCollectionTile;
       'layout.facet-category-tile': LayoutFacetCategoryTile;

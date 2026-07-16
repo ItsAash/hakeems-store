@@ -1,0 +1,58 @@
+{
+  "kind": "singleType",
+  "collectionName": "footers",
+  "info": {
+    "singularName": "footer",
+    "pluralName": "footers",
+    "displayName": "Footer",
+    "description": "Global site footer content: brand blurb, link columns (navigation / categories / policies), contact block, social links, newsletter copy, bottom-bar legal links and copyright. Fully editor-managed — no footer text is hardcoded in the storefront."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "brandName": {
+      "type": "string",
+      "required": true,
+      "default": "Hakeems",
+      "maxLength": 60
+    },
+    "brandTagline": {
+      "type": "text"
+    },
+    "columns": {
+      "type": "component",
+      "repeatable": true,
+      "component": "footer.link-column"
+    },
+    "contact": {
+      "type": "component",
+      "repeatable": false,
+      "component": "footer.contact"
+    },
+    "socialLinks": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.social-link"
+    },
+    "newsletter": {
+      "type": "component",
+      "repeatable": false,
+      "component": "footer.newsletter"
+    },
+    "legalLinks": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.link"
+    },
+    "copyrightText": {
+      "type": "string",
+      "maxLength": 160,
+      "default": "© {year} {siteName}. All rights reserved."
+    },
+    "footerNote": {
+      "type": "text"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_footer_link_columns",
+  "info": {
+    "displayName": "Footer Link Column",
+    "icon": "bulletList",
+    "description": "One footer column: a heading plus an ordered list of links. Reusable for navigation, categories, support or policy groups — admins add/rename/reorder columns freely."
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string",
+      "required": true,
+      "maxLength": 40
+    },
+    "links": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.link"
+    }
+  }
+}

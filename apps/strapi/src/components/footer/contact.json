@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_footer_contacts",
+  "info": {
+    "displayName": "Footer Contact",
+    "icon": "phone",
+    "description": "Footer contact block: heading plus optional email, phone and postal address."
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string",
+      "maxLength": 40
+    },
+    "email": {
+      "type": "email"
+    },
+    "phone": {
+      "type": "string",
+      "maxLength": 40
+    },
+    "address": {
+      "type": "text"
+    }
+  }
+}

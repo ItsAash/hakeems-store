@@ -1,0 +1,38 @@
+{
+  "collectionName": "components_footer_newsletters",
+  "info": {
+    "displayName": "Footer Newsletter",
+    "icon": "envelop",
+    "description": "Newsletter sign-up block copy. All text is editor-managed; toggle `enabled` to show or hide the whole band."
+  },
+  "options": {},
+  "attributes": {
+    "enabled": {
+      "type": "boolean",
+      "default": true,
+      "required": true
+    },
+    "heading": {
+      "type": "string",
+      "maxLength": 80
+    },
+    "description": {
+      "type": "text"
+    },
+    "placeholder": {
+      "type": "string",
+      "maxLength": 80,
+      "default": "Enter your email"
+    },
+    "buttonLabel": {
+      "type": "string",
+      "maxLength": 40,
+      "default": "Subscribe"
+    },
+    "successMessage": {
+      "type": "string",
+      "maxLength": 160,
+      "default": "Thanks — you're on the list."
+    }
+  }
+}

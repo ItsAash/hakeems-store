@@ -514,6 +514,52 @@ export interface ApiCollectionPageCollectionPage
   };
 }
 
+export interface ApiFooterFooter extends Struct.SingleTypeSchema {
+  collectionName: 'footers';
+  info: {
+    description: 'Global site footer content: brand blurb, link columns (navigation / categories / policies), contact block, social links, newsletter copy, bottom-bar legal links and copyright. Fully editor-managed \u2014 no footer text is hardcoded in the storefront.';
+    displayName: 'Footer';
+    pluralName: 'footers';
+    singularName: 'footer';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    brandName: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 60;
+      }> &
+      Schema.Attribute.DefaultTo<'Hakeems'>;
+    brandTagline: Schema.Attribute.Text;
+    columns: Schema.Attribute.Component<'footer.link-column', true>;
+    contact: Schema.Attribute.Component<'footer.contact', false>;
+    copyrightText: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 160;
+      }> &
+      Schema.Attribute.DefaultTo<'\u00A9 {year} {siteName}. All rights reserved.'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    footerNote: Schema.Attribute.Text;
+    legalLinks: Schema.Attribute.Component<'shared.link', true>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::footer.footer'
+    > &
+      Schema.Attribute.Private;
+    newsletter: Schema.Attribute.Component<'footer.newsletter', false>;
+    publishedAt: Schema.Attribute.DateTime;
+    socialLinks: Schema.Attribute.Component<'shared.social-link', true>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiLegalPageLegalPage extends Struct.CollectionTypeSchema {
   collectionName: 'legal_pages';
   info: {
@@ -1174,6 +1220,7 @@ declare module '@strapi/strapi' {
       'admin::user': AdminUser;
       'api::brand-story.brand-story': ApiBrandStoryBrandStory;
       'api::collection-page.collection-page': ApiCollectionPageCollectionPage;
+      'api::footer.footer': ApiFooterFooter;
       'api::legal-page.legal-page': ApiLegalPageLegalPage;
       'api::page.page': ApiPagePage;
       'api::site-nav.site-nav': ApiSiteNavSiteNav;

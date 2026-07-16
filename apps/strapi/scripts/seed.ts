@@ -99,6 +99,74 @@ async function seedSiteSetting(strapi: Core.Strapi) {
   console.log('Seeded site-setting');
 }
 
+async function seedFooter(strapi: Core.Strapi) {
+  const existing = await strapi.documents('api::footer.footer').findFirst({});
+  // See the comment on upsertAndPublish above re: `any` for hand-written seed literals.
+  const data: any = {
+    brandName: 'Hakeems',
+    brandTagline: 'Community streetwear, designed in Kathmandu — small-batch drops, real fabric, built for the street.',
+    columns: [
+      {
+        heading: 'Shop',
+        links: [
+          { label: 'New Arrivals', href: '/shop?sort=newest' },
+          { label: 'All Products', href: '/shop' },
+          { label: 'Collections', href: '/collections' },
+          { label: 'Spotlight', href: '/shop?spotlight=true' },
+        ],
+      },
+      {
+        heading: 'Company',
+        links: [
+          { label: 'Our Story', href: '/story' },
+          { label: 'Stockists', href: '/story' },
+          { label: 'Careers', href: '/story' },
+        ],
+      },
+      {
+        heading: 'Support',
+        links: [
+          { label: 'My Account', href: '/account' },
+          { label: 'Track Order', href: '/account/orders' },
+          { label: 'Shipping & Returns', href: '/shipping-returns' },
+        ],
+      },
+    ],
+    contact: {
+      heading: 'Get in touch',
+      email: 'support@hakeems.com',
+      phone: '+977-1-4000000',
+      address: 'Jhamsikhel, Lalitpur\nKathmandu, Nepal',
+    },
+    socialLinks: [
+      { platform: 'instagram', url: 'https://instagram.com/hakeems' },
+      { platform: 'tiktok', url: 'https://tiktok.com/@hakeems' },
+    ],
+    newsletter: {
+      enabled: true,
+      heading: 'Join the list',
+      description: 'Early access to drops, restocks and studio notes. No spam — unsubscribe anytime.',
+      placeholder: 'Enter your email',
+      buttonLabel: 'Subscribe',
+      successMessage: "Thanks — you're on the list.",
+    },
+    legalLinks: [
+      { label: 'Shipping & Returns', href: '/shipping-returns' },
+      { label: 'Privacy Policy', href: '/privacy' },
+      { label: 'Terms of Service', href: '/terms' },
+    ],
+    copyrightText: '© {year} {siteName}. All rights reserved.',
+    footerNote: 'All prices include tax. Shipping calculated at checkout by district/city.',
+  };
+
+  if (existing) {
+    await strapi.documents('api::footer.footer').update({ documentId: existing.documentId, data });
+  } else {
+    await strapi.documents('api::footer.footer').create({ data });
+  }
+  console.log('Seeded footer');
+}
+
 async function seedSiteNavs(strapi: Core.Strapi) {
   // Both channels share the same catalog shape today (tops/bottoms/accessories/sets +
   // one cross-channel Spotlight capsule) — no more channel-exclusive collections — so
@@ -507,6 +575,7 @@ async function main() {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'hakeems-strapi-seed-'));
 
   await seedSiteSetting(app);
+  await seedFooter(app);
   await seedSiteNavs(app);
   await seedLegalPages(app);
   await seedBrandStory(app);
