@@ -1,13 +1,22 @@
 import 'dotenv/config';
 import {
   ACTIVITY_FACET,
-  COLOR_GALLERY,
+  COLLECTIONS,
   COLOR_SWATCH_HEX,
   COLORS,
+  MATERIAL_DETAILS,
   MATERIAL_FACET,
+  PRODUCTS,
   SIZE_OPTION_VALUES,
   SIZES_APPAREL,
+  SIZES_ONE,
 } from '../../../scripts/data/persona';
+import {
+  type ImageSpec,
+  loadImageBytes,
+  type ProductImageSpecs,
+  productImageSpecs,
+} from '../../../scripts/data/images';
 
 const ADMIN_API_URL = process.env.VENDURE_ADMIN_API_URL || 'http://localhost:3000/admin-api';
 const USERNAME = process.env.SUPERADMIN_USERNAME || 'superadmin';
@@ -320,29 +329,25 @@ async function ensureColorSwatches(colorGroup: { options: Array<{ id: string; co
 }
 
 /**
- * Distinct lead image per colour code, so PDP colour swatches visibly swap the gallery.
- * (Demo imagery reused across products — production would use real per-product-per-colour
- * photography; the storefront simply renders whatever assets each variant carries.)
- * Keys must match the colour option codes (see optionCode()).
+ * Uploads the images for a list of specs (garment+colour matched — see scripts/data/images.ts)
+ * and returns their asset ids in order. Idempotent by filename; bytes come from the image
+ * pipeline (local cache → provider), so a missing/failed image is skipped rather than fatal.
  */
-const COLOR_IMAGE_URLS: Record<string, string[]> = COLOR_GALLERY;
-
-/** Uploads a colour's images once (deduped by filename) and caches the asset ids. */
-const colorAssetIdCache = new Map<string, string[]>();
-async function ensureColorAssets(colorCode: string, channelIds: string[]): Promise<string[]> {
-  const cached = colorAssetIdCache.get(colorCode);
-  if (cached) return cached;
-  const urls = COLOR_IMAGE_URLS[colorCode] ?? [];
+const specAssetIdCache = new Map<string, string>();
+async function ensureSpecAssets(specs: ImageSpec[], channelIds: string[]): Promise<string[]> {
   const ids: string[] = [];
-  for (let i = 0; i < urls.length; i++) {
-    // "-v2" forces a fresh upload under the corrected mapping below — the old
-    // "color-<code>-N.jpg" assets pointed at mismatched stock photos (e.g. "olive"
-    // resolved to a denim-shelf photo), and ensureAsset is idempotent by filename, so
-    // reusing the old name would keep serving the wrong image forever.
-    const asset = await ensureAsset(`color-${colorCode}-${i + 1}-v2.jpg`, urls[i], channelIds);
-    ids.push(asset.id);
+  for (const spec of specs) {
+    const cachedId = specAssetIdCache.get(spec.fileName);
+    if (cachedId) {
+      ids.push(cachedId);
+      continue;
+    }
+    const asset = await ensureAssetFromSpec(spec, channelIds);
+    if (asset) {
+      specAssetIdCache.set(spec.fileName, asset.id);
+      ids.push(asset.id);
+    }
   }
-  colorAssetIdCache.set(colorCode, ids);
   return ids;
 }
 
@@ -530,16 +535,24 @@ async function findAssetByName(name: string) {
 }
 
 /**
- * Downloads an image (Unsplash) once and uploads it to Vendure's asset server via
- * the multipart GraphQL upload spec. Idempotent: keyed by the asset's file name.
+ * Uploads image bytes to Vendure's asset server via the multipart GraphQL upload spec and
+ * assigns the asset to the given channels. Idempotent: keyed by the asset's file name, so a
+ * name that already exists is reused (and `getBytes` is never invoked). Returns null if the
+ * bytes could not be obtained, so a single missing image never aborts the whole seed.
  */
-async function ensureAsset(fileName: string, url: string, channelIds: string[]) {
+async function ensureAssetBytes(
+  fileName: string,
+  getBytes: () => Promise<Buffer | null>,
+  channelIds: string[],
+) {
   let asset = await findAssetByName(fileName);
 
   if (!asset) {
-    const download = await fetch(url);
-    if (!download.ok) throw new Error(`Failed to download ${url}: ${download.status}`);
-    const buffer = await download.arrayBuffer();
+    const bytes = await getBytes();
+    if (!bytes) {
+      console.warn(`  ! skipping asset (no image bytes): ${fileName}`);
+      return null;
+    }
 
     const form = new FormData();
     form.append(
@@ -555,7 +568,7 @@ async function ensureAsset(fileName: string, url: string, channelIds: string[]) 
       }),
     );
     form.append('map', JSON.stringify({ '0': ['variables.input.0.file'] }));
-    form.append('0', new Blob([buffer], { type: 'image/jpeg' }), fileName);
+    form.append('0', new Blob([bytes], { type: 'image/jpeg' }), fileName);
 
     const response = await fetch(ADMIN_API_URL, {
       method: 'POST',
@@ -585,6 +598,16 @@ async function ensureAsset(fileName: string, url: string, channelIds: string[]) 
   }
 
   return asset;
+}
+
+/**
+ * Resolves one image spec through the pipeline (local cache → provider) and uploads it.
+ * This is the single point where the catalogue's per-product/per-colour photography enters
+ * Vendure — swap the provider (CATALOG_IMAGE_PROVIDER) or drop licensed files into the cache
+ * and nothing else changes.
+ */
+function ensureAssetFromSpec(spec: ImageSpec, channelIds: string[]) {
+  return ensureAssetBytes(spec.fileName, () => loadImageBytes(spec), channelIds);
 }
 
 /* ------------------------------------------------------------------ */
@@ -695,6 +718,10 @@ type CatalogProduct = {
   description: string;
   /** PDP "Fit & Fabric" tab content (HTML). */
   fitAndFabric: string;
+  /** Per-product SEO metadata (Vendure Product custom fields; the storefront's PDP
+   * generateMetadata prefers these over the raw name/description). */
+  seoTitle?: string;
+  seoDescription?: string;
   facetValueIds: string[];
   /** Merchandising (all optional): sale % (0–100) drives the strikethrough "was" price and
    * "% off" on product cards; promoLabel is the small caption; badge is the corner tag. */
@@ -703,7 +730,8 @@ type CatalogProduct = {
   badge?: string;
   sizes: string[];
   colors: string[];
-  images: Array<{ fileName: string; url: string }>;
+  /** Garment+colour matched imagery, resolved by the image pipeline (scripts/data/images.ts). */
+  imageSpecs: ProductImageSpecs;
   nepalPrice: number;
   hongKongPrice: number;
   nepalStock: number;
@@ -780,12 +808,8 @@ async function ensureProduct(ctx: SeedContext, input: CatalogProduct) {
     );
   }
 
-  // Upload gallery images and attach them.
-  const assetIds: string[] = [];
-  for (const image of input.images) {
-    const asset = await ensureAsset(image.fileName, image.url, [ctx.nepalChannelId, ctx.hongKongChannelId]);
-    assetIds.push(asset.id);
-  }
+  // Upload the product-level gallery (its primary colour) and attach it as the featured imagery.
+  const assetIds = await ensureSpecAssets(input.imageSpecs.gallery, [ctx.nepalChannelId, ctx.hongKongChannelId]);
   if (assetIds.length) {
     await adminFetch(
       `mutation UpdateProductAssets($input: UpdateProductInput!) {
@@ -808,6 +832,8 @@ async function ensureProduct(ctx: SeedContext, input: CatalogProduct) {
         customFields: {
           fitAndFabric: input.fitAndFabric,
           shippingReturns: SHIPPING_RETURNS,
+          seoTitle: input.seoTitle ?? null,
+          seoDescription: input.seoDescription ?? null,
           discountPercent: input.discountPercent ?? null,
           promoLabel: input.promoLabel ?? null,
           badge: input.badge ?? null,
@@ -952,9 +978,11 @@ async function ensureProduct(ctx: SeedContext, input: CatalogProduct) {
     variantsByColor.get(colorCode)!.push(id);
   });
   for (const [colorCode, ids] of variantsByColor) {
-    const colorAssetIds = await ensureColorAssets(colorCode, imageChannelIds);
+    const colorSpecs = input.imageSpecs.byColorCode[colorCode] ?? [];
+    const colorAssetIds = await ensureSpecAssets(colorSpecs, imageChannelIds);
     if (colorAssetIds.length === 0) continue;
-    const variantAssetIds = [...colorAssetIds, ...assetIds];
+    // This colour's matched shots first (so the swatch swaps the gallery), then the product gallery.
+    const variantAssetIds = [...new Set([...colorAssetIds, ...assetIds])];
     await adminFetch(
       `mutation UpdateVariantAssets($input: [UpdateProductVariantInput!]!) {
         updateProductVariants(input: $input) { id }
@@ -970,8 +998,6 @@ async function ensureProduct(ctx: SeedContext, input: CatalogProduct) {
 /* ------------------------------------------------------------------ */
 /* Catalog                                                             */
 /* ------------------------------------------------------------------ */
-
-const unsplash = (photoId: string) => `https://images.unsplash.com/${photoId}?w=1200&h=1500&fit=crop&q=80&fm=jpg`;
 
 async function main() {
   await login();
@@ -996,8 +1022,9 @@ async function main() {
   const categories = await ensureFacet('categories', 'Categories', [
     { code: 'tops', name: 'Tops' },
     { code: 'bottoms', name: 'Bottoms' },
-    { code: 'accessories', name: 'Accessories' },
     { code: 'sets', name: 'Sets' },
+    { code: 'dresses', name: 'Dresses' },
+    { code: 'swim', name: 'Swim' },
   ]);
   // Commerce facet trees (persona taxonomy) — filterable product attributes surfaced in the
   // PLP facet sidebar. Defined once in scripts/data/persona.ts.
@@ -1091,334 +1118,100 @@ async function main() {
     colorGroup: color,
   };
 
-  const APPAREL = [...SIZES_APPAREL];
-  const ONE_SIZE = ['One Size'];
+  const apparelSizes = [...SIZES_APPAREL];
+  const oneSizeRun = [...SIZES_ONE];
 
-  // Per-product Activity/Material facet tags (persona taxonomy), keyed by slug. Kept beside the
-  // catalogue so the two commerce facets resolve to non-empty, filterable values.
-  const PRODUCT_TAGS: Record<string, { activity: string; material: string }> = {
-    'salutation-stash-tank': { activity: 'yoga', material: 'performance-knit' },
-    'momentum-seamless-tee': { activity: 'run', material: 'performance-knit' },
-    'renew-studio-tee': { activity: 'yoga', material: 'organic-cotton' },
-    'ultimate-train-bra': { activity: 'train', material: 'performance-knit' },
-    'gap-vintage-soft-tee': { activity: 'travel', material: 'organic-cotton' },
-    'coaster-luxe-sweatshirt': { activity: 'travel', material: 'brushed-fleece' },
-    'farallon-hybrid-jacket': { activity: 'travel', material: 'recycled-nylon' },
-    'salutation-stash-tight': { activity: 'yoga', material: 'performance-knit' },
-    'ultimate-stash-tight': { activity: 'train', material: 'performance-knit' },
-    'rainier-jogger': { activity: 'travel', material: 'brushed-fleece' },
-    'brooklyn-ankle-pant': { activity: 'travel', material: 'recycled-nylon' },
-    'gapfit-bike-short': { activity: 'run', material: 'recycled-nylon' },
-    'elation-tight': { activity: 'yoga', material: 'performance-knit' },
-    'all-about-crossbody': { activity: 'travel', material: 'recycled-nylon' },
-    'studio-bra-tight-set': { activity: 'yoga', material: 'performance-knit' },
-  };
+  // ── Catalogue — persona.ts (scripts/data/persona.ts) is the single source of truth. Seed every
+  // product, composing its PDP description (blurb + feature list) and material-accurate Fit & Fabric,
+  // and keep a slug → id map for the collection filters below.
+  const productIdBySlug = new Map<string, string>();
+  for (const product of PRODUCTS) {
+    const materialDetail = MATERIAL_DETAILS[product.material];
+    const featuresHtml = product.features.length
+      ? `<ul>${product.features.map((feature) => `<li>${feature}</li>`).join('')}</ul>`
+      : '';
+    const fitAndFabric = materialDetail
+      ? `<p><strong>Fabric.</strong> ${materialDetail.fabric}</p><p><strong>Care.</strong> ${materialDetail.care}</p>`
+      : FIT_AND_FABRIC[product.category] ?? FIT_AND_FABRIC.default;
 
-  // Real premium activewear catalogue in the Athleta / GAP house style. Colours are drawn from the
-  // persona palette (Onyx, Chalk, Soft Sage, Sandstone, Espresso, Slate); prices are per channel in
-  // minor units (NPR / HKD). Card galleries come from each colour's persona images; the per-product
-  // `images` below drive the PDP gallery.
-  const catalog: Array<Omit<CatalogProduct, 'facetValueIds' | 'fitAndFabric'> & { category: string }> = [
-    // ── Tops ──────────────────────────────────────────────────────────────
-    {
-      name: 'Salutation Stash Pocket Tank',
-      slug: 'salutation-stash-tank',
-      skuCode: 'ATH-SAL-TANK',
-      description:
-        '<p>Our do-everything studio tank in buttery Powervita™ knit, with a hidden stash pocket at the back hem and a built-in shelf bra for light support. Moves with you from flow to street.</p>',
-      category: 'tops',
-      sizes: APPAREL, colors: ['Onyx', 'Soft Sage', 'Chalk'],
-      images: [
-        { fileName: 'salutation-stash-tank-1.jpg', url: unsplash('photo-1552902865-b72c031ac5ea') },
-        { fileName: 'salutation-stash-tank-2.jpg', url: unsplash('photo-1518611012118-696072aa579a') },
+    const { id } = await ensureProduct(ctx, {
+      name: product.name,
+      slug: product.slug,
+      skuCode: product.skuCode,
+      description: `<p>${product.description}</p>${featuresHtml}`,
+      fitAndFabric,
+      seoTitle: product.seoTitle,
+      seoDescription: product.seoDescription,
+      facetValueIds: [
+        facetValue(categories, product.category),
+        facetValue(activity, product.activity),
+        facetValue(material, product.material),
       ],
-      nepalPrice: 490000, hongKongPrice: 38000, nepalStock: 24, hongKongStock: 18,
-      badge: 'Best Seller',
-    },
-    {
-      name: 'Momentum Seamless Tee',
-      slug: 'momentum-seamless-tee',
-      skuCode: 'ATH-MOM-TEE',
-      description:
-        '<p>Engineered seamless tee with targeted ventilation zones and a featherweight, wick-fast knit. Chafe-free flatlock-free construction for high-output runs and training.</p>',
-      category: 'tops',
-      sizes: APPAREL, colors: ['Onyx', 'Slate', 'Sandstone'],
-      images: [
-        { fileName: 'momentum-seamless-tee-1.jpg', url: unsplash('photo-1518310383802-640c2de311b2') },
-        { fileName: 'momentum-seamless-tee-2.jpg', url: unsplash('photo-1571945153237-4929e783af4a') },
-      ],
-      nepalPrice: 420000, hongKongPrice: 32000, nepalStock: 20, hongKongStock: 16,
-    },
-    {
-      name: 'Renew Organic Studio Tee',
-      slug: 'renew-studio-tee',
-      skuCode: 'ATH-RNW-TEE',
-      description:
-        '<p>The softest everyday tee, cut from GOTS-certified organic cotton with a relaxed drape. Garment-dyed for depth of colour and made to layer year round.</p>',
-      category: 'tops',
-      sizes: APPAREL, colors: ['Chalk', 'Soft Sage', 'Espresso'],
-      images: [
-        { fileName: 'renew-studio-tee-1.jpg', url: unsplash('photo-1503341504253-dff4815485f1') },
-        { fileName: 'renew-studio-tee-2.jpg', url: unsplash('photo-1620799140408-edc6dcb6d633') },
-      ],
-      nepalPrice: 390000, hongKongPrice: 30000, nepalStock: 26, hongKongStock: 20,
-    },
-    {
-      name: 'Ultimate Medium-Support Bra',
-      slug: 'ultimate-train-bra',
-      skuCode: 'ATH-ULT-BRA',
-      description:
-        '<p>Medium-support sports bra with moulded cups, a wide underband and adjustable straps. Powervita™ knit keeps it soft against the skin through every session.</p>',
-      category: 'tops',
-      sizes: APPAREL, colors: ['Onyx', 'Slate'],
-      images: [
-        { fileName: 'ultimate-train-bra-1.jpg', url: unsplash('photo-1544367567-0f2fcb009e0b') },
-        { fileName: 'ultimate-train-bra-2.jpg', url: unsplash('photo-1552902865-b72c031ac5ea') },
-      ],
-      nepalPrice: 590000, hongKongPrice: 46000, nepalStock: 18, hongKongStock: 14,
-    },
-    {
-      name: 'Vintage Soft Crewneck Tee',
-      slug: 'gap-vintage-soft-tee',
-      skuCode: 'GAP-VNT-TEE',
-      description:
-        '<p>The GAP classic, back and better. Vintage-soft 100% cotton jersey, pre-washed for a lived-in feel, with a clean crewneck and a straight everyday fit.</p>',
-      category: 'tops',
-      sizes: APPAREL, colors: ['Chalk', 'Sandstone', 'Onyx'],
-      images: [
-        { fileName: 'gap-vintage-soft-tee-1.jpg', url: unsplash('photo-1521572163474-6864f9cf17ab') },
-        { fileName: 'gap-vintage-soft-tee-2.jpg', url: unsplash('photo-1618354691373-d851c5c3a990') },
-      ],
-      nepalPrice: 320000, hongKongPrice: 24000, nepalStock: 34, hongKongStock: 26,
-      discountPercent: 30, promoLabel: 'Extra 30% Off at Checkout',
-    },
-    {
-      name: 'Coaster Luxe Sweatshirt',
-      slug: 'coaster-luxe-sweatshirt',
-      skuCode: 'ATH-CST-SWT',
-      description:
-        '<p>Our beloved Coaster in plush brushed-back fleece with a relaxed, cocooning fit and ribbed trims. The off-duty layer you will not want to take off.</p>',
-      category: 'tops',
-      sizes: APPAREL, colors: ['Sandstone', 'Onyx', 'Soft Sage'],
-      images: [
-        { fileName: 'coaster-luxe-sweatshirt-1.jpg', url: unsplash('photo-1556905055-8f358a7a47b2') },
-        { fileName: 'coaster-luxe-sweatshirt-2.jpg', url: unsplash('photo-1620799140408-edc6dcb6d633') },
-      ],
-      nepalPrice: 890000, hongKongPrice: 69000, nepalStock: 16, hongKongStock: 12,
-      badge: 'Best Seller',
-    },
-    {
-      name: 'Farallon Hybrid Jacket',
-      slug: 'farallon-hybrid-jacket',
-      skuCode: 'ATH-FAR-JKT',
-      description:
-        '<p>A do-it-all hybrid shell in water-resistant recycled ripstop with stretch fleece side panels. Packs down small, layers over everything and shrugs off the commute.</p>',
-      category: 'tops',
-      sizes: APPAREL, colors: ['Onyx', 'Slate'],
-      images: [
-        { fileName: 'farallon-hybrid-jacket-1.jpg', url: unsplash('photo-1591047139829-d91aecb6caea') },
-        { fileName: 'farallon-hybrid-jacket-2.jpg', url: unsplash('photo-1556905055-8f358a7a47b2') },
-      ],
-      nepalPrice: 1590000, hongKongPrice: 129000, nepalStock: 10, hongKongStock: 8,
-    },
-    // ── Bottoms ───────────────────────────────────────────────────────────
-    {
-      name: 'Salutation Stash Pocket 7/8 Tight',
-      slug: 'salutation-stash-tight',
-      skuCode: 'ATH-SAL-TGT',
-      description:
-        '<p>The tight that started it all. Buttery, sculpting Powervita™ knit with a high, stay-put waistband and dual side stash pockets. Squat-proof, sweat-wicking, second-skin support.</p>',
-      category: 'bottoms',
-      sizes: APPAREL, colors: ['Onyx', 'Soft Sage', 'Espresso'],
-      images: [
-        { fileName: 'salutation-stash-tight-1.jpg', url: unsplash('photo-1516762689617-e1cffcef479d') },
-        { fileName: 'salutation-stash-tight-2.jpg', url: unsplash('photo-1594633312681-425c7b97ccd1') },
-      ],
-      nepalPrice: 990000, hongKongPrice: 78000, nepalStock: 22, hongKongStock: 18,
-      badge: 'Best Seller',
-    },
-    {
-      name: 'Ultimate Stash Pocket 7/8 Tight',
-      slug: 'ultimate-stash-tight',
-      skuCode: 'ATH-ULT-TGT',
-      description:
-        '<p>Our max-support training tight in compressive Contender™ knit with a sweat-wicking finish, wide waistband and drop-in side pockets that hold your phone through burpees.</p>',
-      category: 'bottoms',
-      sizes: APPAREL, colors: ['Onyx', 'Slate'],
-      images: [
-        { fileName: 'ultimate-stash-tight-1.jpg', url: unsplash('photo-1552902865-b72c031ac5ea') },
-        { fileName: 'ultimate-stash-tight-2.jpg', url: unsplash('photo-1518611012118-696072aa579a') },
-      ],
-      nepalPrice: 950000, hongKongPrice: 74000, nepalStock: 18, hongKongStock: 14,
-      discountPercent: 20, promoLabel: 'Price as Marked', badge: 'Just Reduced',
-    },
-    {
-      name: 'Rainier Fleece Jogger',
-      slug: 'rainier-jogger',
-      skuCode: 'ATH-RNR-JOG',
-      description:
-        '<p>The weekend jogger in soft brushed-back fleece with a tapered leg, ribbed cuffs and a tonal drawcord waist. Structured enough for the café, soft enough for the couch.</p>',
-      category: 'bottoms',
-      sizes: APPAREL, colors: ['Sandstone', 'Onyx'],
-      images: [
-        { fileName: 'rainier-jogger-1.jpg', url: unsplash('photo-1594633312681-425c7b97ccd1') },
-        { fileName: 'rainier-jogger-2.jpg', url: unsplash('photo-1556905055-8f358a7a47b2') },
-      ],
-      nepalPrice: 850000, hongKongPrice: 66000, nepalStock: 16, hongKongStock: 12,
-    },
-    {
-      name: 'Brooklyn Ankle Pant',
-      slug: 'brooklyn-ankle-pant',
-      skuCode: 'ATH-BRK-PNT',
-      description:
-        '<p>The travel-ready trouser that works as hard as you do — wrinkle-resistant recycled stretch-nylon with a clean ankle crop, zip pockets and an all-day comfort waistband.</p>',
-      category: 'bottoms',
-      sizes: APPAREL, colors: ['Onyx', 'Espresso', 'Sandstone'],
-      images: [
-        { fileName: 'brooklyn-ankle-pant-1.jpg', url: unsplash('photo-1624378439575-d8705ad7ae80') },
-        { fileName: 'brooklyn-ankle-pant-2.jpg', url: unsplash('photo-1516762689617-e1cffcef479d') },
-      ],
-      nepalPrice: 950000, hongKongPrice: 74000, nepalStock: 14, hongKongStock: 10,
-    },
-    {
-      name: 'GapFit Recycled Bike Short',
-      slug: 'gapfit-bike-short',
-      skuCode: 'GAP-FIT-SHT',
-      description:
-        '<p>A 20cm bike short in sweat-wicking recycled poly-stretch with a high, no-dig waistband and a hidden waist pocket. Squat-proof coverage for studio, spin and street.</p>',
-      category: 'bottoms',
-      sizes: APPAREL, colors: ['Onyx', 'Slate'],
-      images: [
-        { fileName: 'gapfit-bike-short-1.jpg', url: unsplash('photo-1518310383802-640c2de311b2') },
-        { fileName: 'gapfit-bike-short-2.jpg', url: unsplash('photo-1544367567-0f2fcb009e0b') },
-      ],
-      nepalPrice: 450000, hongKongPrice: 35000, nepalStock: 28, hongKongStock: 22,
-      discountPercent: 30, promoLabel: 'Extra 30% Off at Checkout',
-    },
-    {
-      name: 'Elation 7/8 Tight',
-      slug: 'elation-tight',
-      skuCode: 'ATH-ELA-TGT',
-      description:
-        '<p>Our lightest, most breathable studio tight in airy Elation™ knit with a smoothing high waist and a barely-there feel. Made to disappear the moment you put it on.</p>',
-      category: 'bottoms',
-      sizes: APPAREL, colors: ['Onyx', 'Soft Sage'],
-      images: [
-        { fileName: 'elation-tight-1.jpg', url: unsplash('photo-1518611012118-696072aa579a') },
-        { fileName: 'elation-tight-2.jpg', url: unsplash('photo-1552902865-b72c031ac5ea') },
-      ],
-      nepalPrice: 920000, hongKongPrice: 72000, nepalStock: 18, hongKongStock: 14,
-    },
-    // ── Accessories ─────────────────────────────────────────────────────────
-    {
-      name: 'All About Crossbody Bag',
-      slug: 'all-about-crossbody',
-      skuCode: 'ATH-AAB-BAG',
-      description:
-        '<p>The grab-and-go crossbody in water-resistant recycled ripstop, with a smooth-glide zip, interior organization and an adjustable strap that wears sling or shoulder.</p>',
-      category: 'accessories',
-      sizes: ONE_SIZE, colors: ['Onyx', 'Sandstone'],
-      images: [
-        { fileName: 'all-about-crossbody-1.jpg', url: unsplash('photo-1553062407-98eeb64c6a62') },
-        { fileName: 'all-about-crossbody-2.jpg', url: unsplash('photo-1606522754091-a3bbf9ad4cb3') },
-      ],
-      nepalPrice: 550000, hongKongPrice: 43000, nepalStock: 22, hongKongStock: 18,
-    },
-    // ── Sets ────────────────────────────────────────────────────────────────
-    {
-      name: 'Studio Bra + Tight Set',
-      slug: 'studio-bra-tight-set',
-      skuCode: 'ATH-STU-SET',
-      description:
-        '<p>The matched studio set — a medium-support bra and high-rise 7/8 tight in coordinating Powervita™ knit. Buy it together, wear it everywhere.</p>',
-      category: 'sets',
-      sizes: APPAREL, colors: ['Onyx', 'Soft Sage'],
-      images: [
-        { fileName: 'studio-bra-tight-set-1.jpg', url: unsplash('photo-1544367567-0f2fcb009e0b') },
-        { fileName: 'studio-bra-tight-set-2.jpg', url: unsplash('photo-1518611012118-696072aa579a') },
-      ],
-      nepalPrice: 1290000, hongKongPrice: 99000, nepalStock: 12, hongKongStock: 10,
-      badge: 'New',
-    },
-  ];
-
-  for (const item of catalog) {
-    const { category, ...productInput } = item;
-    const tags = PRODUCT_TAGS[item.slug];
-    const facetValueIds = [facetValue(categories, category)];
-    if (tags) {
-      facetValueIds.push(facetValue(activity, tags.activity), facetValue(material, tags.material));
-    }
-    await ensureProduct(ctx, {
-      ...productInput,
-      facetValueIds,
-      fitAndFabric: FIT_AND_FABRIC[category] ?? FIT_AND_FABRIC.default,
+      sizes: product.oneSize ? oneSizeRun : apparelSizes,
+      colors: product.colors,
+      imageSpecs: productImageSpecs(product),
+      nepalPrice: product.priceNpr,
+      hongKongPrice: product.priceHkd,
+      nepalStock: product.stockNepal,
+      hongKongStock: product.stockHongKong,
+      badge: product.badge,
     });
-    console.log(`Seeded product: ${item.slug}`);
+    productIdBySlug.set(product.slug, id);
+    console.log(`Seeded product: ${product.slug}`);
   }
 
-  // Collections power "Shop by Category" on the storefront (one per "categories" facet value).
   const channelIds = [nepalChannel.id, hongKongChannel.id];
-  await ensureCollection({
-    slug: 'tops', name: 'Tops',
-    description: 'Tanks, tees, bras, sweatshirts and layers — engineered to move from studio to street.',
-    filters: facetValueFilter([facetValue(categories, 'tops')]), channelIds,
-  });
-  await ensureCollection({
-    slug: 'bottoms', name: 'Bottoms',
-    description: 'Tights, joggers, shorts and travel pants in our signature sculpting, sweat-wicking knits.',
-    filters: facetValueFilter([facetValue(categories, 'bottoms')]), channelIds,
-  });
-  await ensureCollection({
-    slug: 'accessories', name: 'Accessories',
-    description: 'Bags and carry-alls built to move from the mat to the commute.',
-    filters: facetValueFilter([facetValue(categories, 'accessories')]), channelIds,
-  });
-  await ensureCollection({
-    slug: 'sets', name: 'Sets',
-    description: 'Coordinated bra-and-tight sets — buy them together, wear them everywhere.',
-    filters: facetValueFilter([facetValue(categories, 'sets')]), channelIds,
-  });
 
-  // The Spotlight is a hand-curated capsule (product-id filter, not facet-based) — a
-  // rotating edit featured identically on every storefront. See apps/strapi's "spotlight"
-  // singleton for the copy shown alongside it.
-  const spotlightSlugs = ['salutation-stash-tight', 'coaster-luxe-sweatshirt', 'farallon-hybrid-jacket'];
-  const spotlightProductIds: string[] = [];
-  for (const slug of spotlightSlugs) {
-    const product = await productExists(slug);
-    if (product) spotlightProductIds.push(product.id);
+  // Category collections (garment type) — power the nav + "Shop by category" grid. Only categories
+  // that actually have products are created.
+  const CATEGORY_COLLECTIONS = [
+    { slug: 'tops', name: 'Tops', description: 'Bras, bodysuits, tanks and layers — engineered to move from studio to street.' },
+    { slug: 'bottoms', name: 'Bottoms', description: 'Leggings, flares, shorts and cargos in our naked-feel, sculpting knits.' },
+    { slug: 'sets', name: 'Sets', description: 'Coordinated sets, unitards and jumpsuits — buy them together, wear them everywhere.' },
+    { slug: 'dresses', name: 'Dresses', description: 'Slip dresses, lounge maxis and the tennis dress — one-and-done, elevated.' },
+    { slug: 'swim', name: 'Swim', description: 'Bikinis and one-pieces in smooth, quick-dry swim knits — mix, match, done.' },
+  ] as const;
+  for (const collection of CATEGORY_COLLECTIONS) {
+    if (!PRODUCTS.some((product) => product.category === collection.slug)) continue;
+    await ensureCollection({
+      slug: collection.slug,
+      name: collection.name,
+      description: collection.description,
+      filters: facetValueFilter([facetValue(categories, collection.slug)]),
+      channelIds,
+    });
   }
-  await ensureCollection({
-    slug: 'spotlight', name: 'Spotlight',
-    description: '',
-    filters: productIdFilter(spotlightProductIds), channelIds,
-  });
 
-  // New Arrivals — a hand-curated capsule of the latest pieces (product-id filter, like
-  // the Spotlight), shown in the home-page rail below the brand story. Vendure owns which
-  // products belong here and prices them per channel; the copy shown alongside lives in
-  // apps/strapi's "new-arrival" singleton.
-  const newArrivalSlugs = [
-    'salutation-stash-tank',
-    'momentum-seamless-tee',
-    'renew-studio-tee',
-    'brooklyn-ankle-pant',
-    'elation-tight',
-    'rainier-jogger',
-    'gap-vintage-soft-tee',
-    'studio-bra-tight-set',
-  ];
-  const newArrivalProductIds: string[] = [];
-  for (const slug of newArrivalSlugs) {
-    const product = await productExists(slug);
-    if (product) newArrivalProductIds.push(product.id);
+  // Merchandising collections (persona taxonomy) — mapped by explicit product ids from each
+  // product's `collections` list, so curation lives in one place (persona.ts).
+  for (const collection of COLLECTIONS) {
+    const ids = PRODUCTS.filter((product) => product.collections.includes(collection.slug))
+      .map((product) => productIdBySlug.get(product.slug))
+      .filter((id): id is string => Boolean(id));
+    if (ids.length === 0) continue;
+    await ensureCollection({
+      slug: collection.slug,
+      name: collection.name,
+      description: collection.description,
+      filters: productIdFilter(ids),
+      channelIds,
+    });
   }
-  await ensureCollection({
-    slug: 'new-arrivals', name: 'New Arrivals',
-    description: 'The latest pieces to land — fresh cuts and restocks, ready before they’re gone.',
-    filters: productIdFilter(newArrivalProductIds), channelIds,
-  });
+
+  // Spotlight — a hand-curated capsule of the current best-sellers (product-id filter).
+  const spotlightIds = PRODUCTS.filter((product) => product.badge === 'Best Seller')
+    .map((product) => productIdBySlug.get(product.slug))
+    .filter((id): id is string => Boolean(id));
+  if (spotlightIds.length) {
+    await ensureCollection({
+      slug: 'spotlight',
+      name: 'Spotlight',
+      description: 'A rotating edit of the pieces we can’t keep in stock.',
+      filters: productIdFilter(spotlightIds),
+      channelIds,
+    });
+  }
+
 
   // Rebuild the per-channel search index so search/filters see everything above.
   for (const token of ['nepal', 'hongkong']) {

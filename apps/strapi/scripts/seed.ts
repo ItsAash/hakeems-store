@@ -71,11 +71,11 @@ async function seedSiteSetting(strapi: Core.Strapi) {
   // See the comment on upsertAndPublish above re: `any` for hand-written seed literals.
   const data: any = {
     siteName: 'Hakeems',
-    tagline: 'Community streetwear, designed in Kathmandu.',
+    tagline: 'Premium women’s activewear, designed in Kathmandu.',
     defaultSeo: {
-      metaTitle: 'Hakeems — Community Streetwear',
+      metaTitle: 'Hakeems — Premium Women’s Activewear',
       metaDescription:
-        'Streetwear designed in Kathmandu, worn in Nepal and Hong Kong. Small-batch drops, real fabric, built for the pop-up and the street.',
+        'Premium women’s activewear designed in Kathmandu, worn in Nepal and Hong Kong. Naked-feel leggings, seamless bras, yoga sets and layers engineered to move.',
     },
     socialLinks: [
       { platform: 'instagram', url: 'https://instagram.com/hakeems' },
@@ -106,14 +106,17 @@ async function seedSiteNavs(strapi: Core.Strapi) {
   const shopChildren = [
     { label: 'Tops', href: '/collections/tops' },
     { label: 'Bottoms', href: '/collections/bottoms' },
-    { label: 'Accessories', href: '/collections/accessories' },
+    { label: 'Dresses', href: '/collections/dresses' },
     { label: 'Sets', href: '/collections/sets' },
+    { label: 'Swim', href: '/collections/swim' },
   ];
   const items = [
-    { label: 'Spotlight', href: '/collections/spotlight' },
+    { label: 'New Arrivals', href: '/collections/new-arrivals' },
     // "Shop" is the explicit full-catalog entry point (/shop). Its children are category
     // entry points, which each go to their Collection page.
     { label: 'Shop', href: '/shop', children: shopChildren },
+    { label: 'Shape & Sculpt', href: '/collections/shape-and-sculpt' },
+    { label: 'Studio & Yoga', href: '/collections/studio-and-yoga' },
     { label: 'Our Story', href: '/story' },
   ];
 
@@ -246,83 +249,106 @@ Need a different size or colour? Start a return and place a new order — it's t
  * skipped with a warning rather than faked.
  */
 async function seedCollectionPages(strapi: Core.Strapi) {
-  const heroTops = await uploadImage(strapi, unsplash('photo-1445205170230-053b83016050', 'w=1600&h=900&fit=crop&q=80'), 'collection-tops.jpg');
-  const heroBottoms = await uploadImage(strapi, unsplash('photo-1560243563-062bfc001d68', 'w=1600&h=900&fit=crop&q=80'), 'collection-bottoms.jpg');
-  const heroAccessories = await uploadImage(strapi, unsplash('photo-1606522754091-a3bbf9ad4cb3', 'w=1600&h=900&fit=crop&q=80'), 'collection-accessories.jpg');
-  const heroSets = await uploadImage(strapi, unsplash('photo-1487222477894-8943e31ef7b2', 'w=1600&h=900&fit=crop&q=80'), 'collection-sets.jpg');
-  const heroSpotlight = await uploadImage(strapi, unsplash('photo-1571945153237-4929e783af4a', 'w=1600&h=900&fit=crop&q=80'), 'collection-spotlight.jpg');
+  // collection-page requires the Vendure collection id (vendureId). Resolve it live from the
+  // Vendure shop API (public, no auth) so we can create the editorial page even when the
+  // Vendure→Strapi sync webhook hasn't run. The Vendure seed must have created the collections.
+  const vendureUrl = process.env.VENDURE_SHOP_API_URL || 'http://localhost:3000/shop-api';
+  const idBySlug = new Map<string, string>();
+  try {
+    const res = await fetch(vendureUrl, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'vendure-token': 'nepal' },
+      body: JSON.stringify({ query: '{ collections(options: { take: 100 }) { items { id slug } } }' }),
+    });
+    const json: any = await res.json();
+    for (const c of json?.data?.collections?.items ?? []) idBySlug.set(c.slug, String(c.id));
+  } catch {
+    console.warn('Could not reach Vendure to resolve collection ids — is the server running?');
+  }
 
-  const enrichments: Array<{ vendureCollectionSlug: string; data: Record<string, unknown> }> = [
-    {
-      vendureCollectionSlug: 'tops',
-      data: {
-        title: 'Tops',
-        tagline: 'Tees, sweats, hoodies and overshirts',
-        description: 'Tees, sweats, hoodies and overshirts — the upper half of every Hakeems fit.',
-        heroImage: heroTops,
-        featured: false,
-        sortOrder: 1,
-      },
-    },
-    {
-      vendureCollectionSlug: 'bottoms',
-      data: {
-        title: 'Bottoms',
-        tagline: 'Utility pants, joggers and denim',
-        description: 'Utility pants, joggers and denim built for the street and the stage.',
-        heroImage: heroBottoms,
-        featured: false,
-        sortOrder: 2,
-      },
-    },
-    {
-      vendureCollectionSlug: 'accessories',
-      data: {
-        title: 'Accessories',
-        tagline: 'Totes, slings and caps',
-        description: 'Totes, slings and caps — the pieces that finish the fit.',
-        heroImage: heroAccessories,
-        featured: false,
-        sortOrder: 3,
-      },
-    },
-    {
-      vendureCollectionSlug: 'sets',
-      data: {
-        title: 'Sets',
-        tagline: 'Matching pieces, worn together',
-        description: 'Matching pieces, worn together.',
-        heroImage: heroSets,
-        featured: false,
-        sortOrder: 4,
-      },
-    },
-    {
-      vendureCollectionSlug: 'spotlight',
-      data: {
-        title: 'Spotlight',
-        tagline: 'This week, front row',
-        description: 'A rotating edit of the pieces we’re wearing most right now — pulled from every drop, restocked while they last.',
-        heroImage: heroSpotlight,
-        featured: true,
-        sortOrder: 5,
-      },
-    },
+  // Known-good activewear imagery (same Unsplash ids the Vendure seed already fetched).
+  const h = async (id: string, name: string) => uploadImage(strapi, unsplash(id, 'w=1600&h=900&fit=crop&q=80'), name);
+  const heroNew = await h('photo-1552902865-b72c031ac5ea', 'collection-new-arrivals.jpg');
+  const heroShape = await h('photo-1571945153237-4929e783af4a', 'collection-shape.jpg');
+  const heroPerf = await h('photo-1556905055-8f358a7a47b2', 'collection-performance.jpg');
+  const heroStudio = await h('photo-1618354691373-d851c5c3a990', 'collection-studio.jpg');
+  const heroOuter = await h('photo-1624378439575-d8705ad7ae80', 'collection-outerwear.jpg');
+  const heroLounge = await h('photo-1620799140408-edc6dcb6d633', 'collection-loungewear.jpg');
+  const heroTops = await h('photo-1583743814966-8936f5b7be1a', 'collection-tops.jpg');
+  const heroBottoms = await h('photo-1594633312681-425c7b97ccd1', 'collection-bottoms.jpg');
+  const heroSets = await h('photo-1591047139829-d91aecb6caea', 'collection-sets.jpg');
+  const heroDress = await h('photo-1503341504253-dff4815485f1', 'collection-dresses.jpg');
+  const heroSwim = await h('photo-1516762689617-e1cffcef479d', 'collection-swim.jpg');
+
+  const pages = [
+    { slug: 'spotlight', title: 'Spotlight', tagline: 'This week, front row', hero: heroNew, featured: true, sortOrder: 0,
+      description: 'A rotating edit of the pieces we can’t keep in stock — our current best-sellers, restocked while they last.',
+      metaTitle: 'Spotlight — Best-Selling Activewear | Hakeems', metaDescription: 'Our current best-sellers — the women’s activewear pieces everyone’s wearing right now.' },
+    { slug: 'new-arrivals', title: 'New Arrivals', tagline: 'The latest drop', hero: heroNew, featured: true, sortOrder: 1,
+      description: 'Fresh silhouettes, seasonal colour and first access to everything that just landed.',
+      metaTitle: 'New Arrivals — Women’s Activewear | Hakeems', metaDescription: 'Shop the latest women’s activewear from Hakeems — new leggings, bras, sets and layers, fresh off the drop.' },
+    { slug: 'shape-and-sculpt', title: 'Shape & Sculpt', tagline: 'Sculpt & support, invisibly', hero: heroShape, featured: true, sortOrder: 1,
+      description: 'Second-skin bodysuits and smoothing shapewear that sculpt and support under everything you wear.',
+      metaTitle: 'Shape & Sculpt — Bodysuits & Shapewear | Hakeems', metaDescription: 'Second-skin bodysuits and smoothing shapewear that sculpt and support, invisibly — the elevated base layer for any look.' },
+    { slug: 'performance-essentials', title: 'Performance Essentials', tagline: 'Engineered to move', hero: heroPerf, featured: true, sortOrder: 2,
+      description: 'The train-day core: bras, tights, tanks and shorts built to move with you, rep after rep.',
+      metaTitle: 'Performance Essentials — Training Wear | Hakeems', metaDescription: 'Sweat-wicking, squat-proof training essentials — sports bras, leggings, shorts and tanks engineered to perform.' },
+    { slug: 'studio-and-yoga', title: 'Studio & Yoga', tagline: 'Second-skin softness', hero: heroStudio, featured: true, sortOrder: 3,
+      description: 'Buttery-soft, second-skin pieces for the mat and the flow — seamless bras, tees, flares and sets.',
+      metaTitle: 'Studio & Yoga — Women’s Yoga Wear | Hakeems', metaDescription: 'Buttery-soft yoga and studio wear — seamless bras, tees, flares and matching sets designed for the mat.' },
+    { slug: 'outerwear-and-layers', title: 'Outerwear & Layers', tagline: 'Wind, chill & transit-proof', hero: heroOuter, featured: false, sortOrder: 4,
+      description: 'Shells, half-zips and travel layers that take you from cold starts to the commute.',
+      metaTitle: 'Outerwear & Layers — Activewear | Hakeems', metaDescription: 'Water-resistant jackets, base layers and travel pieces — wind-, chill- and transit-proof layers.' },
+    { slug: 'loungewear', title: 'Loungewear', tagline: 'Off-duty softness', hero: heroLounge, featured: false, sortOrder: 5,
+      description: 'Brushed-soft joggers, hoodies and sets — the pieces you live in between sessions.',
+      metaTitle: 'Loungewear — Women’s | Hakeems', metaDescription: 'Off-duty softness — brushed-fleece joggers, hoodies and matching lounge sets for rest days and travel.' },
+    { slug: 'tops', title: 'Tops', tagline: 'Bras, tanks, tees & layers', hero: heroTops, featured: false, sortOrder: 6,
+      description: 'From seamless sports bras to breathable tanks and cropped long-sleeves — the upper half, sorted.',
+      metaTitle: 'Women’s Activewear Tops — Bras & Tanks | Hakeems', metaDescription: 'Women’s activewear tops — sports bras, tanks, seamless tees, long-sleeves and layers built to move.' },
+    { slug: 'bottoms', title: 'Bottoms', tagline: 'Leggings, shorts & joggers', hero: heroBottoms, featured: false, sortOrder: 7,
+      description: 'Naked-feel leggings, bike shorts, flares and travel pants in our sculpting, sweat-wicking knits.',
+      metaTitle: 'Women’s Leggings & Shorts — Bottoms | Hakeems', metaDescription: 'Naked-feel high-rise leggings, bike shorts, yoga flares and travel pants — squat-proof and sweat-wicking.' },
+    { slug: 'sets', title: 'Sets', tagline: 'Matching, made easy', hero: heroSets, featured: false, sortOrder: 8,
+      description: 'Coordinated bra-and-legging sets and one-pieces — buy them together, wear them everywhere.',
+      metaTitle: 'Matching Activewear Sets — Women’s | Hakeems', metaDescription: 'Coordinated women’s activewear sets — matching bra-and-legging sets, yoga sets and unitards.' },
+    { slug: 'dresses', title: 'Dresses', tagline: 'One-and-done, elevated', hero: heroDress, featured: true, sortOrder: 9,
+      description: 'Ribbed slip dresses, lounge maxis and the built-in tennis dress — effortless, sculpted one-pieces.',
+      metaTitle: 'Women’s Dresses — Slip, Lounge & Tennis | Hakeems', metaDescription: 'Elevated one-piece dresses — ribbed slip dresses, lounge maxis, satin slips and the built-in tennis dress.' },
+    { slug: 'swim', title: 'Swim', tagline: 'Mix, match, done', hero: heroSwim, featured: true, sortOrder: 10,
+      description: 'Bikinis and one-pieces in a smooth, quick-dry swim knit — mix-and-match tops and bottoms.',
+      metaTitle: 'Women’s Swimwear — Bikinis & One-Pieces | Hakeems', metaDescription: 'Smooth, quick-dry women’s swimwear — triangle and halter bikinis and sculpting one-pieces, made to mix and match.' },
   ];
 
   const uid = 'api::collection-page.collection-page';
-  let enriched = 0;
-  for (const { vendureCollectionSlug, data } of enrichments) {
-    const existing = await strapi.documents(uid).findFirst({ filters: { vendureCollectionSlug }, status: 'draft' });
-    if (!existing) {
-      console.warn(`Skipping "${vendureCollectionSlug}": no synced collection-page yet (has Vendure's seed run and pushed it?)`);
+  let count = 0;
+  for (const page of pages) {
+    const vendureId = idBySlug.get(page.slug);
+    if (!vendureId) {
+      console.warn(`Skipping "${page.slug}": no matching Vendure collection (run the Vendure seed first).`);
       continue;
     }
-    await strapi.documents(uid).update({ documentId: existing.documentId, data });
-    await strapi.documents(uid).publish({ documentId: existing.documentId });
-    enriched += 1;
+    const data: any = {
+      vendureId,
+      vendureCollectionSlug: page.slug,
+      title: page.title,
+      tagline: page.tagline,
+      description: page.description,
+      heroImage: page.hero,
+      featured: page.featured,
+      sortOrder: page.sortOrder,
+      seo: { metaTitle: page.metaTitle, metaDescription: page.metaDescription },
+    };
+    const existing = await strapi.documents(uid).findFirst({ filters: { vendureCollectionSlug: page.slug }, status: 'draft' });
+    if (existing) {
+      await strapi.documents(uid).update({ documentId: existing.documentId, data });
+      await strapi.documents(uid).publish({ documentId: existing.documentId });
+    } else {
+      const created = await strapi.documents(uid).create({ data });
+      await strapi.documents(uid).publish({ documentId: created.documentId });
+    }
+    count += 1;
   }
-  console.log(`Enriched ${enriched}/${enrichments.length} collection-page entries`);
+  console.log(`Seeded ${count}/${pages.length} collection-pages`);
 }
 
 /**
@@ -334,12 +360,14 @@ async function seedBrandStory(strapi: Core.Strapi) {
   const storyImage = await uploadImage(strapi, unsplash('photo-1441986300917-64674bd600d8', 'w=1400&h=1120&fit=crop&q=80'), 'brand-story.jpg');
   const data: any = {
     eyebrow: 'The Brand',
-    heading: 'Not made in a boardroom.',
+    heading: 'Made to move with you.',
     paragraphs: [
       {
-        text: 'Hakeems started as a pop-up table at a Kathmandu street event and grew into a full collection without losing that instinct — small batches, real fabric, and pieces built to survive an actual event, not just a lookbook.',
+        text: 'Hakeems designs premium women’s activewear from a small studio in Kathmandu — naked-feel fabrics, seamless construction and considered fits, tested in real training, real flows and real life, not just a lookbook.',
       },
-      { text: 'Every drop is unisex by design. Fit and gender are personal choices, not aisles you have to pick a side of.' },
+      {
+        text: 'We build in small, sustainable batches with recycled and organic fibres, so every piece earns its place in your rotation — supportive on the hardest days, soft enough to live in on the rest.',
+      },
     ],
     image: storyImage,
   };
@@ -358,13 +386,13 @@ async function seedBrandStory(strapi: Core.Strapi) {
 const CHANNEL_ANNOUNCEMENTS: Record<'nepal' | 'hongkong', Array<{ text: string }>> = {
   nepal: [
     { text: 'FREE SHIPPING WITHIN KATHMANDU VALLEY ON ORDERS OVER NPR 5,000' },
-    { text: 'NEW DROP — SS26 NOW AVAILABLE' },
-    { text: 'POP-UP AT JAWALAKHEL — EVERY LAST SATURDAY' },
+    { text: 'NEW ARRIVALS — THE SS26 ACTIVEWEAR EDIT IS HERE' },
+    { text: 'FREE RETURNS WITHIN 14 DAYS' },
   ],
   hongkong: [
     { text: 'FREE HK ISLAND DELIVERY ON ORDERS OVER HKD 800' },
-    { text: 'NEW DROP — SS26 NOW AVAILABLE' },
-    { text: 'POP-UP AT PMQ — FIRST WEEKEND OF EVERY MONTH' },
+    { text: 'NEW ARRIVALS — THE SS26 ACTIVEWEAR EDIT IS HERE' },
+    { text: 'FREE RETURNS WITHIN 14 DAYS' },
   ],
 };
 
@@ -375,76 +403,53 @@ const CHANNEL_ANNOUNCEMENTS: Record<'nepal' | 'hongkong', Array<{ text: string }
  * them straight in Strapi afterwards with no code change needed.
  */
 async function seedPages(strapi: Core.Strapi) {
-  const tileTops = await uploadImage(strapi, unsplash('photo-1445205170230-053b83016050', 'w=1200&h=1500&fit=crop&q=80'), 'tile-tops.jpg');
-  const tileBottoms = await uploadImage(strapi, unsplash('photo-1560243563-062bfc001d68', 'w=1200&h=1500&fit=crop&q=80'), 'tile-bottoms.jpg');
-  const tileAccessories = await uploadImage(strapi, unsplash('photo-1606522754091-a3bbf9ad4cb3', 'w=1200&h=1500&fit=crop&q=80'), 'tile-accessories.jpg');
-  const tileEssentials = await uploadImage(strapi, unsplash('photo-1487222477894-8943e31ef7b2', 'w=1200&h=1500&fit=crop&q=80'), 'tile-essentials.jpg');
+  const tileTops = await uploadImage(strapi, unsplash('photo-1583743814966-8936f5b7be1a', 'w=1200&h=1500&fit=crop&q=80'), 'tile-tops.jpg');
+  const tileBottoms = await uploadImage(strapi, unsplash('photo-1594633312681-425c7b97ccd1', 'w=1200&h=1500&fit=crop&q=80'), 'tile-bottoms.jpg');
+  const tileSets = await uploadImage(strapi, unsplash('photo-1591047139829-d91aecb6caea', 'w=1200&h=1500&fit=crop&q=80'), 'tile-sets.jpg');
+  const tileDresses = await uploadImage(strapi, unsplash('photo-1503341504253-dff4815485f1', 'w=1200&h=1500&fit=crop&q=80'), 'tile-dresses.jpg');
+  const tileSwim = await uploadImage(strapi, unsplash('photo-1516762689617-e1cffcef479d', 'w=1200&h=1500&fit=crop&q=80'), 'tile-swim.jpg');
   const facetCategoryTiles = [
-    { vendureFacetValueCode: 'categories:tops', label: 'Tops', tagline: 'Tees, sweats, hoodies & overshirts', image: tileTops },
-    { vendureFacetValueCode: 'categories:bottoms', label: 'Bottoms', tagline: 'Utility pants, joggers & denim', image: tileBottoms },
-    { vendureFacetValueCode: 'categories:accessories', label: 'Accessories', tagline: 'Totes, slings & caps', image: tileAccessories },
-    { vendureFacetValueCode: 'categories:sets', label: 'Sets', tagline: 'Matching pieces, worn together', image: tileEssentials },
+    { vendureFacetValueCode: 'categories:tops', label: 'Tops', tagline: 'Bras, bodysuits & layers', image: tileTops },
+    { vendureFacetValueCode: 'categories:bottoms', label: 'Bottoms', tagline: 'Leggings, flares & cargos', image: tileBottoms },
+    { vendureFacetValueCode: 'categories:dresses', label: 'Dresses', tagline: 'Slip, lounge & tennis', image: tileDresses },
+    { vendureFacetValueCode: 'categories:sets', label: 'Sets', tagline: 'Matching, made easy', image: tileSets },
+    { vendureFacetValueCode: 'categories:swim', label: 'Swim', tagline: 'Bikinis & one-pieces', image: tileSwim },
   ];
 
-  const heroBlockUp = await uploadImage(strapi, unsplash('photo-1558769132-cb1aea458c5e'), 'hero-block-up.jpg');
-  const heroEssentials = await uploadImage(strapi, unsplash('photo-1487222477894-8943e31ef7b2'), 'hero-essentials.jpg');
-  const heroAccessories = await uploadImage(strapi, unsplash('photo-1553062407-98eeb64c6a62'), 'hero-accessories.jpg');
-  const heroBottoms = await uploadImage(strapi, unsplash('photo-1594633312681-425c7b97ccd1'), 'hero-bottoms.jpg');
+  const heroMove = await uploadImage(strapi, unsplash('photo-1552902865-b72c031ac5ea'), 'hero-move.jpg');
+  const heroStudio = await uploadImage(strapi, unsplash('photo-1556905055-8f358a7a47b2'), 'hero-studio.jpg');
+  const heroFabric = await uploadImage(strapi, unsplash('photo-1618354691373-d851c5c3a990'), 'hero-fabric.jpg');
 
+  // hrefs are channel-RELATIVE — the storefront's withChannel() adds the channel prefix once.
+  const heroSlides = [
+    {
+      image: heroMove,
+      heading: 'Made To Move',
+      subheading: 'Premium women’s activewear — naked-feel leggings, seamless bras and second-skin sets, designed in Kathmandu.',
+      ctaLabel: 'Shop New Arrivals',
+      ctaHref: '/collections/new-arrivals',
+      alt: 'Woman stretching in Hakeems activewear against a soft studio backdrop',
+    },
+    {
+      image: heroStudio,
+      heading: 'Second-Skin Softness',
+      subheading: 'Buttery-soft pieces for the mat and the flow — built to disappear the moment you move.',
+      ctaLabel: 'Shop Studio & Yoga',
+      ctaHref: '/collections/studio-and-yoga',
+      alt: 'Woman in a Hakeems yoga set on a studio floor',
+    },
+    {
+      image: heroFabric,
+      heading: 'Engineered To Perform',
+      subheading: 'Sweat-wicking, squat-proof and made to last — the train-day essentials you reach for every session.',
+      ctaLabel: 'Shop Performance',
+      ctaHref: '/collections/performance-essentials',
+      alt: 'Close-up of Hakeems performance knit activewear fabric',
+    },
+  ];
   const HERO_SLIDES: Record<'nepal' | 'hongkong', any[]> = {
-    nepal: [
-      {
-        image: heroBlockUp,
-        heading: 'Built From The Block Up',
-        subheading: 'Streetwear made with the community, for the community — designed in Kathmandu, worn from Jhamsikhel to Jomsom.',
-        ctaLabel: 'Shop The Spotlight',
-        ctaHref: '/nepal/collections/spotlight',
-        alt: 'Model wearing Hakeems streetwear on a Kathmandu rooftop at golden hour',
-      },
-      {
-        image: heroEssentials,
-        heading: 'Worn Daily, Made To Last',
-        subheading: 'Core pieces we cut in every drop and restock season after season.',
-        ctaLabel: 'Shop Tops',
-        ctaHref: '/nepal/collections/tops',
-        alt: 'Folded Hakeems everyday tees and sweats in core neutral tones',
-      },
-      {
-        image: heroAccessories,
-        heading: 'Finish The Fit',
-        subheading: 'Totes, slings and caps — the details that make the difference, from the pop-up to the street.',
-        ctaLabel: 'Shop Accessories',
-        ctaHref: '/nepal/collections/accessories',
-        alt: 'Hakeems canvas tote, sling pack and cap arranged on a concrete surface',
-      },
-    ],
-    hongkong: [
-      {
-        image: heroBlockUp,
-        heading: 'Built From The Block Up',
-        subheading:
-          'Streetwear made with the community, for the community — designed in Kathmandu, cut for Hong Kong humidity and harbour nights.',
-        ctaLabel: 'Shop The Spotlight',
-        ctaHref: '/hongkong/collections/spotlight',
-        alt: 'Model in Hakeems streetwear against a Hong Kong harbour skyline at night',
-      },
-      {
-        image: heroEssentials,
-        heading: 'Worn Daily, Made To Last',
-        subheading: 'Core pieces we cut in every drop and restock season after season.',
-        ctaLabel: 'Shop Tops',
-        ctaHref: '/hongkong/collections/tops',
-        alt: 'Folded Hakeems everyday tees and sweats in core neutral tones',
-      },
-      {
-        image: heroBottoms,
-        heading: 'Built To Move',
-        subheading: 'Utility pants, joggers and denim, cut for the street and the stage — Hong Kong humidity included.',
-        ctaLabel: 'Shop Bottoms',
-        ctaHref: '/hongkong/collections/bottoms',
-        alt: 'Model wearing Hakeems utility pants and joggers on a city street',
-      },
-    ],
+    nepal: heroSlides,
+    hongkong: heroSlides,
   };
 
   for (const channel of ['nepal', 'hongkong'] as const) {
