@@ -14,7 +14,6 @@
     "build": "pnpm --filter @hakeems/vendure build && pnpm --filter @hakeems/strapi build && pnpm --filter @hakeems/storefront build",
     "seed": "pnpm --filter @hakeems/vendure seed && pnpm --filter @hakeems/strapi seed",
     "seed:production": "pnpm --filter @hakeems/vendure exec tsx ../../scripts/seed-production.ts",
-    "images": "pnpm --filter @hakeems/vendure exec tsx ../../scripts/generate-catalog-images.ts",
     "purge": "pnpm --filter @hakeems/strapi purge && pnpm --filter @hakeems/vendure purge",
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down"

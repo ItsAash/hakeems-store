@@ -54,9 +54,6 @@ apps/vendure/static/assets/
 apps/vendure/.vendure/
 apps/vendure/static/email/test-emails/
 
-# Generated catalogue imagery cache (image pipeline output — regenerate with `pnpm images`)
-scripts/data/generated-images/
-
 # TypeScript incremental build cache
 *.tsbuildinfo
 
