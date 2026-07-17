@@ -14,7 +14,7 @@ import {
   orderConfirmationHandler,
   passwordResetHandler,
 } from '@vendure/email-plugin';
-import { AssetServerPlugin } from '@vendure/asset-server-plugin';
+import { AssetServerPlugin, configureS3AssetStorage } from '@vendure/asset-server-plugin';
 import { DashboardPlugin } from '@vendure/dashboard/plugin';
 import { GraphiqlPlugin } from '@vendure/graphiql-plugin';
 import { StripePlugin } from '@vendure/payments-plugin/package/stripe';
@@ -110,6 +110,22 @@ export const config: VendureConfig = {
       route: 'assets',
       assetUploadDir: path.join(__dirname, '../static/assets'),
       assetUrlPrefix: IS_DEV ? undefined : 'https://www.hakeems.local/assets/',
+      // Falls back to local disk storage when S3_BUCKET isn't set.
+      storageStrategyFactory: process.env.S3_BUCKET
+        ? configureS3AssetStorage({
+            bucket: process.env.S3_BUCKET,
+            credentials: {
+              accessKeyId: process.env.S3_ACCESS_KEY_ID!,
+              secretAccessKey: process.env.S3_SECRET_ACCESS_KEY!,
+            },
+            nativeS3Configuration: {
+              endpoint: process.env.S3_ENDPOINT,
+              region: process.env.S3_REGION,
+              forcePathStyle: process.env.S3_FORCE_PATH_STYLE === 'true',
+              signatureVersion: 'v4',
+            },
+          })
+        : undefined,
     }),
     DefaultSchedulerPlugin.init(),
     DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),

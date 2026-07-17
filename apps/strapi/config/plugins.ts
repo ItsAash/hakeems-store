@@ -22,23 +22,55 @@ const deniedExecutableTypes = [
   'application/x-mach-binary',
 ];
 
-const config = ({ env }: Core.Config.Shared.ConfigParams): Core.Config.Plugin => ({
-  'users-permissions': {
-    config: {
-      jwtManagement: 'refresh',
-      sessions: {
-        httpOnly: true,
+const config = ({ env }: Core.Config.Shared.ConfigParams): Core.Config.Plugin => {
+  const s3Bucket = env('S3_BUCKET');
+
+  return {
+    'users-permissions': {
+      config: {
+        jwtManagement: 'refresh',
+        sessions: {
+          httpOnly: true,
+        },
       },
     },
-  },
-  upload: {
-    config: {
-      security: {
-        allowedTypes: allowedMediaTypes,
-        deniedTypes: deniedExecutableTypes,
+    upload: {
+      config: {
+        // Falls back to local disk storage when S3_BUCKET isn't set.
+        ...(s3Bucket
+          ? {
+              provider: 'aws-s3',
+              providerOptions: {
+                baseUrl: env('S3_CDN_BASE_URL'),
+                s3Options: {
+                  credentials: {
+                    accessKeyId: env('S3_ACCESS_KEY_ID'),
+                    secretAccessKey: env('S3_SECRET_ACCESS_KEY'),
+                  },
+                  region: env('S3_REGION'),
+                  endpoint: env('S3_ENDPOINT'),
+                  forcePathStyle: env.bool('S3_FORCE_PATH_STYLE', false),
+                  params: {
+                    // Omit ACL entirely: Railway/Tigris (like Cloudflare R2) doesn't support ACLs.
+                    ACL: undefined,
+                    Bucket: s3Bucket,
+                  },
+                },
+              },
+              actionOptions: {
+                upload: {},
+                uploadStream: {},
+                delete: {},
+              },
+            }
+          : {}),
+        security: {
+          allowedTypes: allowedMediaTypes,
+          deniedTypes: deniedExecutableTypes,
+        },
       },
     },
-  },
-});
+  };
+};
 
 export default config;
