@@ -26,6 +26,8 @@ import { ShippingZonesPlugin } from './plugins/shipping-zones/shipping-zones.plu
 import { StockManagementPlugin } from './plugins/stock-management/stock-management.plugin';
 import { CollectionSyncPlugin } from './plugins/collection-sync/collection-sync.plugin';
 import { ProductOptionSwatchPlugin } from './plugins/product-option-swatch/product-option-swatch.plugin';
+import { ProductAssetManagerPlugin } from './plugins/product-asset-manager/product-asset-manager.plugin';
+import { ProductVariantEditorPlugin } from './plugins/product-variant-editor/product-variant-editor.plugin';
 
 const IS_DEV = process.env.APP_ENV === 'dev';
 const serverPort = +(process.env.PORT || 3000);
@@ -165,6 +167,8 @@ export const config: VendureConfig = {
     StockManagementPlugin,
     ShippingZonesPlugin,
     ProductOptionSwatchPlugin,
+    ProductAssetManagerPlugin,
+    ProductVariantEditorPlugin,
     DashboardPlugin.init({
       route: 'dashboard',
       appDir: IS_DEV ? path.join(__dirname, '../dist/dashboard') : path.join(__dirname, 'dashboard'),

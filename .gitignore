@@ -57,6 +57,10 @@ apps/vendure/static/email/test-emails/
 # TypeScript incremental build cache
 *.tsbuildinfo
 
+# Local dev-only catalog scraper (not part of the app, not for distribution)
+/scrape-athleta.mjs
+/scraped-data/
+
 # macOS system files
 .DS_Store
 .DS_Store?
