@@ -109,7 +109,13 @@ export const config: VendureConfig = {
     AssetServerPlugin.init({
       route: 'assets',
       assetUploadDir: path.join(__dirname, '../static/assets'),
-      assetUrlPrefix: IS_DEV ? undefined : 'https://www.hakeems.local/assets/',
+      // When S3 storage is active, point the browser straight at the CDN gateway instead of
+      // proxying asset bytes through this Node process (which is much slower for large files).
+      assetUrlPrefix: process.env.S3_CDN_BASE_URL
+        ? `${process.env.S3_CDN_BASE_URL.replace(/\/+$/, '')}/`
+        : IS_DEV
+          ? undefined
+          : 'https://www.hakeems.local/assets/',
       // Falls back to local disk storage when S3_BUCKET isn't set.
       storageStrategyFactory: process.env.S3_BUCKET
         ? configureS3AssetStorage({
