@@ -25,30 +25,43 @@ const emptyAddress: AddressState = { streetLine1: '', postalCode: '' };
 /**
  * Checkout address step.
  *
- * Guest checkout only — Medusa customer auth hasn't been migrated off Vendure yet, so
- * unlike the old Vendure flow there's no signed-in prefill or saved-address picker here.
- * Street address + postal code are free text; province/city/area are driven entirely by
- * the cascading ShippingZonePicker below, since the shipping-zone-fulfillment provider
- * matches those exact fields by name to price "Standard Shipping" (see
+ * Contact fields pre-fill from the logged-in customer's saved data (first name, last name,
+ * email) when available. Street address + postal code are free text; province/city/area are
+ * driven entirely by the cascading ShippingZonePicker below, since the shipping-zone-fulfillment
+ * provider matches those exact fields by name to price "Standard Shipping" (see
  * apps/medusa/src/modules/shipping-zone-fulfillment/service.ts) — free-text city/province
  * fields that don't match the zone tree exactly would silently price shipping at 0.
  */
 export function AddressForm({
   channelCode,
   defaultEmail,
+  defaultFirstName,
+  defaultLastName,
+  defaultPhone,
   shippingZones,
   currencyCode,
 }: {
   channelCode: ChannelCode;
   /** Guest email fallback (e.g. from a prior guest checkout). */
   defaultEmail?: string;
+  /** Logged-in customer's saved name (if any). */
+  defaultFirstName?: string;
+  defaultLastName?: string;
+  /** Logged-in customer's saved phone (if any). */
+  defaultPhone?: string;
   /** This channel's shipping-zone tree — drives the delivery-zone picker below the address. */
   shippingZones: ZoneNode[];
   currencyCode: string;
 }) {
   const router = useRouter();
 
-  const [contact, setContact] = useState<ContactState>({ ...emptyContact, email: defaultEmail ?? '' });
+  const [contact, setContact] = useState<ContactState>({
+    ...emptyContact,
+    email: defaultEmail ?? '',
+    firstName: defaultFirstName ?? '',
+    lastName: defaultLastName ?? '',
+    phoneNumber: defaultPhone ?? '',
+  });
   const [address, setAddress] = useState<AddressState>(emptyAddress);
   const [shippingZoneId, setShippingZoneId] = useState<string | null>(null);
   const zoneRequired = (shippingZones[0]?.children?.length ?? 0) > 0;
@@ -177,7 +190,7 @@ export function AddressForm({
       <button
         type="submit"
         disabled={isSubmitting || (zoneRequired && !shippingZoneId)}
-        className="mt-1 w-full bg-[var(--color-ink)] py-4 text-sm font-medium tracking-[0.1em] text-[var(--color-paper)] uppercase transition-opacity hover:opacity-90 disabled:opacity-40"
+        className="mt-1 w-full bg-[var(--color-ink)] py-4 text-sm font-medium tracking-label text-[var(--color-paper)] uppercase transition-opacity hover:opacity-90 disabled:opacity-40"
       >
         {isSubmitting ? 'Saving…' : 'Continue to Shipping'}
       </button>

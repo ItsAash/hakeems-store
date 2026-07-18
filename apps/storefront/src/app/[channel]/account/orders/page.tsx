@@ -49,7 +49,7 @@ export default async function AccountOrdersPage({ params }: { params: Promise<{ 
                 </div>
                 <div className="flex flex-col items-end gap-0.5">
                   <span className="text-[var(--color-ink)]">{formatPrice(toMinorUnits(order.total), order.currency_code)}</span>
-                  <span className="text-xs tracking-[0.1em] text-[var(--color-ink-muted)] uppercase">
+                  <span className="text-xs tracking-label text-[var(--color-ink-muted)] uppercase">
                     {formatOrderStatus(order.fulfillment_status ?? order.status ?? '')}
                   </span>
                 </div>

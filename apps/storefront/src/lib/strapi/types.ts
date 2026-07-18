@@ -44,16 +44,16 @@ export type Seo = z.infer<typeof seoSchema>;
 export type BrandStory = z.infer<typeof brandStorySchema>;
 
 /**
- * One per Vendure collection, created and kept in sync automatically by Vendure's
- * collection-sync plugin (matched by vendureCollectionSlug) — editors only add the
- * banner/tagline/description/SEO on top of what Vendure owns.
+ * One per Medusa product collection, created and kept in sync automatically by Medusa's
+ * collection-sync subscriber (matched by collectionSlug) — editors only add the
+ * banner/tagline/description/SEO on top of what Medusa owns.
  */
 export type CollectionPage = z.infer<typeof collectionPageSchema>;
 
 /** Standalone Markdown policy page (Privacy, Terms, Shipping & Returns, …). */
 export type LegalPage = z.infer<typeof legalPageSchema>;
 
-/** Editorial Markdown panels layered onto a Vendure product's PDP (matched by slug). */
+/** Editorial Markdown panels layered onto a Medusa product's PDP (matched by handle). */
 export type ProductPage = z.infer<typeof productPageSchema>;
 
 export type NavLink = z.infer<typeof navLinkSchema>;

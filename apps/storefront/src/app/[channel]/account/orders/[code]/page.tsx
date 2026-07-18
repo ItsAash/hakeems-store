@@ -42,7 +42,7 @@ export default async function AccountOrderDetailPage({
             <p className="text-sm text-[var(--color-ink-muted)]">Placed {new Date(order.created_at).toLocaleDateString()}</p>
           )}
         </div>
-        <span className="text-xs tracking-[0.1em] text-[var(--color-ink-muted)] uppercase">
+        <span className="text-xs tracking-label text-[var(--color-ink-muted)] uppercase">
           {formatOrderStatus(order.fulfillment_status ?? order.status ?? '')}
         </span>
       </div>
@@ -90,7 +90,7 @@ export default async function AccountOrderDetailPage({
 
       {order.shipping_address && (
         <div className="border-t hairline pt-6 text-sm text-[var(--color-ink-muted)]">
-          <p className="mb-1 text-xs tracking-[0.1em] text-[var(--color-ink)] uppercase">Shipping To</p>
+          <p className="mb-1 text-xs tracking-label text-[var(--color-ink)] uppercase">Shipping To</p>
           <p>{[order.shipping_address.first_name, order.shipping_address.last_name].filter(Boolean).join(' ') || '—'}</p>
           <p>{order.shipping_address.address_1}</p>
           <p>

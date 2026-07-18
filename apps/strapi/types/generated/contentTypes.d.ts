@@ -477,7 +477,7 @@ export interface ApiCollectionPageCollectionPage
   extends Struct.CollectionTypeSchema {
   collectionName: 'collection_pages';
   info: {
-    description: 'Editorial content (banner image, tagline, copy, featured flag) for a Vendure collection. Vendure is the source of truth for which collections exist and which channel(s) they sell in \u2014 this content type is created and kept in sync automatically whenever a collection is created or renamed in Vendure; editors then add the banner, tagline, description, and featured flag here.';
+    description: 'Editorial content (banner image, tagline, copy, featured flag) for a Medusa product collection. Medusa is the source of truth for which collections exist and which channel(s) they sell in \u2014 this content type is created and kept in sync automatically whenever a collection is created or renamed in Medusa; editors then add the banner, tagline, description, and featured flag here.';
     displayName: 'Collection Page';
     pluralName: 'collection-pages';
     singularName: 'collection-page';
@@ -486,6 +486,7 @@ export interface ApiCollectionPageCollectionPage
     draftAndPublish: true;
   };
   attributes: {
+    collectionSlug: Schema.Attribute.String & Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -498,6 +499,10 @@ export interface ApiCollectionPageCollectionPage
       'api::collection-page.collection-page'
     > &
       Schema.Attribute.Private;
+    medusaCollectionId: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Private &
+      Schema.Attribute.Unique;
     publishedAt: Schema.Attribute.DateTime;
     seo: Schema.Attribute.Component<'shared.seo', false>;
     sortOrder: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
@@ -506,11 +511,6 @@ export interface ApiCollectionPageCollectionPage
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    vendureCollectionSlug: Schema.Attribute.String & Schema.Attribute.Required;
-    vendureId: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.Private &
-      Schema.Attribute.Unique;
   };
 }
 
@@ -644,7 +644,7 @@ export interface ApiPagePage extends Struct.CollectionTypeSchema {
 export interface ApiProductPageProductPage extends Struct.CollectionTypeSchema {
   collectionName: 'product_pages';
   info: {
-    description: "Editorial layer over a Vendure product (matched by slug): rich Markdown panels (size guide, fabric tables\u2026) appended to the PDP's detail tabs. Vendure stays the source of truth for the product itself.";
+    description: "Editorial layer over a Medusa product (matched by handle): rich Markdown panels (size guide, fabric tables\u2026) appended to the PDP's detail tabs. Medusa stays the source of truth for the product itself.";
     displayName: 'Product Page';
     pluralName: 'product-pages';
     singularName: 'product-page';
@@ -664,16 +664,16 @@ export interface ApiProductPageProductPage extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     panels: Schema.Attribute.Component<'shared.content-panel', true> &
       Schema.Attribute.Required;
-    publishedAt: Schema.Attribute.DateTime;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    vendureProductSlug: Schema.Attribute.String &
+    productSlug: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique &
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 191;
       }>;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
   };
 }
 

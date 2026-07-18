@@ -18,7 +18,7 @@ export async function EditorialBannerBlock({
   section: SectionOf<'section.editorial-banner'>;
   channelCode: ChannelCode;
 }) {
-  const cards = await listCollectionProducts(channelCode, section.vendureCollectionSlug, PRODUCT_FETCH_LIMIT).catch(
+  const cards = await listCollectionProducts(channelCode, section.collectionSlug, PRODUCT_FETCH_LIMIT).catch(
     () => [],
   );
   const images = cards

@@ -3,7 +3,7 @@
   "info": {
     "displayName": "Section: Product Rail",
     "icon": "bulletList",
-    "description": "Horizontal product carousel for a Vendure collection (referenced by slug), with an editorial header and CTA."
+    "description": "Horizontal product carousel for a Medusa collection (referenced by slug/handle), with an editorial header and CTA."
   },
   "options": {},
   "attributes": {
@@ -12,7 +12,7 @@
       "repeatable": false,
       "component": "shared.section-header"
     },
-    "vendureCollectionSlug": {
+    "collectionSlug": {
       "type": "string",
       "required": true
     },

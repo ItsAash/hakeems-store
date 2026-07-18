@@ -14,7 +14,7 @@ const components: Components = {
   h2: ({ children }) => <h2 className="mt-12 mb-4 font-serif text-2xl text-[var(--color-ink)]">{children}</h2>,
   h3: ({ children }) => <h3 className="mt-8 mb-3 font-serif text-xl text-[var(--color-ink)]">{children}</h3>,
   h4: ({ children }) => (
-    <h4 className="mt-6 mb-2 text-xs font-semibold tracking-[0.1em] text-[var(--color-ink)] uppercase">{children}</h4>
+    <h4 className="mt-6 mb-2 text-xs font-semibold tracking-label text-[var(--color-ink)] uppercase">{children}</h4>
   ),
   p: ({ children }) => <p className="mb-5 leading-relaxed text-[var(--color-ink-muted)]">{children}</p>,
   ul: ({ children }) => (

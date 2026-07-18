@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { ChannelCode } from '@/lib/channel';
@@ -11,17 +11,14 @@ import { QuickAddButton } from '@/components/commerce/quick-add-button';
 import { ArrowLeftIcon, ArrowRightIcon } from '@/components/ui/icons';
 
 const MAX_VISIBLE_SWATCHES = 5;
+const HOVER_CYCLE_INTERVAL = 1500;
 
-/**
- * The one product card used across every listing (spotlight rail, collection/shop grid,
- * search). Everything is driven by ProductCardModel — image gallery, colour swatches, sale
- * pricing and badge — with nothing hardcoded.
- *
- * Picking a colour swaps to that colour's gallery; the arrows page through that colour's photos
- * in place (no navigation), and switching colour resets to its first shot. The image and name
- * still link through to the PDP. `showQuickAdd` is opt-in so grids stay clean while the
- * spotlight keeps its quick-add affordance.
- */
+const stockLabel = {
+  IN_STOCK: null,
+  LOW_STOCK: 'Low Stock',
+  OUT_OF_STOCK: 'Sold Out',
+} as const;
+
 export function ProductCard({
   card,
   channelCode,
@@ -31,11 +28,12 @@ export function ProductCard({
   card: ProductCardModel;
   channelCode: ChannelCode;
   showQuickAdd?: boolean;
-  /** Set for the first row of an above-the-fold grid so its image isn't lazy-loaded. */
   priority?: boolean;
 }) {
   const [selectedCode, setSelectedCode] = useState<string | null>(card.colors[0]?.code ?? null);
   const [imageIndex, setImageIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const selectedColor = card.colors.find((color) => color.code === selectedCode) ?? null;
   const images = selectedColor && selectedColor.images.length > 0
@@ -56,6 +54,30 @@ export function ProductCard({
     setImageIndex((current) => Math.min(images.length - 1, Math.max(0, current + direction)));
   };
 
+  const startCycle = useCallback(() => {
+    if (images.length <= 1) return;
+    intervalRef.current = setInterval(() => {
+      setImageIndex((prev) => (prev + 1) % images.length);
+    }, HOVER_CYCLE_INTERVAL);
+  }, [images.length]);
+
+  const stopCycle = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isHovered) {
+      startCycle();
+    } else {
+      stopCycle();
+      setImageIndex(0);
+    }
+    return stopCycle;
+  }, [isHovered, startCycle, stopCycle]);
+
   const visibleColors = card.colors.slice(0, MAX_VISIBLE_SWATCHES);
   const hiddenColorCount = card.colors.length - visibleColors.length;
 
@@ -64,8 +86,15 @@ export function ProductCard({
     .filter(Boolean)
     .join(' ');
 
+  const currentStockLevel = selectedColor?.stockLevel ?? card.stockLevel;
+  const badgeText = card.badge ?? (card.isNew ? 'New' : null);
+
   return (
-    <div className="group/card flex h-full flex-col">
+    <div
+      className="group/card flex h-full flex-col"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <div className="group/media relative overflow-hidden bg-[var(--color-hairline)]">
         <Link href={href} className="relative block aspect-[4/5]" tabIndex={-1}>
           {currentImage && (
@@ -79,11 +108,24 @@ export function ProductCard({
               className="object-cover transition-transform duration-500 ease-out group-hover/card:scale-105"
             />
           )}
+          {currentStockLevel === 'OUT_OF_STOCK' && (
+            <div className="absolute inset-0 flex items-center justify-center bg-[var(--color-paper)]/60">
+              <span className="bg-[var(--color-ink)] px-3 py-1.5 text-xs font-medium tracking-label text-[var(--color-paper)]">
+                Sold Out
+              </span>
+            </div>
+          )}
         </Link>
 
-        {card.badge && (
-          <span className="absolute bottom-2 left-2 bg-[var(--color-ink)]/85 px-2 py-1 text-[10px] font-medium tracking-[0.08em] text-[var(--color-paper)] uppercase">
-            {card.badge}
+        {badgeText && (
+          <span className="absolute bottom-2 left-2 bg-[var(--color-ink)]/85 px-2 py-1 text-[10px] font-medium tracking-label text-[var(--color-paper)] uppercase">
+            {badgeText}
+          </span>
+        )}
+
+        {currentStockLevel === 'LOW_STOCK' && (
+          <span className="absolute top-2 left-2 bg-[var(--color-accent)]/90 px-2 py-0.5 text-[10px] font-medium tracking-label text-[var(--color-paper)] uppercase">
+            Low Stock
           </span>
         )}
 
@@ -93,9 +135,6 @@ export function ProductCard({
           </div>
         )}
 
-        {/* Per-colour photo paging — arrows sit over (not inside) the PDP link, so a click
-            pages the gallery instead of navigating. Revealed on hover, shown on touch. Both
-            arrows stay mounted and disable at the ends so the affordance never shifts. */}
         {images.length > 1 && (
           <>
             <CardArrow direction="prev" onClick={pageImage(-1)} disabled={imageIndex === 0} />

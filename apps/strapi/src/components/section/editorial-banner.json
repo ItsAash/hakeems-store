@@ -3,7 +3,7 @@
   "info": {
     "displayName": "Section: Editorial Banner",
     "icon": "layout",
-    "description": "Full-bleed split banner: editorial text panel + product-image montage for a Vendure collection (by slug)."
+    "description": "Full-bleed split banner: editorial text panel + product-image montage for a Medusa collection (by slug/handle)."
   },
   "options": {},
   "attributes": {
@@ -12,7 +12,7 @@
       "repeatable": false,
       "component": "shared.section-header"
     },
-    "vendureCollectionSlug": {
+    "collectionSlug": {
       "type": "string",
       "required": true
     },

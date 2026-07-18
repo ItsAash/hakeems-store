@@ -9,7 +9,7 @@ import { parseActiveFacetValueIds } from '@/lib/medusa/facets';
 import { CONTAINER } from '@/lib/ui';
 import { PlpResults } from '@/components/commerce/plp-results';
 
-type ShopSearchParams = { category?: string; facets?: string; sort?: string; page?: string };
+type ShopSearchParams = { category?: string; facets?: string; sort?: string; page?: string; priceMin?: string; priceMax?: string };
 
 export async function generateMetadata({ params }: { params: Promise<{ channel: string }> }): Promise<Metadata> {
   const { channel: channelParam } = await params;
@@ -41,6 +41,8 @@ export default async function ShopPage({
     page: resolvedSearchParams.page,
     categoryHandle: resolvedSearchParams.category,
     facets: resolvedSearchParams.facets,
+    priceMin: resolvedSearchParams.priceMin,
+    priceMax: resolvedSearchParams.priceMax,
   });
   const activeFacetValueIds = parseActiveFacetValueIds(resolvedSearchParams.facets);
 

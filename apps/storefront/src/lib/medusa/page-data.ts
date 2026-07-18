@@ -20,12 +20,19 @@ export interface PlpPageData {
   totalPages: number;
 }
 
+function parsePrice(raw: string | undefined): number | undefined {
+  const n = raw ? Number.parseFloat(raw) : undefined;
+  return n != null && !Number.isNaN(n) ? n : undefined;
+}
+
 export interface ShopPageParams {
   channelCode: ChannelCode;
   sort?: string;
   page?: string;
   categoryHandle?: string;
   facets?: string;
+  priceMin?: string;
+  priceMax?: string;
 }
 
 export async function getShopPageData(params: ShopPageParams): Promise<PlpPageData> {
@@ -38,6 +45,8 @@ export async function getShopPageData(params: ShopPageParams): Promise<PlpPageDa
     page,
     categorySlug: params.categoryHandle,
     activeFacetValueIds: parseActiveFacetValueIds(params.facets),
+    priceMin: parsePrice(params.priceMin),
+    priceMax: parsePrice(params.priceMax),
   });
 
   return {
@@ -55,6 +64,8 @@ export interface CollectionPageParams {
   sort?: string;
   page?: string;
   facets?: string;
+  priceMin?: string;
+  priceMax?: string;
 }
 
 export type CollectionPageData = PlpPageData & { collection: MedusaCollectionRef };
@@ -74,6 +85,8 @@ export async function getCollectionPageData(params: CollectionPageParams): Promi
     page,
     collectionSlug: params.collectionHandle,
     activeFacetValueIds: parseActiveFacetValueIds(params.facets),
+    priceMin: parsePrice(params.priceMin),
+    priceMax: parsePrice(params.priceMax),
   });
 
   return {
@@ -92,6 +105,8 @@ export interface SearchPageParams {
   sort?: string;
   page?: string;
   facets?: string;
+  priceMin?: string;
+  priceMax?: string;
 }
 
 export async function getSearchPageData(params: SearchPageParams): Promise<PlpPageData> {
@@ -104,6 +119,8 @@ export async function getSearchPageData(params: SearchPageParams): Promise<PlpPa
     sort: sortKey,
     page,
     activeFacetValueIds: parseActiveFacetValueIds(params.facets),
+    priceMin: parsePrice(params.priceMin),
+    priceMax: parsePrice(params.priceMax),
   });
 
   return {
@@ -116,6 +133,6 @@ export async function getSearchPageData(params: SearchPageParams): Promise<PlpPa
 }
 
 function validateSortKey(sort: string | undefined): PlpSortKey {
-  if (sort === 'price-asc' || sort === 'price-desc' || sort === 'name-asc') return sort;
+  if (sort === 'price-asc' || sort === 'price-desc' || sort === 'name-asc' || sort === 'newest' || sort === 'best-selling') return sort;
   return 'relevance';
 }

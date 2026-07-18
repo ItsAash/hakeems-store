@@ -31,7 +31,7 @@ export function ForgotPasswordForm({ channelCode }: { channelCode: ChannelCode }
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full bg-[var(--color-ink)] py-4 text-sm font-medium tracking-[0.1em] text-[var(--color-paper)] uppercase transition-opacity hover:opacity-90 disabled:opacity-40"
+        className="w-full bg-[var(--color-ink)] py-4 text-sm font-medium tracking-label text-[var(--color-paper)] uppercase transition-opacity hover:opacity-90 disabled:opacity-40"
       >
         {isSubmitting ? 'Sending…' : 'Send Reset Link'}
       </button>

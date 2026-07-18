@@ -30,6 +30,16 @@
   --spacing-section-sm: 3rem;
 
   --tracking-eyebrow: 0.14em;
+  --tracking-label: 0.1em;
+
+  --shadow-card: 0 1px 3px 0 rgb(20 18 15 / 0.08);
+  --shadow-raised: 0 4px 12px 0 rgb(20 18 15 / 0.1);
+  --shadow-sticky: 0 -4px 16px rgb(20 18 15 / 0.08);
+  --shadow-overlay: 0 20px 60px rgb(20 18 15 / 0.15);
+
+  --text-3xs: 0.625rem;
+  --text-2xs: 0.6875rem;
+  --text-sm-base: 0.9375rem;
 }
 
 /* Layering scale — every fixed/absolute layer picks from this ladder instead of inventing
@@ -66,6 +76,11 @@
     text-transform: uppercase;
     font-size: 0.75rem;
     color: var(--color-ink-muted);
+  }
+
+  .tracking-label {
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
   }
 
   .hairline {

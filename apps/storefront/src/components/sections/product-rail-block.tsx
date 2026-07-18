@@ -18,7 +18,7 @@ export async function ProductRailBlock({
   section: SectionOf<'section.product-rail'>;
   channelCode: ChannelCode;
 }) {
-  const cards = await listCollectionProducts(channelCode, section.vendureCollectionSlug, PRODUCT_FETCH_LIMIT).catch(
+  const cards = await listCollectionProducts(channelCode, section.collectionSlug, PRODUCT_FETCH_LIMIT).catch(
     () => [],
   );
   if (cards.length === 0) return null;

@@ -16,7 +16,7 @@ import { Breadcrumbs } from '@/components/commerce/breadcrumbs';
 import { PlpResults } from '@/components/commerce/plp-results';
 
 type PlpParams = { channel: string; slug: string };
-type PlpSearchParams = { facets?: string; sort?: string; page?: string };
+type PlpSearchParams = { facets?: string; sort?: string; page?: string; priceMin?: string; priceMax?: string };
 
 export async function generateMetadata({
   params,
@@ -64,6 +64,8 @@ export default async function CollectionPage({
       sort: resolvedSearchParams.sort,
       page: resolvedSearchParams.page,
       facets: resolvedSearchParams.facets,
+      priceMin: resolvedSearchParams.priceMin,
+      priceMax: resolvedSearchParams.priceMax,
     }),
   ]);
 

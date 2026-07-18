@@ -7,7 +7,7 @@ import { isPlpSortKey, type PlpSortKey } from '@/lib/medusa/products';
 import { CONTAINER } from '@/lib/ui';
 import { PlpResults } from '@/components/commerce/plp-results';
 
-type SearchParams = { q?: string; facets?: string; sort?: string; page?: string };
+type SearchParams = { q?: string; facets?: string; sort?: string; page?: string; priceMin?: string; priceMax?: string };
 
 export async function generateMetadata({
   searchParams,
@@ -37,7 +37,7 @@ export default async function SearchPage({
   const basePath = routes.search(channel.code);
 
   const pageData = term
-    ? await getSearchPageData({ channelCode: channel.code, term, sort: sortKey, page, facets: resolvedSearchParams.facets })
+    ? await getSearchPageData({ channelCode: channel.code, term, sort: sortKey, page, facets: resolvedSearchParams.facets, priceMin: resolvedSearchParams.priceMin, priceMax: resolvedSearchParams.priceMax })
     : { cards: [], facetGroups: [], totalItems: 0, currentPage: 1, totalPages: 1 };
 
   return (

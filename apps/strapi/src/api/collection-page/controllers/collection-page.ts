@@ -1,7 +1,7 @@
 import { factories } from '@strapi/strapi';
 
 type SyncCollection = {
-  vendureId?: string;
+  medusaCollectionId?: string;
   name?: string;
   slug?: string;
 };
@@ -15,9 +15,9 @@ const UID = 'api::collection-page.collection-page' as const;
 
 export default factories.createCoreController(UID, ({ strapi }) => ({
   /**
-   * POST /api/collection-pages/sync — called by Vendure's CollectionSyncPlugin whenever a
-   * collection is created, renamed, or deleted. One-way (Vendure -> Strapi) and
-   * secret-header authenticated: Vendure owns which collections exist and which channel(s)
+   * POST /api/collection-pages/sync — called by Medusa's collection-sync subscriber whenever
+   * a product collection is created, renamed, or deleted. One-way (Medusa -> Strapi) and
+   * secret-header authenticated: Medusa owns which collections exist and which channel(s)
    * they sell in, Strapi only owns presentation (banner, tagline, description, featured).
    */
   async sync(ctx) {
@@ -39,46 +39,46 @@ export default factories.createCoreController(UID, ({ strapi }) => ({
     }
 
     const action = payload.action === 'delete' ? 'delete' : 'upsert';
-    const results: Array<{ vendureId: string; status: string }> = [];
+    const results: Array<{ medusaCollectionId: string; status: string }> = [];
 
     for (const collection of collections) {
-      if (!collection.vendureId) continue;
+      if (!collection.medusaCollectionId) continue;
 
       const existing = await strapi.documents(UID).findFirst({
-        filters: { vendureId: collection.vendureId },
+        filters: { medusaCollectionId: collection.medusaCollectionId },
         status: 'draft',
       });
 
       if (action === 'delete') {
         if (existing) {
           await strapi.documents(UID).delete({ documentId: existing.documentId });
-          results.push({ vendureId: collection.vendureId, status: 'deleted' });
+          results.push({ medusaCollectionId: collection.medusaCollectionId, status: 'deleted' });
         } else {
-          results.push({ vendureId: collection.vendureId, status: 'ignored' });
+          results.push({ medusaCollectionId: collection.medusaCollectionId, status: 'ignored' });
         }
         continue;
       }
 
       if (existing) {
-        // Only the slug is kept in sync on every touch — it must always match Vendure's
-        // real current slug for storefront routing to work. `title` is deliberately left
-        // alone here: it's editorial marketing copy (e.g. "New Drop · SS26" vs. Vendure's
-        // internal "new-drop"), not something Vendure's raw collection name should clobber.
+        // Only the slug is kept in sync on every touch — it must always match Medusa's
+        // real current handle for storefront routing to work. `title` is deliberately left
+        // alone here: it's editorial marketing copy (e.g. "New Drop · SS26" vs. Medusa's
+        // internal "new-drop"), not something Medusa's raw collection title should clobber.
         await strapi.documents(UID).update({
           documentId: existing.documentId,
-          data: { vendureCollectionSlug: collection.slug },
+          data: { collectionSlug: collection.slug },
         });
-        results.push({ vendureId: collection.vendureId, status: 'updated' });
+        results.push({ medusaCollectionId: collection.medusaCollectionId, status: 'updated' });
       } else {
         const created = await strapi.documents(UID).create({
           data: {
-            vendureId: collection.vendureId,
-            vendureCollectionSlug: collection.slug || collection.vendureId,
-            title: collection.name || collection.slug || collection.vendureId,
+            medusaCollectionId: collection.medusaCollectionId,
+            collectionSlug: collection.slug || collection.medusaCollectionId,
+            title: collection.name || collection.slug || collection.medusaCollectionId,
           },
         });
         await strapi.documents(UID).publish({ documentId: created.documentId });
-        results.push({ vendureId: collection.vendureId, status: 'created' });
+        results.push({ medusaCollectionId: collection.medusaCollectionId, status: 'created' });
       }
     }
 

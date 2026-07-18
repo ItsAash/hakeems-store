@@ -1,12 +1,12 @@
 /**
  * Idempotent content seed for the Hakeems CMS, mirroring the pattern in
- * apps/vendure/scripts/seed.ts. Boots Strapi's core (no HTTP server — see
+ * apps/medusa/src/seed.ts. Boots Strapi's core (no HTTP server — see
  * `.load()` vs `.start()` below) and writes through the Document Service
  * directly, so it needs no admin credentials or API token.
  *
- * Collection pages are NOT created here: Vendure's collection-sync plugin creates
- * them automatically (see apps/vendure/src/plugins/collection-sync) whenever a
- * collection is created in Vendure. Run `pnpm --filter @hakeems/vendure seed`
+ * Collection pages are NOT created here: Medusa's collection-sync subscriber creates
+ * them automatically (see apps/medusa/src/subscribers/collection-sync.ts) whenever a
+ * collection is created in Medusa. Run `pnpm --filter @hakeems/medusa seed`
  * first (the root `seed` script already does this in order) so those entries
  * exist before this script enriches them with banners/copy/featured flags.
  *
@@ -306,11 +306,11 @@ Need a different size or colour? Start a return and place a new order — it's t
 }
 
 /**
- * Enriches collection-page entries that Vendure's collection-sync plugin already created
- * (matched by vendureCollectionSlug) with banner image, tagline, description, and featured
- * flag. Deliberately does NOT create entries here — Vendure is the source of truth for
+ * Enriches collection-page entries that Medusa's collection-sync subscriber already created
+ * (matched by collectionSlug) with banner image, tagline, description, and featured
+ * flag. Deliberately does NOT create entries here — Medusa is the source of truth for
  * which collections exist, so a slug with no matching entry means the collection hasn't
- * synced yet (Strapi was down, or `pnpm --filter @hakeems/vendure seed` hasn't run) and is
+ * synced yet (Strapi was down, or `pnpm --filter @hakeems/medusa seed` hasn't run) and is
  * skipped with a warning rather than faked.
  */
 async function seedCollectionPages(strapi: Core.Strapi) {
@@ -320,9 +320,9 @@ async function seedCollectionPages(strapi: Core.Strapi) {
   const heroSets = await uploadImage(strapi, unsplash('photo-1487222477894-8943e31ef7b2', 'w=1600&h=900&fit=crop&q=80'), 'collection-sets.jpg');
   const heroSpotlight = await uploadImage(strapi, unsplash('photo-1571945153237-4929e783af4a', 'w=1600&h=900&fit=crop&q=80'), 'collection-spotlight.jpg');
 
-  const enrichments: Array<{ vendureCollectionSlug: string; data: Record<string, unknown> }> = [
+  const enrichments: Array<{ collectionSlug: string; data: Record<string, unknown> }> = [
     {
-      vendureCollectionSlug: 'tops',
+      collectionSlug: 'tops',
       data: {
         title: 'Tops',
         tagline: 'Tees, sweats, hoodies and overshirts',
@@ -333,7 +333,7 @@ async function seedCollectionPages(strapi: Core.Strapi) {
       },
     },
     {
-      vendureCollectionSlug: 'bottoms',
+      collectionSlug: 'bottoms',
       data: {
         title: 'Bottoms',
         tagline: 'Utility pants, joggers and denim',
@@ -344,7 +344,7 @@ async function seedCollectionPages(strapi: Core.Strapi) {
       },
     },
     {
-      vendureCollectionSlug: 'accessories',
+      collectionSlug: 'accessories',
       data: {
         title: 'Accessories',
         tagline: 'Totes, slings and caps',
@@ -355,7 +355,7 @@ async function seedCollectionPages(strapi: Core.Strapi) {
       },
     },
     {
-      vendureCollectionSlug: 'sets',
+      collectionSlug: 'sets',
       data: {
         title: 'Sets',
         tagline: 'Matching pieces, worn together',
@@ -366,7 +366,7 @@ async function seedCollectionPages(strapi: Core.Strapi) {
       },
     },
     {
-      vendureCollectionSlug: 'spotlight',
+      collectionSlug: 'spotlight',
       data: {
         title: 'Spotlight',
         tagline: 'This week, front row',
@@ -380,10 +380,10 @@ async function seedCollectionPages(strapi: Core.Strapi) {
 
   const uid = 'api::collection-page.collection-page';
   let enriched = 0;
-  for (const { vendureCollectionSlug, data } of enrichments) {
-    const existing = await strapi.documents(uid).findFirst({ filters: { vendureCollectionSlug }, status: 'draft' });
+  for (const { collectionSlug, data } of enrichments) {
+    const existing = await strapi.documents(uid).findFirst({ filters: { collectionSlug }, status: 'draft' });
     if (!existing) {
-      console.warn(`Skipping "${vendureCollectionSlug}": no synced collection-page yet (has Vendure's seed run and pushed it?)`);
+      console.warn(`Skipping "${collectionSlug}": no synced collection-page yet (has Medusa's seed run and pushed it?)`);
       continue;
     }
     await strapi.documents(uid).update({ documentId: existing.documentId, data });
@@ -472,10 +472,10 @@ async function seedPages(strapi: Core.Strapi) {
   const tileAccessories = await uploadImage(strapi, unsplash('photo-1606522754091-a3bbf9ad4cb3', 'w=1200&h=1500&fit=crop&q=80'), 'tile-accessories.jpg');
   const tileEssentials = await uploadImage(strapi, unsplash('photo-1487222477894-8943e31ef7b2', 'w=1200&h=1500&fit=crop&q=80'), 'tile-essentials.jpg');
   const facetCategoryTiles = [
-    { vendureFacetValueCode: 'categories:tops', label: 'Tops', tagline: 'Tees, sweats, hoodies & overshirts', image: tileTops },
-    { vendureFacetValueCode: 'categories:bottoms', label: 'Bottoms', tagline: 'Utility pants, joggers & denim', image: tileBottoms },
-    { vendureFacetValueCode: 'categories:accessories', label: 'Accessories', tagline: 'Totes, slings & caps', image: tileAccessories },
-    { vendureFacetValueCode: 'categories:sets', label: 'Sets', tagline: 'Matching pieces, worn together', image: tileEssentials },
+    { categoryCode: 'categories:tops', label: 'Tops', tagline: 'Tees, sweats, hoodies & overshirts', image: tileTops },
+    { categoryCode: 'categories:bottoms', label: 'Bottoms', tagline: 'Utility pants, joggers & denim', image: tileBottoms },
+    { categoryCode: 'categories:accessories', label: 'Accessories', tagline: 'Totes, slings & caps', image: tileAccessories },
+    { categoryCode: 'categories:sets', label: 'Sets', tagline: 'Matching pieces, worn together', image: tileEssentials },
   ];
 
   const heroBlockUp = await uploadImage(strapi, unsplash('photo-1558769132-cb1aea458c5e'), 'hero-block-up.jpg');
@@ -556,7 +556,7 @@ async function seedPages(strapi: Core.Strapi) {
       {
         __component: 'section.product-rail',
         header: { eyebrow: 'The Spotlight', heading: 'This Week, Front Row', align: 'left' },
-        vendureCollectionSlug: 'spotlight',
+        collectionSlug: 'spotlight',
         cta: { label: 'Shop The Spotlight', href: '/collections/spotlight', variant: 'link', openInNewTab: false },
       },
       {
@@ -567,7 +567,7 @@ async function seedPages(strapi: Core.Strapi) {
       {
         __component: 'section.editorial-banner',
         header: { eyebrow: 'New Arrivals', heading: 'Just Landed', align: 'left' },
-        vendureCollectionSlug: 'new-arrivals',
+        collectionSlug: 'new-arrivals',
         cta: { label: 'Shop New Arrivals', href: '/collections/new-arrivals', variant: 'primary', openInNewTab: false },
         backgroundToken: 'blush',
       },

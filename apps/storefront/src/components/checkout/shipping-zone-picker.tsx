@@ -101,7 +101,7 @@ export function ShippingZonePicker({
 
   return (
     <div className="flex flex-col gap-4">
-      <h3 className="text-xs tracking-[0.1em] text-[var(--color-ink-muted)] uppercase">Delivery Zone</h3>
+      <h3 className="text-xs tracking-label text-[var(--color-ink-muted)] uppercase">Delivery Zone</h3>
       {levels.map((options, level) => {
         const selectedId = path[level]?.id ?? '';
         return (

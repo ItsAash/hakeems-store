@@ -12,11 +12,9 @@ import { CONTAINER } from '@/lib/ui';
  * "Shop By Category" tiles. Each tile is a category entry point, so it always links to that
  * category's Collection page (`/{channel}/collections/{slug}`) — never `/shop?facet=…`.
  *
- * Strapi stores a stable `"<facetCode>:<collectionSlug>"` code (e.g. "categories:tops") —
- * a naming leftover from the Vendure days, kept as-is so existing Strapi content doesn't
- * need re-authoring. Only the value segment (the collection slug) is actually used: it's
- * both the link target and, resolved to a Medusa collection id, the source of each tile's
- * "N items" count.
+ * Strapi stores a stable `"<namespace>:<collectionSlug>"` code (e.g. "categories:tops").
+ * Only the value segment (the collection slug) is actually used: it's both the link target
+ * and, resolved to a Medusa collection id, the source of each tile's "N items" count.
  */
 export async function FacetCategoryGrid({
   tiles,
@@ -34,7 +32,7 @@ export async function FacetCategoryGrid({
 
   const counts = await Promise.all(
     tiles.map(async (tile) => {
-      const collectionSlug = tile.vendureFacetValueCode.split(':')[1] ?? '';
+      const collectionSlug = tile.categoryCode.split(':')[1] ?? '';
       if (!collectionSlug) return null;
       const collection = await getCollectionByHandle(channelCode, collectionSlug);
       if (!collection) return null;
@@ -63,7 +61,7 @@ export async function FacetCategoryGrid({
           // The value segment of "<facetCode>:<valueCode>" is the collection slug. Route to
           // that collection; if the code carries no value segment, fall back to /shop rather
           // than emit a broken link.
-          const collectionSlug = tile.vendureFacetValueCode.split(':')[1] ?? '';
+          const collectionSlug = tile.categoryCode.split(':')[1] ?? '';
           const href = collectionSlug ? routes.collection(channelCode, collectionSlug) : routes.shop(channelCode);
 
           return (

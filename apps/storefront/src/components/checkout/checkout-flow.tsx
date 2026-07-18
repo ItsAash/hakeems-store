@@ -19,15 +19,16 @@ const STEPS: Array<{ key: CheckoutStep; label: string }> = [
  * Component re-fetches the cart, and this component just re-derives the step from
  * the fresh data. Refreshing mid-checkout can never lose progress.
  *
- * Guest checkout only for now — Medusa customer auth/saved addresses haven't been
- * migrated off Vendure yet (see apps/storefront/src/lib/vendure/auth-actions.ts,
- * still used by /account), so there's no signed-in prefill or address picker here.
+ * Contact fields pre-fill from the logged-in customer's saved data when available.
  */
 export function CheckoutFlow({
   channelCode,
   hasShippingAddress,
   hasShippingMethod,
   defaultEmail,
+  defaultFirstName,
+  defaultLastName,
+  defaultPhone,
   shippingMethods,
   shippingZones,
   currencyCode,
@@ -36,8 +37,11 @@ export function CheckoutFlow({
   hasShippingAddress: boolean;
   hasShippingMethod: boolean;
   defaultEmail?: string;
+  defaultFirstName?: string;
+  defaultLastName?: string;
+  defaultPhone?: string;
   shippingMethods: ShippingMethodOption[];
-  /** This channel's shipping-zone tree, for the address step's zone picker. */
+  /** This channel's shipping-zone tree — drives the delivery-zone picker below the address. */
   shippingZones: ZoneNode[];
   currencyCode: string;
 }) {
@@ -51,6 +55,9 @@ export function CheckoutFlow({
         <AddressForm
           channelCode={channelCode}
           defaultEmail={defaultEmail}
+          defaultFirstName={defaultFirstName}
+          defaultLastName={defaultLastName}
+          defaultPhone={defaultPhone}
           shippingZones={shippingZones}
           currencyCode={currencyCode}
         />
@@ -67,7 +74,7 @@ function StepIndicator({ current }: { current: CheckoutStep }) {
   const currentIndex = STEPS.findIndex((step) => step.key === current);
 
   return (
-    <ol className="flex items-center gap-3 text-xs tracking-[0.1em] uppercase">
+    <ol className="flex items-center gap-3 text-xs tracking-label">
       {STEPS.map((step, index) => {
         const isDone = index < currentIndex;
         const isCurrent = index === currentIndex;

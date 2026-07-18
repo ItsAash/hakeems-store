@@ -5,10 +5,12 @@ import { buildProductCards, type ProductCardModel } from '@/lib/medusa/product-c
 import type { MedusaProduct, MedusaProductListResponse } from '@/lib/medusa/types';
 import { buildFacetGroupsFromProducts, productMatchesActiveFacets, type FacetFilterGroup } from '@/lib/medusa/facets';
 
-export type PlpSortKey = 'relevance' | 'price-asc' | 'price-desc' | 'name-asc';
+export type PlpSortKey = 'relevance' | 'price-asc' | 'price-desc' | 'name-asc' | 'newest' | 'best-selling';
 
 export const PLP_SORT_OPTIONS: Array<{ value: PlpSortKey; label: string }> = [
   { value: 'relevance', label: 'Featured' },
+  { value: 'newest', label: 'Newest' },
+  { value: 'best-selling', label: 'Best Selling' },
   { value: 'price-asc', label: 'Price: Low to High' },
   { value: 'price-desc', label: 'Price: High to Low' },
   { value: 'name-asc', label: 'Name: A–Z' },
@@ -28,6 +30,10 @@ function mapSortKey(sort: PlpSortKey): string | undefined {
       return 'price:desc';
     case 'name-asc':
       return 'title:asc';
+    case 'newest':
+      return '-created_at';
+    case 'best-selling':
+      return '--order_count';
     default:
       return undefined;
   }
@@ -124,11 +130,32 @@ export async function listProducts(params: PlpSearchParams): Promise<PlpSearchRe
   // before value-filtering is applied.
   const facetGroups = buildFacetGroupsFromProducts(data.products);
 
+  // Price range filtering: priceMin/priceMax are in major units (e.g. 1000 for NPR 1,000).
+  // Medusa's calculated_amount is also in major units, so we compare directly.
+  let filtered = [...data.products];
+  if (params.priceMin != null) {
+    filtered = filtered.filter((product) => {
+      for (const v of product.variants ?? []) {
+        const amt = v.calculated_price?.calculated_amount;
+        if (amt != null && amt >= params.priceMin!) return true;
+      }
+      return false;
+    });
+  }
+  if (params.priceMax != null) {
+    filtered = filtered.filter((product) => {
+      for (const v of product.variants ?? []) {
+        const amt = v.calculated_price?.calculated_amount;
+        if (amt != null && amt <= params.priceMax!) return true;
+      }
+      return false;
+    });
+  }
+
   const activeFacetValueIds = params.activeFacetValueIds ?? [];
-  const filtered =
-    activeFacetValueIds.length > 0
-      ? data.products.filter((product) => productMatchesActiveFacets(product, activeFacetValueIds))
-      : data.products;
+  if (activeFacetValueIds.length > 0) {
+    filtered = filtered.filter((product) => productMatchesActiveFacets(product, activeFacetValueIds));
+  }
 
   const pageProducts = filtered.slice(skip, skip + take);
   const cards = buildProductCards(pageProducts);

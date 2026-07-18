@@ -5,20 +5,20 @@
     "singularName": "collection-page",
     "pluralName": "collection-pages",
     "displayName": "Collection Page",
-    "description": "Editorial content (banner image, tagline, copy, featured flag) for a Vendure collection. Vendure is the source of truth for which collections exist and which channel(s) they sell in — this content type is created and kept in sync automatically whenever a collection is created or renamed in Vendure; editors then add the banner, tagline, description, and featured flag here."
+    "description": "Editorial content (banner image, tagline, copy, featured flag) for a Medusa product collection. Medusa is the source of truth for which collections exist and which channel(s) they sell in — this content type is created and kept in sync automatically whenever a collection is created or renamed in Medusa; editors then add the banner, tagline, description, and featured flag here."
   },
   "options": {
     "draftAndPublish": true
   },
   "pluginOptions": {},
   "attributes": {
-    "vendureId": {
+    "medusaCollectionId": {
       "type": "string",
       "required": true,
       "unique": true,
       "private": true
     },
-    "vendureCollectionSlug": {
+    "collectionSlug": {
       "type": "string",
       "required": true
     },

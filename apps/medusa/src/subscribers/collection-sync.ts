@@ -3,11 +3,9 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 /**
  * One-way sync: whenever a collection is created, renamed, or deleted in Medusa,
- * pushes {vendureId, name, slug} to Strapi's existing `POST /api/collection-pages/sync`
- * — the same endpoint and payload shape the Vendure app's CollectionSyncPlugin already
- * uses (apps/vendure/src/plugins/collection-sync), so Strapi doesn't need to change at
- * all. "vendureId" now carries the Medusa collection's id; Medusa is the source of truth
- * for which collections exist, Strapi only owns presentation (banner, tagline, featured).
+ * pushes {medusaCollectionId, name, slug} to Strapi's `POST /api/collection-pages/sync`
+ * (apps/strapi/src/api/collection-page). Medusa is the source of truth for which
+ * collections exist; Strapi only owns presentation (banner, tagline, featured).
  *
  * There is no reverse sync: nothing in Strapi ever needs to be written back into Medusa.
  */
@@ -23,13 +21,13 @@ export default async function collectionSyncHandler({
 
   let payload: {
     action: "upsert" | "delete"
-    collections: { vendureId: string; name?: string; slug?: string }[]
+    collections: { medusaCollectionId: string; name?: string; slug?: string }[]
   }
 
   if (eventName === "product-collection.deleted") {
     // The row is already gone by the time this fires — only the id survives in the
     // event payload, which is all Strapi's delete branch needs to look the record up.
-    payload = { action: "delete", collections: [{ vendureId: data.id }] }
+    payload = { action: "delete", collections: [{ medusaCollectionId: data.id }] }
   } else {
     const query = container.resolve(ContainerRegistrationKeys.QUERY)
     const { data: collections } = await query.graph({
@@ -42,7 +40,7 @@ export default async function collectionSyncHandler({
 
     payload = {
       action: "upsert",
-      collections: [{ vendureId: collection.id, name: collection.title, slug: collection.handle }],
+      collections: [{ medusaCollectionId: collection.id, name: collection.title, slug: collection.handle }],
     }
   }
 

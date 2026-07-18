@@ -6,18 +6,15 @@
     "node": ">=20.11 <23"
   },
   "scripts": {
-    "dev": "pnpm --parallel --filter @hakeems/vendure --filter @hakeems/strapi --filter @hakeems/storefront dev",
-    "dev:vendure": "pnpm --filter @hakeems/vendure dev",
-    "dev:worker": "pnpm --filter @hakeems/vendure worker",
+    "dev": "pnpm --parallel --filter @hakeems/medusa --filter @hakeems/strapi --filter @hakeems/storefront dev",
     "dev:medusa": "pnpm --filter @hakeems/medusa dev",
     "dev:strapi": "pnpm --filter @hakeems/strapi dev",
     "dev:storefront": "pnpm --filter @hakeems/storefront dev",
-    "build": "pnpm --filter @hakeems/vendure build && pnpm --filter @hakeems/strapi build && pnpm --filter @hakeems/storefront build",
+    "build": "pnpm --filter @hakeems/medusa build && pnpm --filter @hakeems/strapi build && pnpm --filter @hakeems/storefront build",
     "build:medusa": "pnpm --filter @hakeems/medusa build",
-    "seed": "pnpm --filter @hakeems/vendure seed && pnpm --filter @hakeems/strapi seed",
+    "seed": "pnpm --filter @hakeems/medusa seed && pnpm --filter @hakeems/strapi seed",
     "seed:medusa": "pnpm --filter @hakeems/medusa seed",
-    "seed:production": "pnpm --filter @hakeems/vendure exec tsx ../../scripts/seed-production.ts",
-    "purge": "pnpm --filter @hakeems/strapi purge && pnpm --filter @hakeems/vendure purge",
+    "purge": "pnpm --filter @hakeems/strapi purge",
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down"
   },

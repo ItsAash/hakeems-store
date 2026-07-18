@@ -96,7 +96,12 @@ export async function fetchCartAction(channelCode: ChannelCode) {
 
   try {
     const client = createMedusaClient(channelCode);
-    const { cart } = await client.store.cart.retrieve(cartId);
+    const { cart } = await client.store.cart.retrieve(cartId, {
+      fields:
+        'id,email,currency_code,subtotal,total,shipping_total,' +
+        'items.id,items.quantity,items.thumbnail,items.product_title,items.product_handle,items.variant_title,items.unit_price,items.total,items.subtotal,' +
+        'shipping_address.*,shipping_methods.*,promotions.*',
+    });
     return cart;
   } catch {
     return null;

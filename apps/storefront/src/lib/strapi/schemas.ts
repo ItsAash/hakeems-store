@@ -87,9 +87,10 @@ export const heroSlideSchema = z.object({
 
 export const facetCategoryTileSchema = z.object({
   id: z.number(),
-  /** Stable Vendure facet-value reference, `"<facetCode>:<valueCode>"` (e.g.
-   * "categories:tops") — resolved to a facet-value id at render time, never a raw DB id. */
-  vendureFacetValueCode: z.string(),
+  /** Stable, namespaced category reference, `"<namespace>:<collectionSlug>"` (e.g.
+   * "categories:tops") — only the slug segment is used, resolved against Medusa at render
+   * time, never a raw DB id. */
+  categoryCode: z.string(),
   label: z.string(),
   tagline: z.string().nullable(),
   image: mediaSchema.nullable(),
@@ -155,19 +156,19 @@ export const legalPageSchema = z.object({
   updatedAt: z.string().nullable(),
 });
 
-/** Editorial layer over a Vendure product (matched by slug): titled Markdown panels
+/** Editorial layer over a Medusa product (matched by handle): titled Markdown panels
  * appended to the PDP's detail tabs. */
 export const productPageSchema = z.object({
   id: z.number(),
-  vendureProductSlug: z.string(),
+  productSlug: z.string(),
   panels: z.array(z.object({ id: z.number(), title: z.string(), content: z.string() })),
 });
 
 export const collectionPageSchema = z.object({
   id: z.number(),
-  // `vendureId` is intentionally absent: it is now a private, sync-only key in Strapi. The
-  // storefront references collections solely by the stable `vendureCollectionSlug`.
-  vendureCollectionSlug: z.string(),
+  // `medusaCollectionId` is intentionally absent: it is now a private, sync-only key in
+  // Strapi. The storefront references collections solely by the stable `collectionSlug`.
+  collectionSlug: z.string(),
   title: z.string(),
   tagline: z.string().nullable(),
   description: z.string().nullable(),
@@ -210,14 +211,14 @@ const productRailSectionSchema = z.object({
   __component: z.literal('section.product-rail'),
   id: z.number(),
   header: sectionHeaderSchema.nullable(),
-  vendureCollectionSlug: z.string(),
+  collectionSlug: z.string(),
   cta: ctaSchema.nullable(),
 });
 const editorialBannerSectionSchema = z.object({
   __component: z.literal('section.editorial-banner'),
   id: z.number(),
   header: sectionHeaderSchema.nullable(),
-  vendureCollectionSlug: z.string(),
+  collectionSlug: z.string(),
   cta: ctaSchema.nullable(),
   backgroundToken: colorTokenSchema.nullable().catch(null),
 });

@@ -1,11 +1,9 @@
 /**
  * Strapi content purge — clears all authored content and uploaded media so the seed can rebuild
- * from a clean slate. Boots Strapi's core (no HTTP server), like the seed. Runs BEFORE the
- * Vendure seed in the production pipeline, so collection-pages (recreated by Vendure's sync
- * plugin) are safe to drop here.
+ * from a clean slate. Boots Strapi's core (no HTTP server), like the seed. Safe to run before the
+ * Medusa seed, since collection-pages are recreated by Medusa's collection-sync subscriber.
  *
- * SAFETY: dry-run by default. Pass `--execute` to actually delete. Normally invoked by the root
- * orchestrator (scripts/seed-production.ts), which owns the target-DB safety gate.
+ * SAFETY: dry-run by default. Pass `--execute` to actually delete.
  *
  * Run with: pnpm --filter @hakeems/strapi purge -- --execute
  */

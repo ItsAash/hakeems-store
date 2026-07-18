@@ -116,7 +116,7 @@ export async function getBrandStory(): Promise<BrandStory | null> {
   return response.data;
 }
 
-/** Editorial layer over a Vendure collection (banner, tagline, SEO) — Vendure remains
+/** Editorial layer over a Medusa collection (banner, tagline, SEO) — Medusa remains
  * the source of truth for the collection's existence, name, and products. */
 /** A standalone Markdown policy page by slug (privacy, terms, shipping-returns, …). Returns
  * null when no published entry exists, so the route can 404 cleanly. Channel-agnostic —
@@ -138,20 +138,20 @@ export async function getLegalPageSlugs(): Promise<Array<{ slug: string; updated
   return response.data.map((entry) => ({ slug: entry.slug, updatedAt: entry.updatedAt }));
 }
 
-export async function getCollectionPage(vendureCollectionSlug: string): Promise<CollectionPage | null> {
+export async function getCollectionPage(collectionSlug: string): Promise<CollectionPage | null> {
   const response = await strapiFetch<StrapiListResponse<CollectionPage>>('collection-pages', {
-    filters: { vendureCollectionSlug },
+    filters: { collectionSlug },
     populate: POPULATE.collectionPage,
     schema: listResponse(collectionPageSchema),
   });
   return response.data[0] ?? null;
 }
 
-/** Editorial Markdown panels for a product's PDP (matched by Vendure slug). Optional by
+/** Editorial Markdown panels for a product's PDP (matched by Medusa handle). Optional by
  * design — most products have none, and the PDP renders identically without an entry. */
-export async function getProductPage(vendureProductSlug: string): Promise<ProductPage | null> {
+export async function getProductPage(productSlug: string): Promise<ProductPage | null> {
   const response = await strapiFetch<StrapiListResponse<ProductPage>>('product-pages', {
-    filters: { vendureProductSlug },
+    filters: { productSlug },
     populate: POPULATE.productPage,
     schema: listResponse(productPageSchema),
   });

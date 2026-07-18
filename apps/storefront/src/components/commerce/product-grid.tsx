@@ -25,8 +25,6 @@ export function ProductGrid({ cards, channelCode }: { cards: ProductCardModel[];
           key={card.productId}
           card={card}
           channelCode={channelCode}
-          // The first row is above the fold on every breakpoint (up to the 4-col desktop
-          // layout), so it shouldn't lazy-load.
           priority={index < PRIORITY_ROW_COUNT}
         />
       ))}

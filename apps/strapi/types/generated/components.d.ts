@@ -88,30 +88,30 @@ export interface LayoutAnnouncement extends Struct.ComponentSchema {
 export interface LayoutCollectionTile extends Struct.ComponentSchema {
   collectionName: 'components_layout_collection_tiles';
   info: {
-    description: "A 'Shop by Collection' tile linking to a Vendure collection by slug.";
+    description: "A 'Shop by Collection' tile linking to a Medusa collection by slug/handle.";
     displayName: 'Collection Tile';
     icon: 'grid';
   };
   attributes: {
+    collectionSlug: Schema.Attribute.String & Schema.Attribute.Required;
     image: Schema.Attribute.Media<'images'>;
     label: Schema.Attribute.String & Schema.Attribute.Required;
     tagline: Schema.Attribute.String;
-    vendureCollectionSlug: Schema.Attribute.String & Schema.Attribute.Required;
   };
 }
 
 export interface LayoutFacetCategoryTile extends Struct.ComponentSchema {
   collectionName: 'components_layout_facet_category_tiles';
   info: {
-    description: "A visual category grid tile linking to a Vendure facet value by its stable code (e.g. 'categories:tops'), not a brittle database id.";
+    description: "A visual category grid tile linking to a Medusa collection via a stable, namespaced code (e.g. 'categories:tops'), not a brittle database id.";
     displayName: 'Facet Category Tile';
     icon: 'grid';
   };
   attributes: {
+    categoryCode: Schema.Attribute.String & Schema.Attribute.Required;
     image: Schema.Attribute.Media<'images'>;
     label: Schema.Attribute.String & Schema.Attribute.Required;
     tagline: Schema.Attribute.String;
-    vendureFacetValueCode: Schema.Attribute.String & Schema.Attribute.Required;
   };
 }
 
@@ -211,7 +211,7 @@ export interface SectionCategoryGrid extends Struct.ComponentSchema {
 export interface SectionEditorialBanner extends Struct.ComponentSchema {
   collectionName: 'components_section_editorial_banners';
   info: {
-    description: 'Full-bleed split banner: editorial text panel + product-image montage for a Vendure collection (by slug).';
+    description: 'Full-bleed split banner: editorial text panel + product-image montage for a Medusa collection (by slug/handle).';
     displayName: 'Section: Editorial Banner';
     icon: 'layout';
   };
@@ -220,9 +220,9 @@ export interface SectionEditorialBanner extends Struct.ComponentSchema {
       ['paper', 'paper-raised', 'blush', 'sand', 'hairline']
     > &
       Schema.Attribute.DefaultTo<'blush'>;
+    collectionSlug: Schema.Attribute.String & Schema.Attribute.Required;
     cta: Schema.Attribute.Component<'shared.cta', false>;
     header: Schema.Attribute.Component<'shared.section-header', false>;
-    vendureCollectionSlug: Schema.Attribute.String & Schema.Attribute.Required;
   };
 }
 
@@ -255,14 +255,14 @@ export interface SectionHeroSlider extends Struct.ComponentSchema {
 export interface SectionProductRail extends Struct.ComponentSchema {
   collectionName: 'components_section_product_rails';
   info: {
-    description: 'Horizontal product carousel for a Vendure collection (referenced by slug), with an editorial header and CTA.';
+    description: 'Horizontal product carousel for a Medusa collection (referenced by slug/handle), with an editorial header and CTA.';
     displayName: 'Section: Product Rail';
     icon: 'bulletList';
   };
   attributes: {
+    collectionSlug: Schema.Attribute.String & Schema.Attribute.Required;
     cta: Schema.Attribute.Component<'shared.cta', false>;
     header: Schema.Attribute.Component<'shared.section-header', false>;
-    vendureCollectionSlug: Schema.Attribute.String & Schema.Attribute.Required;
   };
 }
 

@@ -81,7 +81,7 @@ export default async function CartPage({ params }: { params: Promise<{ channel: 
 
             <Link
               href={routes.checkout(channel.code)}
-              className="mt-4 flex w-full items-center justify-center bg-[var(--color-ink)] py-4 text-sm font-medium tracking-[0.1em] text-[var(--color-paper)] uppercase transition-opacity hover:opacity-90"
+              className="mt-4 flex w-full items-center justify-center bg-[var(--color-ink)] py-4 text-sm font-medium tracking-label text-[var(--color-paper)] uppercase transition-opacity hover:opacity-90"
             >
               Proceed to Checkout
             </Link>

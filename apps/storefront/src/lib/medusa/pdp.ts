@@ -35,6 +35,18 @@ function isInStock(variant: MedusaProductVariant): boolean {
   return inventoryQty > 0;
 }
 
+const LOW_STOCK_THRESHOLD = 5;
+
+export function getStockLevel(variant: MedusaProductVariant): 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK' {
+  const inventoryQty = variant.inventory_quantity;
+  if (inventoryQty === null || inventoryQty === undefined) return 'IN_STOCK';
+  if (variant.allow_backorder) return 'IN_STOCK';
+  if (!variant.manage_inventory) return 'IN_STOCK';
+  if (inventoryQty <= 0) return 'OUT_OF_STOCK';
+  if (inventoryQty <= LOW_STOCK_THRESHOLD) return 'LOW_STOCK';
+  return 'IN_STOCK';
+}
+
 export function buildVariantMatrix(product: MedusaProduct): PdpVariantMatrix {
   const variants = product.variants ?? [];
   const options = product.options ?? [];
@@ -85,7 +97,7 @@ export function buildVariantMatrix(product: MedusaProduct): PdpVariantMatrix {
       sku: variant.sku ?? '',
       priceWithTax: price,
       currencyCode: currency,
-      stockLevel: isInStock(variant) ? 'IN_STOCK' : 'OUT_OF_STOCK',
+      stockLevel: getStockLevel(variant),
       inStock: isInStock(variant),
       imageUrl: variantImages[0] ?? null,
       images: variantImages,

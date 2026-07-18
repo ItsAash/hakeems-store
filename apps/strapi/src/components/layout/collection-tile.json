@@ -3,11 +3,11 @@
   "info": {
     "displayName": "Collection Tile",
     "icon": "grid",
-    "description": "A 'Shop by Collection' tile linking to a Vendure collection by slug."
+    "description": "A 'Shop by Collection' tile linking to a Medusa collection by slug/handle."
   },
   "options": {},
   "attributes": {
-    "vendureCollectionSlug": {
+    "collectionSlug": {
       "type": "string",
       "required": true
     },

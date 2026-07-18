@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ChannelCode } from '@/lib/channel';
+import { CONTAINER } from '@/lib/ui';
 import { findVariantForSelection, type PdpVariantMatrix } from '@/lib/medusa/pdp';
 import { addItemToCartAction } from '@/lib/medusa/cart-actions';
 import { requestCartOpen } from '@/lib/cart-events';
@@ -118,7 +119,7 @@ export function ProductDetail({
           const isColor = colorGroupCode && group.code === colorGroupCode;
           return (
           <div key={group.code}>
-            <p className="mb-2.5 text-xs font-semibold tracking-[0.1em] text-[var(--color-ink)] uppercase">
+            <p className="mb-2.5 text-xs font-semibold tracking-label text-[var(--color-ink)]">
               {group.name}
               {isColor && selectedColorName && (
                 <span className="ml-2 font-normal text-[var(--color-ink-muted)] normal-case">· {selectedColorName}</span>
@@ -173,8 +174,8 @@ export function ProductDetail({
       {/* Mobile sticky buy bar — mounted only while the primary button is off screen so
           screen readers never see two identical buttons at once. */}
       {showStickyBar && (
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t hairline bg-[var(--color-paper-raised)] px-6 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_16px_rgba(20,18,15,0.08)] lg:hidden">
-          <div className="mx-auto flex max-w-6xl items-center gap-4">
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t hairline bg-[var(--color-paper-raised)] px-6 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-sticky lg:hidden">
+          <div className={`${CONTAINER} flex items-center gap-4`}>
             <div className="flex min-w-0 flex-1 flex-col">
               <p className="truncate text-xs text-[var(--color-ink-muted)]">{productName}</p>
               <p className="text-sm font-medium text-[var(--color-ink)]">
@@ -185,7 +186,7 @@ export function ProductDetail({
               type="button"
               onClick={handleAddToCart}
               disabled={buttonDisabled}
-              className="shrink-0 bg-[var(--color-ink)] px-6 py-3.5 text-sm font-medium tracking-[0.1em] text-[var(--color-paper)] uppercase transition-opacity hover:opacity-90 disabled:opacity-40"
+              className="shrink-0 bg-[var(--color-ink)] px-6 py-3.5 text-sm font-medium tracking-label text-[var(--color-paper)] uppercase transition-opacity hover:opacity-90 disabled:opacity-40"
             >
               {buttonLabel}
             </button>

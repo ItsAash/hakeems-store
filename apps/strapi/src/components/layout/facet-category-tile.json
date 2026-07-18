@@ -3,11 +3,11 @@
   "info": {
     "displayName": "Facet Category Tile",
     "icon": "grid",
-    "description": "A visual category grid tile linking to a Vendure facet value by its stable code (e.g. 'categories:tops'), not a brittle database id."
+    "description": "A visual category grid tile linking to a Medusa collection via a stable, namespaced code (e.g. 'categories:tops'), not a brittle database id."
   },
   "options": {},
   "attributes": {
-    "vendureFacetValueCode": {
+    "categoryCode": {
       "type": "string",
       "required": true
     },

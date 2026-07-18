@@ -172,14 +172,14 @@ function AddressCard({
           <button
             type="submit"
             disabled={isSubmitting}
-            className="bg-[var(--color-ink)] px-5 py-2.5 text-sm font-medium tracking-[0.1em] text-[var(--color-paper)] uppercase transition-opacity hover:opacity-90 disabled:opacity-40"
+            className="bg-[var(--color-ink)] px-5 py-2.5 text-sm font-medium tracking-label text-[var(--color-paper)] uppercase transition-opacity hover:opacity-90 disabled:opacity-40"
           >
             Save
           </button>
           <button
             type="button"
             onClick={() => setIsEditing(false)}
-            className="px-5 py-2.5 text-sm font-medium tracking-[0.1em] text-[var(--color-ink-muted)] uppercase hover:text-[var(--color-ink)]"
+            className="px-5 py-2.5 text-sm font-medium tracking-label text-[var(--color-ink-muted)] uppercase hover:text-[var(--color-ink)]"
           >
             Cancel
           </button>
@@ -199,21 +199,21 @@ function AddressCard({
       <p className="text-[var(--color-ink-muted)]">{address.country.name}</p>
       {address.phoneNumber && <p className="text-[var(--color-ink-muted)]">{address.phoneNumber}</p>}
       {(address.defaultShippingAddress || address.defaultBillingAddress) && (
-        <p className="text-xs tracking-[0.1em] text-[var(--color-ink)] uppercase">
+        <p className="text-xs tracking-label text-[var(--color-ink)] uppercase">
           {[address.defaultShippingAddress && 'Default Shipping', address.defaultBillingAddress && 'Default Billing']
             .filter(Boolean)
             .join(' · ')}
         </p>
       )}
       <div className="mt-2 flex gap-4">
-        <button type="button" onClick={() => setIsEditing(true)} className="text-xs tracking-[0.1em] uppercase underline underline-offset-2">
+        <button type="button" onClick={() => setIsEditing(true)} className="text-xs tracking-label underline underline-offset-2">
           Edit
         </button>
         <button
           type="button"
           onClick={handleDelete}
           disabled={isSubmitting}
-          className="text-xs tracking-[0.1em] text-danger uppercase underline underline-offset-2 disabled:opacity-40"
+          className="text-xs tracking-label text-danger uppercase underline underline-offset-2 disabled:opacity-40"
         >
           Remove
         </button>
@@ -280,14 +280,14 @@ export function AddressBook({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="bg-[var(--color-ink)] px-5 py-2.5 text-sm font-medium tracking-[0.1em] text-[var(--color-paper)] uppercase transition-opacity hover:opacity-90 disabled:opacity-40"
+              className="bg-[var(--color-ink)] px-5 py-2.5 text-sm font-medium tracking-label text-[var(--color-paper)] uppercase transition-opacity hover:opacity-90 disabled:opacity-40"
             >
               Save
             </button>
             <button
               type="button"
               onClick={() => setIsAdding(false)}
-              className="px-5 py-2.5 text-sm font-medium tracking-[0.1em] text-[var(--color-ink-muted)] uppercase hover:text-[var(--color-ink)]"
+              className="px-5 py-2.5 text-sm font-medium tracking-label text-[var(--color-ink-muted)] uppercase hover:text-[var(--color-ink)]"
             >
               Cancel
             </button>

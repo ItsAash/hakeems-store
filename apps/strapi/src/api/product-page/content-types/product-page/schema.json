@@ -5,14 +5,14 @@
     "singularName": "product-page",
     "pluralName": "product-pages",
     "displayName": "Product Page",
-    "description": "Editorial layer over a Vendure product (matched by slug): rich Markdown panels (size guide, fabric tables…) appended to the PDP's detail tabs. Vendure stays the source of truth for the product itself."
+    "description": "Editorial layer over a Medusa product (matched by handle): rich Markdown panels (size guide, fabric tables…) appended to the PDP's detail tabs. Medusa stays the source of truth for the product itself."
   },
   "options": {
     "draftAndPublish": true
   },
   "pluginOptions": {},
   "attributes": {
-    "vendureProductSlug": {
+    "productSlug": {
       "type": "string",
       "required": true,
       "unique": true,

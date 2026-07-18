@@ -1,8 +1,8 @@
 # Hakeems CMS (Strapi 5)
 
-Strapi is the **content/presentation** layer for the Hakeems storefront. **Vendure owns all
-commerce** (products, collections, facets, prices, stock); Strapi owns editorial content and
-page composition, and references Vendure by **stable string keys** (never database ids).
+Strapi is the **content/presentation** layer for the Hakeems storefront. **Medusa owns all
+commerce** (products, collections, prices, stock); Strapi owns editorial content and
+page composition, and references Medusa by **stable string keys** (never database ids).
 
 Responses use Strapi 5's **flattened** format (no `data.attributes` nesting). The storefront
 consumes them through a typed, runtime-validated layer — see
@@ -18,8 +18,9 @@ consumes them through a typed, runtime-validated layer — see
 | **brand-story** | single (global) | Shared, channel-agnostic brand story (base for `section.brand-story`). |
 | **site-setting** | single (global) | Site name, tagline, default SEO, socials, support contacts, footer/legal links. |
 | **site-nav** | collection (per channel) | Primary nav items (+ one level of flyout children). |
-| **collection-page** | collection (Vendure-synced) | Editorial layer (banner/tagline/copy/featured) over a Vendure collection. |
+| **collection-page** | collection (Medusa-synced) | Editorial layer (banner/tagline/copy/featured) over a Medusa collection. |
 | **home-page** | collection (per channel) | Announcement marquee + hero/facet-tile content. *(See "Legacy fields" below.)* |
+| **legal-page** | collection (per `slug`) | Standalone Markdown policy pages (privacy, terms, shipping-returns, …). |
 
 > **Legacy fields (follow-up cleanup):** `home-page.{storyEyebrow,storyHeading,storyParagraphs,storyImage}`
 > are **superseded by the global `brand-story`** and are currently only read as the seed source;
@@ -38,8 +39,8 @@ Each block maps to a React renderer via `SectionRenderer`
 |-------|--------|---------|
 | `section.hero-slider` | `slides[]` (`layout.hero-slide`) | Full-bleed hero image slider |
 | `section.category-grid` | `header` (`shared.section-header`), `tiles[]` (`layout.facet-category-tile`) | "Shop by category" facet-tile grid |
-| `section.product-rail` | `header`, `vendureCollectionSlug`, `cta` (`shared.cta`) | Horizontal product carousel for a Vendure collection |
-| `section.editorial-banner` | `header`, `vendureCollectionSlug`, `cta`, `backgroundToken` | Full-bleed split banner (text + product-image montage) |
+| `section.product-rail` | `header`, `collectionSlug`, `cta` (`shared.cta`) | Horizontal product carousel for a Medusa collection |
+| `section.editorial-banner` | `header`, `collectionSlug`, `cta`, `backgroundToken` | Full-bleed split banner (text + product-image montage) |
 | `section.brand-story` | `header?`, `paragraphs?`, `image?` (all optional overrides) | The shared global brand story (see base+override) |
 
 ## Shared primitive components (`shared.*`)
@@ -56,21 +57,20 @@ Reusable building blocks — use these instead of ad-hoc fields:
 
 ---
 
-## Reference-key protocol (Strapi → Vendure)
+## Reference-key protocol (Strapi → Medusa)
 
-**Strapi never stores a Vendure database id.** It stores an immutable, environment-stable
-key, and the storefront resolves it against the Vendure Shop API at render time.
+**Strapi never stores a Medusa database id.** It stores an immutable, environment-stable
+key, and the storefront resolves it against the Medusa Store API at render time.
 
 | Relationship | Key | Example |
 |--------------|-----|---------|
-| Collection | `vendureCollectionSlug` | `"spotlight"`, `"new-arrivals"` |
-| Facet value | `vendureFacetValueCode` = `"<facetCode>:<valueCode>"` | `"categories:tops"` |
+| Collection | `collectionSlug` | `"spotlight"`, `"new-arrivals"` |
+| Category tile | `categoryCode` = `"<namespace>:<collectionSlug>"` | `"categories:tops"` |
 
-- One key per relationship (no dual id+slug — `collection-page.vendureId` is now a **private**,
+- One key per relationship (no dual id+slug — `collection-page.medusaCollectionId` is a **private**,
   sync-only internal key, not a public reference).
 - Codes/slugs only, never numeric ids (ids drift across environments/re-seeds).
-- The category grid resolves `categories:tops` → the live facet-value id via a `FacetValues`
-  query at render time (`FacetCategoryGrid`).
+- The category grid resolves `categories:tops` → the Medusa collection handle at render time.
 
 ---
 
@@ -88,11 +88,11 @@ shared section.
 
 ---
 
-## Vendure → Strapi sync
+## Medusa → Strapi sync
 
-One-way. Vendure's `CollectionSyncPlugin` pushes `{vendureId, name, slug}` to
+One-way. Medusa's `collection-sync` subscriber pushes `{medusaCollectionId, name, slug}` to
 `POST /api/collection-pages/sync` (shared-secret header) whenever a collection is created,
-renamed, or deleted. Vendure owns which collections exist; Strapi owns their presentation.
+renamed, or deleted. Medusa owns which collections exist; Strapi owns their presentation.
 
 ---
 
@@ -119,9 +119,9 @@ enum field + filter. It is **orthogonal to language**. Both markets are currentl
 
 ## Seeding
 
-`pnpm --filter @hakeems/strapi seed` (or root `pnpm seed`, which runs Vendure first). Seeders
+`pnpm --filter @hakeems/strapi seed` (or root `pnpm seed`, which runs Medusa first). Seeders
 are idempotent. `seedPages` composes each channel's Page from seeded content; run **after**
-Vendure's seed so collections exist for the sync.
+Medusa's seed so collections exist for the sync.
 
 ---
 

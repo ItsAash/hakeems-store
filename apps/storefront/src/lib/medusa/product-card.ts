@@ -1,8 +1,19 @@
 import type {
   MedusaProduct as StoreProduct,
   MedusaProductVariant as StoreProductVariant,
-  MedusaProductImage as StoreProductImage,
 } from '@/lib/medusa/types';
+
+const LOW_STOCK_THRESHOLD = 5;
+
+function variantStockLevel(variant: StoreProductVariant): 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK' {
+  const qty = variant.inventory_quantity;
+  if (qty === null || qty === undefined) return 'IN_STOCK';
+  if (variant.allow_backorder) return 'IN_STOCK';
+  if (!variant.manage_inventory) return 'IN_STOCK';
+  if (qty <= 0) return 'OUT_OF_STOCK';
+  if (qty <= LOW_STOCK_THRESHOLD) return 'LOW_STOCK';
+  return 'IN_STOCK';
+}
 
 export type MedusaProductCardColor = {
   code: string;
@@ -10,6 +21,7 @@ export type MedusaProductCardColor = {
   hex: string | null;
   images: string[];
   variantId: string;
+  stockLevel: 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK';
 };
 
 export type ProductCardModel = {
@@ -25,6 +37,8 @@ export type ProductCardModel = {
   colors: MedusaProductCardColor[];
   defaultImageUrl: string | null;
   defaultVariantId: string | null;
+  stockLevel: 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK';
+  isNew: boolean;
 };
 
 export function deriveCompareAtPrice(price: number, discountPercent: number | null | undefined): number | null {
@@ -63,6 +77,7 @@ function collectColors(variants: StoreProductVariant[], optionTitle: string): Me
       hex: (colorValue.metadata?.swatch as string) ?? null,
       images: variantImages(variant),
       variantId: variant.id,
+      stockLevel: variantStockLevel(variant),
     });
   }
   return Array.from(colors.values());
@@ -107,6 +122,17 @@ export function buildProductCard(product: StoreProduct): ProductCardModel {
   const badge = (product.metadata?.badge as string) ?? null;
   const discountPercent = (product.metadata?.discount_percent as number) ?? null;
 
+  let stockLevel: 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK' = 'IN_STOCK';
+  for (const v of variants) {
+    const level = variantStockLevel(v);
+    if (level === 'OUT_OF_STOCK') { stockLevel = 'OUT_OF_STOCK'; break; }
+    if (level === 'LOW_STOCK') stockLevel = 'LOW_STOCK';
+  }
+
+  const isNew = product.created_at
+    ? Date.now() - new Date(product.created_at).getTime() < 30 * 24 * 60 * 60 * 1000
+    : false;
+
   return {
     productId: product.id,
     slug: product.handle,
@@ -120,6 +146,8 @@ export function buildProductCard(product: StoreProduct): ProductCardModel {
     colors,
     defaultImageUrl,
     defaultVariantId: firstVariant?.id ?? null,
+    stockLevel,
+    isNew,
   };
 }
 

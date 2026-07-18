@@ -18,7 +18,7 @@ type NewArrivalsBannerProps = {
   backgroundColor: string | null;
   /** Preferred: a constrained palette token (see lib/design/color-tokens.ts). */
   backgroundToken: string | null;
-  /** Montage images, ordered; supplied by the caller from the Vendure collection. */
+  /** Montage images, ordered; supplied by the caller from the Medusa collection. */
   images: string[];
 };
 
@@ -27,7 +27,7 @@ type NewArrivalsBannerProps = {
  * panel on the left (eyebrow top, headline centred, copy + CTA bottom) and an image montage
  * on the right that bleeds to the screen edge. Left padding mirrors the site CONTAINER so
  * the copy lines up with the nav's wordmark. Presentational only — content comes from
- * Strapi, images from the Vendure "new-arrivals" collection.
+ * Strapi, images from the Medusa "new-arrivals" collection.
  */
 export function NewArrivalsBanner({
   channelCode,

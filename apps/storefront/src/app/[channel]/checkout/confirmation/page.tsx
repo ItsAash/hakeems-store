@@ -56,7 +56,7 @@ export default async function CheckoutConfirmationPage({
 
         {order.shipping_address && (
           <div className="w-full border-t hairline pt-6 text-left text-sm text-[var(--color-ink-muted)]">
-            <p className="mb-1 text-xs tracking-[0.1em] text-[var(--color-ink)] uppercase">Shipping To</p>
+            <p className="mb-1 text-xs tracking-label text-[var(--color-ink)] uppercase">Shipping To</p>
             <p>
               {order.shipping_address.first_name} {order.shipping_address.last_name}
             </p>

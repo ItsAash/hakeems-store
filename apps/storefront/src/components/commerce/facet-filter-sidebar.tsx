@@ -1,60 +1,48 @@
+'use client';
+
+import { useCallback, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { FacetFilterGroup } from '@/lib/medusa/facets';
-import { CheckIcon } from '@/components/ui/icons';
+import { toURLSearchParams, buildToggleHref, type SearchParamsRecord } from '@/lib/search-params';
+import { CheckIcon, ChevronDownIcon, CloseIcon } from '@/components/ui/icons';
 
-export type SearchParamsRecord = Record<string, string | string[] | undefined>;
+const INITIAL_VISIBLE_OPTIONS = 5;
 
-export function toURLSearchParams(searchParams: SearchParamsRecord): URLSearchParams {
-  const params = new URLSearchParams();
-  for (const [key, value] of Object.entries(searchParams)) {
-    if (typeof value === 'string') params.set(key, value);
-  }
-  return params;
-}
-
-export function buildToggleHref(basePath: string, searchParams: SearchParamsRecord, valueId: string, isActive: boolean): string {
-  const params = toURLSearchParams(searchParams);
-  const activeIds = new Set((params.get('facets') ?? '').split(',').filter(Boolean));
-
-  if (isActive) {
-    activeIds.delete(valueId);
-  } else {
-    activeIds.add(valueId);
-  }
-
-  if (activeIds.size > 0) {
-    params.set('facets', Array.from(activeIds).join(','));
-  } else {
-    params.delete('facets');
-  }
-  params.delete('page'); // any filter change starts back at page 1
-
-  const query = params.toString();
-  return query ? `${basePath}?${query}` : basePath;
-}
-
-export function FacetFilterSidebar({
-  groups,
+function CollapsibleGroup({
+  group,
   activeFacetValueIds,
   basePath,
   searchParams,
 }: {
-  groups: FacetFilterGroup[];
+  group: FacetFilterGroup;
   activeFacetValueIds: string[];
   basePath: string;
   searchParams: SearchParamsRecord;
 }) {
-  if (groups.length === 0) return null;
+  const [isOpen, setIsOpen] = useState(true);
+  const [showAll, setShowAll] = useState(false);
+
+  const hasManyOptions = group.options.length > INITIAL_VISIBLE_OPTIONS;
+  const visibleOptions = showAll ? group.options : group.options.slice(0, INITIAL_VISIBLE_OPTIONS);
+  const hiddenCount = group.options.length - INITIAL_VISIBLE_OPTIONS;
 
   return (
-    <div className="flex flex-col gap-8">
-      {groups.map((group) => (
-        <div key={group.facetId}>
-          <h3 className="mb-3 text-xs font-semibold tracking-[0.1em] text-[var(--color-ink)] uppercase">
-            {group.facetName}
-          </h3>
+    <div>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="mb-3 flex w-full items-center justify-between text-xs font-semibold tracking-label text-[var(--color-ink)] uppercase"
+      >
+        {group.facetName}
+        <ChevronDownIcon
+          className={`h-3.5 w-3.5 text-[var(--color-ink-muted)] transition-transform ${isOpen ? 'rotate-0' : '-rotate-90'}`}
+        />
+      </button>
+      {isOpen && (
+        <>
           <ul className="flex flex-col gap-2.5">
-            {group.options.map((option) => {
+            {visibleOptions.map((option) => {
               const isActive = activeFacetValueIds.includes(option.valueId);
               return (
                 <li key={option.valueId}>
@@ -82,7 +70,144 @@ export function FacetFilterSidebar({
               );
             })}
           </ul>
+          {hasManyOptions && !showAll && (
+            <button
+              type="button"
+              onClick={() => setShowAll(true)}
+              className="mt-2 text-xs text-[var(--color-ink-muted)] underline underline-offset-2 transition-colors hover:text-[var(--color-ink)]"
+            >
+              Show {hiddenCount} more
+            </button>
+          )}
+          {hasManyOptions && showAll && (
+            <button
+              type="button"
+              onClick={() => setShowAll(false)}
+              className="mt-2 text-xs text-[var(--color-ink-muted)] underline underline-offset-2 transition-colors hover:text-[var(--color-ink)]"
+            >
+              Show less
+            </button>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+function PriceRangeFilter({
+  basePath,
+  searchParams,
+}: {
+  basePath: string;
+  searchParams: SearchParamsRecord;
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(true);
+  const [min, setMin] = useState((searchParams.priceMin as string) ?? '');
+  const [max, setMax] = useState((searchParams.priceMax as string) ?? '');
+
+  const apply = useCallback(() => {
+    const params = toURLSearchParams(searchParams);
+    if (min) params.set('priceMin', min);
+    else params.delete('priceMin');
+    if (max) params.set('priceMax', max);
+    else params.delete('priceMax');
+    params.delete('page');
+    const query = params.toString();
+    router.push(query ? `${basePath}?${query}` : basePath, { scroll: false });
+  }, [basePath, searchParams, min, max, router, pathname]);
+
+  const clear = useCallback(() => {
+    setMin('');
+    setMax('');
+    const params = toURLSearchParams(searchParams);
+    params.delete('priceMin');
+    params.delete('priceMax');
+    params.delete('page');
+    const query = params.toString();
+    router.push(query ? `${basePath}?${query}` : basePath, { scroll: false });
+  }, [basePath, searchParams, router, pathname]);
+
+  const hasPrice = !!(searchParams.priceMin || searchParams.priceMax);
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="mb-3 flex w-full items-center justify-between text-xs font-semibold tracking-label text-[var(--color-ink)] uppercase"
+      >
+        Price
+        <ChevronDownIcon
+          className={`h-3.5 w-3.5 text-[var(--color-ink-muted)] transition-transform ${isOpen ? 'rotate-0' : '-rotate-90'}`}
+        />
+      </button>
+      {isOpen && (
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              placeholder="Min"
+              value={min}
+              onChange={(e) => setMin(e.target.value)}
+              onBlur={apply}
+              onKeyDown={(e) => { if (e.key === 'Enter') apply(); }}
+              min={0}
+              className="w-full border border-[var(--color-hairline)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none transition-colors focus:border-[var(--color-ink)]"
+            />
+            <span className="text-xs text-[var(--color-ink-muted)]">–</span>
+            <input
+              type="number"
+              placeholder="Max"
+              value={max}
+              onChange={(e) => setMax(e.target.value)}
+              onBlur={apply}
+              onKeyDown={(e) => { if (e.key === 'Enter') apply(); }}
+              min={0}
+              className="w-full border border-[var(--color-hairline)] px-3 py-2 text-sm text-[var(--color-ink)] outline-none transition-colors focus:border-[var(--color-ink)]"
+            />
+          </div>
+          {hasPrice && (
+            <button
+              type="button"
+              onClick={clear}
+              className="flex items-center gap-1 text-xs text-[var(--color-ink-muted)] underline underline-offset-2 transition-colors hover:text-[var(--color-ink)]"
+            >
+              <CloseIcon className="h-3 w-3" />
+              Clear price
+            </button>
+          )}
         </div>
+      )}
+    </div>
+  );
+}
+
+export function FacetFilterSidebar({
+  groups,
+  activeFacetValueIds,
+  basePath,
+  searchParams,
+}: {
+  groups: FacetFilterGroup[];
+  activeFacetValueIds: string[];
+  basePath: string;
+  searchParams: SearchParamsRecord;
+}) {
+  if (groups.length === 0) return null;
+
+  return (
+    <div className="flex flex-col gap-8">
+      <PriceRangeFilter basePath={basePath} searchParams={searchParams} />
+      {groups.map((group) => (
+        <CollapsibleGroup
+          key={group.facetId}
+          group={group}
+          activeFacetValueIds={activeFacetValueIds}
+          basePath={basePath}
+          searchParams={searchParams}
+        />
       ))}
     </div>
   );

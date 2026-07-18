@@ -5,6 +5,7 @@ export const metadata = { ...NOINDEX_METADATA, title: 'Checkout' };
 import { getChannel, isChannelCode } from '@/lib/channel';
 import { routes } from '@/lib/routes';
 import { fetchCartAction } from '@/lib/medusa/cart-actions';
+import { fetchCustomerAction } from '@/lib/medusa/auth-actions';
 import { toCartLines, toCartTotals } from '@/lib/medusa/cart-mapper';
 import { listShippingOptionsAction, fetchShippingZoneTreeAction } from '@/lib/medusa/checkout-actions';
 import { CONTAINER } from '@/lib/ui';
@@ -20,6 +21,8 @@ export default async function CheckoutPage({ params }: { params: Promise<{ chann
   if (!cart || (cart.items?.length ?? 0) === 0) {
     redirect(routes.cart(channel.code));
   }
+
+  const customer = await fetchCustomerAction(channel.code);
 
   const hasShippingAddress = !!cart.shipping_address?.address_1;
   const hasShippingMethod = (cart.shipping_methods?.length ?? 0) > 0;
@@ -44,7 +47,10 @@ export default async function CheckoutPage({ params }: { params: Promise<{ chann
           channelCode={channel.code}
           hasShippingAddress={hasShippingAddress}
           hasShippingMethod={hasShippingMethod}
-          defaultEmail={cart.email ?? undefined}
+          defaultEmail={customer?.email ?? cart.email ?? undefined}
+          defaultFirstName={customer?.first_name ?? undefined}
+          defaultLastName={customer?.last_name ?? undefined}
+          defaultPhone={customer?.phone ?? undefined}
           shippingZones={shippingZones}
           shippingMethods={shippingMethods}
           currencyCode={totals.currencyCode}
