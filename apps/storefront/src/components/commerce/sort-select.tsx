@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { PLP_SORT_OPTIONS, type PlpSortKey } from '@/lib/vendure/plp';
+import { PLP_SORT_OPTIONS, type PlpSortKey } from '@/lib/medusa/products';
 import { ChevronDownIcon } from '@/components/ui/icons';
 
 export function SortSelect({ currentSort }: { currentSort: PlpSortKey }) {

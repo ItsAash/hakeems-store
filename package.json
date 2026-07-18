@@ -9,10 +9,13 @@
     "dev": "pnpm --parallel --filter @hakeems/vendure --filter @hakeems/strapi --filter @hakeems/storefront dev",
     "dev:vendure": "pnpm --filter @hakeems/vendure dev",
     "dev:worker": "pnpm --filter @hakeems/vendure worker",
+    "dev:medusa": "pnpm --filter @hakeems/medusa dev",
     "dev:strapi": "pnpm --filter @hakeems/strapi dev",
     "dev:storefront": "pnpm --filter @hakeems/storefront dev",
     "build": "pnpm --filter @hakeems/vendure build && pnpm --filter @hakeems/strapi build && pnpm --filter @hakeems/storefront build",
+    "build:medusa": "pnpm --filter @hakeems/medusa build",
     "seed": "pnpm --filter @hakeems/vendure seed && pnpm --filter @hakeems/strapi seed",
+    "seed:medusa": "pnpm --filter @hakeems/medusa seed",
     "seed:production": "pnpm --filter @hakeems/vendure exec tsx ../../scripts/seed-production.ts",
     "purge": "pnpm --filter @hakeems/strapi purge && pnpm --filter @hakeems/vendure purge",
     "db:up": "docker compose up -d postgres",
@@ -31,12 +34,15 @@
     },
     "onlyBuiltDependencies": [
       "@apollo/protobufjs",
+      "@medusajs/telemetry",
       "@swc/core",
       "bcrypt",
       "better-sqlite3",
       "core-js-pure",
       "esbuild",
       "msw",
+      "msgpackr-extract",
+      "protobufjs",
       "sharp"
     ]
   }

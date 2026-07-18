@@ -11,8 +11,6 @@ const PRIVATE_SEGMENTS = [
   'register',
   'forgot-password',
   'password-reset',
-  'verify',
-  'verify-email-address-change',
   'search',
 ];
 

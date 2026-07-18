@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { ChannelCode } from '@/lib/channel';
 import { routes } from '@/lib/routes';
-import { adjustOrderLineAction, removeOrderLineAction } from '@/lib/vendure/actions';
+import { adjustCartLineAction, removeCartLineAction } from '@/lib/medusa/cart-actions';
 import { formatPrice } from '@/lib/format';
 import { CloseIcon } from '@/components/ui/icons';
 
@@ -47,7 +47,7 @@ export function CartLineItem({ line, channelCode }: { line: CartLine; channelCod
     setError(null);
     startTransition(async () => {
       applyOptimistic({ quantity: nextQuantity });
-      const result = await adjustOrderLineAction(channelCode, line.id, nextQuantity);
+      const result = await adjustCartLineAction(channelCode, line.id, nextQuantity);
       if (!result.success) setError(result.message);
       router.refresh();
     });
@@ -58,7 +58,7 @@ export function CartLineItem({ line, channelCode }: { line: CartLine; channelCod
     setError(null);
     startTransition(async () => {
       applyOptimistic({ removed: true });
-      const result = await removeOrderLineAction(channelCode, line.id);
+      const result = await removeCartLineAction(channelCode, line.id);
       if (!result.success) setError(result.message);
       router.refresh();
     });

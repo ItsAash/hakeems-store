@@ -27,3 +27,10 @@ export function useChannel(): ChannelDefinition {
   }
   return channel;
 }
+
+/** Non-throwing variant for the rare spot (e.g. not-found.tsx) that has to render both
+ * inside and outside a ChannelProvider — an invalid `[channel]` segment triggers
+ * notFound() from the layout itself, before ChannelProvider ever mounts. */
+export function useOptionalChannel(): ChannelDefinition | null {
+  return useContext(ChannelContext);
+}

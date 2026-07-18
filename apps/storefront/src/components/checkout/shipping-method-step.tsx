@@ -3,14 +3,14 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ChannelCode } from '@/lib/channel';
-import { setOrderShippingMethodAction } from '@/lib/vendure/actions';
+import { addShippingMethodAction } from '@/lib/medusa/checkout-actions';
 import { formatPrice } from '@/lib/format';
 
 export type ShippingMethodOption = {
   id: string;
   name: string;
-  description: string;
-  priceWithTax: number;
+  /** Minor units, matching every other price in the app. */
+  amount: number;
 };
 
 export function ShippingMethodStep({
@@ -33,7 +33,7 @@ export function ShippingMethodStep({
     setIsSubmitting(true);
     setError(null);
 
-    const result = await setOrderShippingMethodAction(channelCode, selectedId);
+    const result = await addShippingMethodAction(channelCode, selectedId);
     if (!result.success) {
       setError(result.message);
       setIsSubmitting(false);
@@ -68,12 +68,9 @@ export function ShippingMethodStep({
                 onChange={() => setSelectedId(method.id)}
                 className="accent-[var(--color-ink)]"
               />
-              <span className="flex flex-col">
-                <span className="text-sm text-[var(--color-ink)]">{method.name}</span>
-                {method.description && <span className="text-xs text-[var(--color-ink-muted)]">{method.description}</span>}
-              </span>
+              <span className="text-sm text-[var(--color-ink)]">{method.name}</span>
             </span>
-            <span className="text-sm text-[var(--color-ink)]">{formatPrice(method.priceWithTax, currencyCode)}</span>
+            <span className="text-sm text-[var(--color-ink)]">{formatPrice(method.amount, currencyCode)}</span>
           </label>
         ))}
       </div>

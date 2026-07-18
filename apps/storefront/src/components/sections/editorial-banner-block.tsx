@@ -1,16 +1,15 @@
 import type { ChannelCode } from '@/lib/channel';
 import type { SectionOf } from '@/lib/strapi/types';
-import { getVendureClient } from '@/lib/vendure/client';
-import { groupVariantsIntoNewArrivals } from '@/lib/vendure/new-arrivals';
+import { listCollectionProducts } from '@/lib/medusa/products';
 import { NewArrivalsBanner } from '@/components/marketing/new-arrivals-banner';
 
-const VARIANT_FETCH_LIMIT = 100;
+const PRODUCT_FETCH_LIMIT = 100;
 const MONTAGE_IMAGE_COUNT = 6;
 
 /**
  * `section.editorial-banner` — full-bleed split banner (text panel + product-image montage)
- * for a Vendure collection (by slug). Text/CTA/background come from Strapi; montage images
- * come live from Vendure.
+ * for a Medusa collection (by slug). Text/CTA/background come from Strapi; montage images
+ * come live from Medusa.
  */
 export async function EditorialBannerBlock({
   section,
@@ -19,15 +18,20 @@ export async function EditorialBannerBlock({
   section: SectionOf<'section.editorial-banner'>;
   channelCode: ChannelCode;
 }) {
-  const client = getVendureClient(channelCode);
-  const result = await client
-    .NewArrivalsCollection({ slug: section.vendureCollectionSlug, take: VARIANT_FETCH_LIMIT })
-    .catch(() => null);
-
-  const products = groupVariantsIntoNewArrivals(result?.collection?.productVariants.items ?? []);
-  const images = products
-    .map((product) => product.primaryImage)
-    .filter((src): src is string => Boolean(src))
+  const cards = await listCollectionProducts(channelCode, section.vendureCollectionSlug, PRODUCT_FETCH_LIMIT).catch(
+    () => [],
+  );
+  const images = cards
+    .flatMap((card) => {
+      const imgs: string[] = [];
+      if (card.defaultImageUrl) imgs.push(card.defaultImageUrl);
+      for (const color of card.colors) {
+        for (const img of color.images) {
+          if (!imgs.includes(img)) imgs.push(img);
+        }
+      }
+      return imgs;
+    })
     .slice(0, MONTAGE_IMAGE_COUNT);
   if (images.length === 0) return null;
 

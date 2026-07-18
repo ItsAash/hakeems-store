@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ChannelCode } from '@/lib/channel';
 import { routes } from '@/lib/routes';
-import { resetPasswordAction } from '@/lib/vendure/auth-actions';
+import { resetPasswordAction } from '@/lib/medusa/auth-actions';
 import { Field } from '@/components/ui/field';
 
 export function PasswordResetForm({ channelCode, token }: { channelCode: ChannelCode; token: string }) {

@@ -1,8 +1,7 @@
 import { notFound, redirect } from 'next/navigation';
 import { getChannel, isChannelCode } from '@/lib/channel';
 import { routes } from '@/lib/routes';
-import { getVendureClient } from '@/lib/vendure/client';
-import { getVendureSessionCookies } from '@/lib/session';
+import { fetchCustomerAction } from '@/lib/medusa/auth-actions';
 import { ProfileForm } from '@/components/account/profile-form';
 import { PasswordForm } from '@/components/account/password-form';
 
@@ -11,9 +10,8 @@ export default async function AccountProfilePage({ params }: { params: Promise<{
   if (!isChannelCode(channelParam)) notFound();
   const channel = getChannel(channelParam);
 
-  const sessionCookies = await getVendureSessionCookies();
-  const { activeCustomer } = await getVendureClient(channel.code, sessionCookies).ActiveCustomer();
-  if (!activeCustomer) redirect(routes.login(channel.code, routes.account(channel.code)));
+  const customer = await fetchCustomerAction(channel.code);
+  if (!customer) redirect(routes.login(channel.code, routes.account(channel.code)));
 
   return (
     <div className="flex flex-col gap-12">
@@ -21,10 +19,10 @@ export default async function AccountProfilePage({ params }: { params: Promise<{
         <h2 className="font-serif text-xl text-[var(--color-ink)]">Profile</h2>
         <ProfileForm
           channelCode={channel.code}
-          emailAddress={activeCustomer.emailAddress}
-          firstName={activeCustomer.firstName}
-          lastName={activeCustomer.lastName}
-          phoneNumber={activeCustomer.phoneNumber ?? ''}
+          emailAddress={customer.email}
+          firstName={customer.first_name ?? ''}
+          lastName={customer.last_name ?? ''}
+          phoneNumber={customer.phone ?? ''}
         />
       </section>
 

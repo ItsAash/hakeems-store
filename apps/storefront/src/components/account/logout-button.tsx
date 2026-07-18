@@ -1,7 +1,5 @@
-'use client';
-
 import type { ChannelCode } from '@/lib/channel';
-import { logoutAction } from '@/lib/vendure/auth-actions';
+import { logoutAction } from '@/lib/medusa/auth-actions';
 
 export function LogoutButton({ channelCode }: { channelCode: ChannelCode }) {
   return (

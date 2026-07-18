@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ChannelCode } from '@/lib/channel';
-import { updateCustomerAction } from '@/lib/vendure/auth-actions';
+import { updateCustomerAction } from '@/lib/medusa/auth-actions';
 import { Field } from '@/components/ui/field';
 
 export function ProfileForm({
@@ -35,7 +35,11 @@ export function ProfileForm({
     setIsSubmitting(true);
     setError(null);
 
-    const result = await updateCustomerAction(channelCode, form);
+    const result = await updateCustomerAction(channelCode, {
+      first_name: form.firstName,
+      last_name: form.lastName,
+      phone: form.phoneNumber || undefined,
+    });
     setIsSubmitting(false);
     if (!result.success) {
       setError(result.message);
@@ -54,7 +58,7 @@ export function ProfileForm({
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field idPrefix="profile" label="First name" required value={form.firstName} onChange={setField('firstName')} />
         <Field idPrefix="profile" label="Last name" required value={form.lastName} onChange={setField('lastName')} />
       </div>

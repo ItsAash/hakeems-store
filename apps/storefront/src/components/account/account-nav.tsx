@@ -11,7 +11,7 @@ const LINKS = [
 
 export function AccountNav({ channelCode }: { channelCode: ChannelCode }) {
   return (
-    <nav className="flex flex-row gap-6 border-b hairline pb-4 text-sm md:w-40 md:flex-col md:border-b-0 md:border-r md:pb-0 md:pr-6">
+    <nav className="flex flex-row flex-wrap gap-x-6 gap-y-2 border-b hairline pb-4 text-sm md:w-40 md:flex-col md:flex-nowrap md:border-b-0 md:border-r md:pb-0 md:pr-6">
       {LINKS.map((link) => (
         <Link
           key={link.label}

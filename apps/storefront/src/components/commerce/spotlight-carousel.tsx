@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { withChannel, type ChannelCode } from '@/lib/channel';
-import type { ProductCardModel } from '@/lib/vendure/product-card';
+import type { ProductCardModel } from '@/lib/medusa/product-card';
 import { ProductCard } from '@/components/commerce/product-card';
 import { ArrowLeftIcon, ArrowRightIcon } from '@/components/ui/icons';
 

@@ -3,15 +3,15 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { ChannelCode } from '@/lib/channel';
-import { addItemToOrderAction } from '@/lib/vendure/actions';
+import { addItemToCartAction } from '@/lib/medusa/cart-actions';
 import { requestCartOpen } from '@/lib/cart-events';
 import { PlusIcon, CheckIcon } from '@/components/ui/icons';
 
 type Status = 'idle' | 'loading' | 'added' | 'error';
 
 /**
- * Adds the given variant via a real addItemToOrder mutation (Server Action, see
- * lib/vendure/actions.ts) — not a UI shell. On success, refreshes the route so the
+ * Adds the given variant via a real addItemToCart mutation (Server Action, see
+ * lib/medusa/cart-actions.ts) — not a UI shell. On success, refreshes the route so the
  * server-rendered nav cart badge picks up the new total; there's no separate client
  * cart store to keep in sync (see STOREFRONT_PLAN.md §3.2).
  */
@@ -21,7 +21,7 @@ export function QuickAddButton({ channelCode, variantId }: { channelCode: Channe
 
   const handleClick = async () => {
     setStatus('loading');
-    const result = await addItemToOrderAction(channelCode, variantId, 1);
+    const result = await addItemToCartAction(channelCode, variantId, 1);
     if (result.success) {
       setStatus('added');
       router.refresh();

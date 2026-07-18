@@ -2,9 +2,9 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getChannel, isChannelCode } from '@/lib/channel';
 import { routes } from '@/lib/routes';
-import { getVendureClient } from '@/lib/vendure/client';
-import { buildVariantMatrix } from '@/lib/vendure/pdp';
-import { buildSpotlightCards } from '@/lib/vendure/product-card';
+import { retrieveProduct, listCollectionProducts } from '@/lib/medusa/products';
+import { buildVariantMatrix } from '@/lib/medusa/pdp';
+import { buildProductCards } from '@/lib/medusa/product-card';
 import { getProductPage } from '@/lib/strapi/queries';
 import { buildMetadata } from '@/lib/seo/metadata';
 import { SITE_NAME, absoluteUrl, toMetaDescription } from '@/lib/seo/site';
@@ -18,16 +18,17 @@ import { Markdown } from '@/components/legal/markdown';
 
 type PdpParams = { channel: string; slug: string };
 
-const VENDURE_ROOT_COLLECTION_SLUG = '__root_collection__';
-const RELATED_FETCH_LIMIT = 60;
+function metaStr(metadata: Record<string, unknown> | null | undefined, key: string): string | null {
+  const val = metadata?.[key];
+  return typeof val === 'string' ? val : null;
+}
 
-async function loadProduct(channelParam: string, slug: string) {
+async function loadProduct(channelParam: string, handle: string) {
   if (!isChannelCode(channelParam)) return null;
   const channel = getChannel(channelParam);
-  const result = await getVendureClient(channel.code)
-    .PdpProduct({ slug })
-    .catch(() => null);
-  return { channel, product: result?.product ?? null };
+  const result = await retrieveProduct(channel.code, handle).catch(() => null);
+  if (!result) return null;
+  return { channel, product: result };
 }
 
 export async function generateMetadata({ params }: { params: Promise<PdpParams> }): Promise<Metadata> {
@@ -37,22 +38,12 @@ export async function generateMetadata({ params }: { params: Promise<PdpParams> 
 
   const { channel, product } = data;
   return buildMetadata({
-    title: product.customFields?.seoTitle || product.name,
-    description: product.customFields?.seoDescription || toMetaDescription(product.description),
-    path: routes.product(channel.code, product.slug),
+    title: metaStr(product.metadata, 'seo_title') || product.title,
+    description: metaStr(product.metadata, 'seo_description') || toMetaDescription(product.description ?? ''),
+    path: routes.product(channel.code, product.handle),
     channel: channel.code,
-    images: product.assets.map((asset) => asset.preview).slice(0, 4),
+    images: (product.images ?? []).map((img) => img.url).slice(0, 4),
   });
-}
-
-/** Vendure product fields are HTML strings; render them in the site's long-form type. */
-function HtmlContent({ html }: { html: string }) {
-  return (
-    <div
-      className="leading-relaxed text-[var(--color-ink-muted)] [&_a]:text-[var(--color-ink)] [&_a]:underline [&_a]:underline-offset-2 [&_li]:mb-1 [&_ol]:mb-4 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-4 [&_p:last-child]:mb-0 [&_strong]:font-medium [&_strong]:text-[var(--color-ink)] [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:pl-5"
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
-  );
 }
 
 export default async function ProductDetailPage({ params }: { params: Promise<PdpParams> }) {
@@ -61,34 +52,31 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pd
   if (!data?.product) notFound();
 
   const { channel, product } = data;
-  const matrix = buildVariantMatrix(product.variants);
-  const primaryCollection = product.collections[0] ?? null;
-  const breadcrumbItems = primaryCollection?.breadcrumbs ?? [];
-  const description = product.customFields?.enrichedDescription || product.description;
-  const images = product.assets.map((asset) => asset.preview);
+  const matrix = buildVariantMatrix(product);
+  const images = (product.images ?? []).map((img) => img.url);
+  const collection = product.collection ?? null;
+  const categories = product.categories ?? [];
 
-  // Editorial CMS panels (size guide, fabric tables…) + the related-products rail load in
-  // parallel with nothing blocking the buy box data (already fetched above).
-  const [productPage, relatedResult] = await Promise.all([
-    getProductPage(product.slug).catch(() => null),
-    primaryCollection
-      ? getVendureClient(channel.code)
-          .SpotlightCollection({ slug: primaryCollection.slug, take: RELATED_FETCH_LIMIT })
-          .catch(() => null)
-      : Promise.resolve(null),
+  const description = metaStr(product.metadata, 'enriched_description') || product.description || '';
+
+  const [productPage, relatedCards] = await Promise.all([
+    getProductPage(product.handle).catch(() => null),
+    collection
+      ? listCollectionProducts(channel.code, collection.handle, 60)
+          .then((cards) => cards.filter((card) => card.slug !== product.handle))
+          .catch(() => [])
+      : Promise.resolve([]),
   ]);
 
-  const relatedCards = buildSpotlightCards(relatedResult?.collection?.productVariants.items ?? []).filter(
-    (card) => card.slug !== product.slug,
-  );
-
   const detailTabs: ProductDetailsTab[] = [
-    { id: 'details', label: 'Details', html: description },
-    { id: 'fit-fabric', label: 'Fit & Fabric', html: product.customFields?.fitAndFabric },
-    { id: 'shipping-returns', label: 'Shipping & Returns', html: product.customFields?.shippingReturns },
-  ]
-    .filter((tab): tab is { id: string; label: string; html: string } => Boolean(tab.html?.trim()))
-    .map((tab) => ({ id: tab.id, label: tab.label, content: <HtmlContent html={tab.html} /> }));
+    { id: 'details', label: 'Details', content: <p className="leading-relaxed text-[var(--color-ink-muted)]">{description}</p> },
+    ...(metaStr(product.metadata, 'fit_and_fabric')
+      ? [{ id: 'fit-fabric', label: 'Fit & Fabric', content: <p className="leading-relaxed text-[var(--color-ink-muted)]">{metaStr(product.metadata, 'fit_and_fabric')!}</p> }]
+      : []),
+    ...(metaStr(product.metadata, 'shipping_returns')
+      ? [{ id: 'shipping-returns', label: 'Shipping & Returns', content: <p className="leading-relaxed text-[var(--color-ink-muted)]">{metaStr(product.metadata, 'shipping_returns')!}</p> }]
+      : []),
+  ];
 
   for (const panel of productPage?.panels ?? []) {
     if (!panel.content.trim()) continue;
@@ -99,26 +87,23 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pd
     });
   }
 
-  // --- Structured data (Schema.org) — all values from live Vendure product data ---
-  const prices = product.variants.map((variant) => variant.priceWithTax);
+  const prices = matrix.variants.map((v) => v.priceWithTax);
   const productLd = productSchema({
-    name: product.name,
-    description: product.customFields?.seoDescription || toMetaDescription(product.description),
+    name: product.title,
+    description: metaStr(product.metadata, 'seo_description') || product.description || '',
     images,
-    url: absoluteUrl(routes.product(channel.code, product.slug)),
-    sku: product.variants[0]?.sku,
+    url: absoluteUrl(routes.product(channel.code, product.handle)),
+    sku: matrix.variants[0]?.sku,
     brand: SITE_NAME,
-    currency: product.variants[0]?.currencyCode ?? channel.currencyCode,
+    currency: matrix.variants[0]?.currencyCode ?? channel.currencyCode.toLowerCase(),
     priceMin: prices.length ? Math.min(...prices) : 0,
     priceMax: prices.length ? Math.max(...prices) : 0,
-    inStock: product.variants.some((variant) => variant.stockLevel !== 'OUT_OF_STOCK'),
+    inStock: matrix.variants.some((v) => v.inStock),
   });
   const crumbLd = breadcrumbSchema([
     { name: 'Home', url: absoluteUrl(routes.home(channel.code)) },
-    ...breadcrumbItems
-      .filter((crumb) => crumb.slug !== VENDURE_ROOT_COLLECTION_SLUG)
-      .map((crumb) => ({ name: crumb.name, url: absoluteUrl(routes.collection(channel.code, crumb.slug)) })),
-    { name: product.name, url: absoluteUrl(routes.product(channel.code, product.slug)) },
+    ...categories.map((cat) => ({ name: cat.name, url: absoluteUrl(routes.collection(channel.code, cat.handle)) })),
+    { name: product.title, url: absoluteUrl(routes.product(channel.code, product.handle)) },
   ]);
 
   return (
@@ -127,14 +112,14 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pd
         <JsonLd data={productLd} />
         <JsonLd data={crumbLd} />
         <Breadcrumbs
-          items={[...breadcrumbItems, { name: product.name, slug: product.slug }]}
+          items={[...categories.map((c) => ({ name: c.name, slug: c.handle })), { name: product.title, slug: product.handle }]}
           channelCode={channel.code}
         />
 
         <ProductDetail
           matrix={matrix}
           channelCode={channel.code}
-          productName={product.name}
+          productName={product.title}
           productImages={images}
           detailTabs={detailTabs}
         />
@@ -146,10 +131,10 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pd
             cards={relatedCards}
             channelCode={channel.code}
             eyebrow="Complete the look"
-            heading={primaryCollection ? `More from ${primaryCollection.name}` : 'You may also like'}
+            heading={collection ? `More from ${collection.title}` : 'You may also like'}
             paragraph={null}
-            ctaLabel={primaryCollection ? 'Shop the collection' : null}
-            ctaHref={primaryCollection ? routes.collection(channel.code, primaryCollection.slug) : null}
+            ctaLabel={collection ? 'Shop the collection' : null}
+            ctaHref={collection ? routes.collection(channel.code, collection.handle) : null}
           />
         </div>
       )}

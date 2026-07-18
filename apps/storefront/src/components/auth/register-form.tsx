@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import type { ChannelCode } from '@/lib/channel';
 import { routes } from '@/lib/routes';
-import { registerCustomerAccountAction } from '@/lib/vendure/auth-actions';
+import { registerAction } from '@/lib/medusa/auth-actions';
 import { Field } from '@/components/ui/field';
 
 export function RegisterForm({ channelCode }: { channelCode: ChannelCode }) {
@@ -22,7 +22,12 @@ export function RegisterForm({ channelCode }: { channelCode: ChannelCode }) {
     setIsSubmitting(true);
     setError(null);
 
-    const result = await registerCustomerAccountAction(channelCode, form);
+    const result = await registerAction(channelCode, {
+      email: form.emailAddress,
+      password: form.password,
+      first_name: form.firstName,
+      last_name: form.lastName,
+    });
     if (!result.success) {
       setError(result.message);
       setIsSubmitting(false);
@@ -51,7 +56,7 @@ export function RegisterForm({ channelCode }: { channelCode: ChannelCode }) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field idPrefix="register" label="First name" required value={form.firstName} onChange={setField('firstName')} autoComplete="given-name" />
         <Field idPrefix="register" label="Last name" required value={form.lastName} onChange={setField('lastName')} autoComplete="family-name" />
       </div>

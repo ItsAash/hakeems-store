@@ -1,6 +1,7 @@
 import type { ChannelCode } from '@/lib/channel';
-import type { FacetFilterGroup, PlpSortKey } from '@/lib/vendure/plp';
-import type { ProductCardModel } from '@/lib/vendure/product-card';
+import type { FacetFilterGroup } from '@/lib/medusa/page-data';
+import type { PlpSortKey } from '@/lib/medusa/products';
+import type { ProductCardModel } from '@/lib/medusa/product-card';
 import { ProductGrid } from '@/components/commerce/product-grid';
 import { FacetFilterSidebar, type SearchParamsRecord } from '@/components/commerce/facet-filter-sidebar';
 import { FilterDrawer } from '@/components/commerce/filter-drawer';

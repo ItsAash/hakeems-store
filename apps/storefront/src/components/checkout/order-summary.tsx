@@ -2,14 +2,13 @@ import Image from 'next/image';
 import type { CartLine } from '@/components/commerce/cart-line-item';
 import type { ChannelCode } from '@/lib/channel';
 import { formatPrice } from '@/lib/format';
+import type { MedusaCartPromotion } from '@/lib/medusa/cart-mapper';
 import { PromoCodeForm } from '@/components/checkout/promo-code-form';
-
-export type OrderDiscount = { description: string; amountWithTax: number };
 
 /**
  * A single line in the order summary: fixed-ratio thumbnail with a quantity badge, the
- * product name + variant, and the line total. All data is passed in from the order
- * (mapped from Vendure in the checkout page) — nothing is hardcoded here.
+ * product name + variant, and the line total. All data is passed in from the cart
+ * (mapped from Medusa in the checkout page) — nothing is hardcoded here.
  */
 function OrderSummaryLine({ line, currencyCode }: { line: CartLine; currencyCode: string }) {
   return (
@@ -49,8 +48,7 @@ export function OrderSummary({
   totalWithTax,
   currencyCode,
   channelCode,
-  discounts = [],
-  appliedCouponCodes = [],
+  promotions = [],
 }: {
   lines: CartLine[];
   subTotalWithTax: number;
@@ -58,10 +56,11 @@ export function OrderSummary({
   totalWithTax: number;
   currencyCode: string;
   channelCode?: ChannelCode;
-  /** Vendure order-level discounts (promotions + coupons); rendered as negative lines. */
-  discounts?: OrderDiscount[];
-  appliedCouponCodes?: string[];
+  /** Medusa cart promotions (see cart/page.tsx, which renders this same shape). */
+  promotions?: MedusaCartPromotion[];
 }) {
+  const appliedCouponCodes = promotions.map((promotion) => promotion.code).filter((code): code is string => Boolean(code));
+
   return (
     <div className="flex flex-col gap-5">
       <h2 className="font-serif text-xl text-[var(--color-ink)]">Order Summary</h2>
@@ -83,12 +82,27 @@ export function OrderSummary({
           <span className="text-[var(--color-ink-muted)]">Subtotal</span>
           <span className="text-[var(--color-ink)]">{formatPrice(subTotalWithTax, currencyCode)}</span>
         </div>
-        {discounts.map((discount, index) => (
-          <div key={`${discount.description}-${index}`} className="flex items-center justify-between">
-            <span className="text-[var(--color-ink-muted)]">{discount.description || 'Discount'}</span>
-            <span className="text-[var(--color-sale)]">{formatPrice(discount.amountWithTax, currencyCode)}</span>
-          </div>
-        ))}
+        {promotions.map((promotion, index) => {
+          // StoreCartPromotion carries no single cart-level discount amount — a
+          // percentage promotion's actual effect lives on per-line adjustments, not
+          // here — so show the code and, for fixed-amount promotions only, the value.
+          const method = promotion.application_method;
+          const fixedAmount =
+            method?.type === 'fixed' && method.value ? Math.round(Number(method.value) * 100) : null;
+          return (
+            <div key={promotion.id ?? index} className="flex items-center justify-between">
+              <span className="text-[var(--color-ink-muted)]">
+                {promotion.code || 'Discount'}
+                {method?.type === 'percentage' && method.value ? ` (${method.value}%)` : ''}
+              </span>
+              {fixedAmount !== null && (
+                <span className="text-[var(--color-sale)]">
+                  -{formatPrice(fixedAmount, method?.currency_code ?? currencyCode)}
+                </span>
+              )}
+            </div>
+          );
+        })}
         <div className="flex items-center justify-between">
           <span className="text-[var(--color-ink-muted)]">Shipping</span>
           <span className="text-[var(--color-ink)]">

@@ -4,96 +4,65 @@ import { NOINDEX_METADATA } from '@/lib/seo/metadata';
 export const metadata = { ...NOINDEX_METADATA, title: 'Order Confirmation' };
 import { notFound } from 'next/navigation';
 import { getChannel, isChannelCode } from '@/lib/channel';
-import { getVendureClient } from '@/lib/vendure/client';
-import { getVendureSessionCookies } from '@/lib/session';
 import { CONTAINER } from '@/lib/ui';
 import { formatPrice } from '@/lib/format';
-import type { OrderByCodeQuery } from '@/lib/vendure/generated';
-import { ConfirmationPending } from '@/components/checkout/confirmation-pending';
-
-/** Orders sitting in one of these states haven't been settled yet — for a Stripe
- * payment this means the webhook hasn't landed, not that anything went wrong. */
-const UNSETTLED_STATES = new Set(['ArrangingPayment', 'ArrangingAdditionalPayment']);
+import { toMinorUnits } from '@/lib/medusa/cart-mapper';
+import { fetchOrderAction } from '@/lib/medusa/payment-actions';
 
 export default async function CheckoutConfirmationPage({
   params,
   searchParams,
 }: {
   params: Promise<{ channel: string }>;
-  searchParams: Promise<{ code?: string }>;
+  searchParams: Promise<{ order_id?: string }>;
 }) {
-  const [{ channel: channelParam }, { code }] = await Promise.all([params, searchParams]);
+  const [{ channel: channelParam }, { order_id: orderId }] = await Promise.all([params, searchParams]);
   if (!isChannelCode(channelParam)) notFound();
   const channel = getChannel(channelParam);
 
-  if (!code) notFound();
+  if (!orderId) notFound();
 
-  const sessionCookies = await getVendureSessionCookies();
-
-  // Vendure's guest order-by-code access rule allows access only once `orderPlacedAt`
-  // is set (or the owning session still holds the order) — but that field, along with
-  // the state transition out of ArrangingPayment, isn't set until the Stripe webhook
-  // lands, which can arrive a moment after the browser's own redirect back here. Until
-  // then the query throws a FORBIDDEN error rather than returning null, so this has to
-  // be caught explicitly and treated the same as "still processing".
-  let order: OrderByCodeQuery['orderByCode'];
-  try {
-    ({ orderByCode: order } = await getVendureClient(channel.code, sessionCookies).OrderByCode({ code }));
-  } catch {
-    return (
-      <main className={`flex-1 py-section ${CONTAINER}`}>
-        <div className="mx-auto flex max-w-lg flex-col items-center gap-4">
-          <ConfirmationPending />
-        </div>
-      </main>
-    );
-  }
-
-  if (!order) notFound();
-
-  if (UNSETTLED_STATES.has(order.state)) {
-    return (
-      <main className={`flex-1 py-section ${CONTAINER}`}>
-        <div className="mx-auto flex max-w-lg flex-col items-center gap-4">
-          <ConfirmationPending />
-        </div>
-      </main>
-    );
-  }
+  const result = await fetchOrderAction(channel.code, orderId);
+  if (!result.success) notFound();
+  const { order } = result;
 
   return (
     <main className={`flex-1 py-section ${CONTAINER}`}>
       <div className="mx-auto flex max-w-lg flex-col items-center gap-4 text-center">
         <p className="eyebrow">Order Confirmed</p>
-        <h1 className="font-serif text-3xl text-[var(--color-ink)] md:text-4xl">Thank you{order.customer ? `, ${order.customer.emailAddress}` : ''}.</h1>
+        <h1 className="font-serif text-3xl text-[var(--color-ink)] md:text-4xl">Thank you{order.email ? `, ${order.email}` : ''}.</h1>
         <p className="text-[var(--color-ink-muted)]">
-          Your order <span className="font-medium text-[var(--color-ink)]">{order.code}</span> has been placed.
+          Your order <span className="font-medium text-[var(--color-ink)]">#{order.display_id}</span> has been placed.
         </p>
 
         <div className="mt-8 w-full border-t hairline pt-8 text-left">
           <div className="flex flex-col gap-3">
-            {order.lines.map((line) => (
-              <div key={line.id} className="flex items-center justify-between text-sm">
+            {(order.items ?? []).map((item) => (
+              <div key={item.id} className="flex items-center justify-between text-sm">
                 <span className="text-[var(--color-ink)]">
-                  {line.productVariant.name} × {line.quantity}
+                  {item.title} × {item.quantity}
                 </span>
-                <span className="text-[var(--color-ink-muted)]">{formatPrice(line.linePriceWithTax, order.currencyCode)}</span>
+                <span className="text-[var(--color-ink-muted)]">
+                  {formatPrice(toMinorUnits(item.total), order.currency_code)}
+                </span>
               </div>
             ))}
           </div>
           <div className="mt-4 flex items-center justify-between border-t hairline pt-4 text-sm font-medium">
             <span className="text-[var(--color-ink)]">Total</span>
-            <span className="text-[var(--color-ink)]">{formatPrice(order.totalWithTax, order.currencyCode)}</span>
+            <span className="text-[var(--color-ink)]">{formatPrice(toMinorUnits(order.total), order.currency_code)}</span>
           </div>
         </div>
 
-        {order.shippingAddress && (
+        {order.shipping_address && (
           <div className="w-full border-t hairline pt-6 text-left text-sm text-[var(--color-ink-muted)]">
             <p className="mb-1 text-xs tracking-[0.1em] text-[var(--color-ink)] uppercase">Shipping To</p>
-            <p>{order.shippingAddress.fullName}</p>
-            <p>{order.shippingAddress.streetLine1}</p>
             <p>
-              {order.shippingAddress.city}, {order.shippingAddress.countryCode}
+              {order.shipping_address.first_name} {order.shipping_address.last_name}
+            </p>
+            <p>{order.shipping_address.address_1}</p>
+            <p>
+              {order.shipping_address.city}, {order.shipping_address.country_code?.toUpperCase()}
             </p>
           </div>
         )}

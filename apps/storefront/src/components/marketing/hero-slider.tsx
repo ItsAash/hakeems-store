@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import type { ChannelCode } from '@/lib/channel';
 import { withChannel } from '@/lib/channel';
@@ -74,6 +75,21 @@ export function HeroSlider({
     return stop;
   }, [start, stop]);
 
+  const touchStartX = useRef<number | null>(null);
+  const SWIPE_THRESHOLD_PX = 40;
+
+  const onTouchStart = (event: React.TouchEvent) => {
+    touchStartX.current = event.touches[0]?.clientX ?? null;
+  };
+  const onTouchEnd = (event: React.TouchEvent) => {
+    if (touchStartX.current === null || slides.length < 2) return;
+    const deltaX = (event.changedTouches[0]?.clientX ?? touchStartX.current) - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(deltaX) < SWIPE_THRESHOLD_PX) return;
+    const direction = deltaX < 0 ? 1 : -1;
+    goTo((currentRef.current + direction + slides.length) % slides.length);
+  };
+
   if (slides.length === 0) return null;
 
   return (
@@ -81,6 +97,8 @@ export function HeroSlider({
       className="group/hero relative h-dvh min-h-[420px] w-full overflow-hidden bg-[var(--color-ink)]"
       // onMouseEnter={stop}
       onMouseLeave={start}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
       aria-roledescription="carousel"
       aria-label="Featured"
     >
@@ -124,19 +142,29 @@ export function HeroSlider({
                 animationPlayState: isActive ? 'running' : 'paused',
               }}
             >
-              <picture>
-                {mobileUrl && (
-                  <source media="(max-width: 767px)" srcSet={mobileUrl} />
-                )}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+              {/* Two next/image instances (rather than <picture> + raw <img>) so mobile
+                  art-direction still switches per breakpoint while keeping automatic
+                  format negotiation and priority preloading for the LCP slide. */}
+              {mobileUrl && desktopUrl && (
+                <Image
+                  src={mobileUrl}
+                  alt={slide.alt ?? ''}
+                  fill
+                  priority={i === 0}
+                  sizes="100vw"
+                  className="object-cover md:hidden"
+                />
+              )}
+              {desktopUrl && (
+                <Image
                   src={desktopUrl}
                   alt={slide.alt ?? ''}
-                  className="h-full w-full object-cover"
-                  loading={i === 0 ? 'eager' : 'lazy'}
-                  fetchPriority={i === 0 ? 'high' : 'auto'}
+                  fill
+                  priority={i === 0}
+                  sizes="100vw"
+                  className={`object-cover ${mobileUrl ? 'hidden md:block' : ''}`}
                 />
-              </picture>
+              )}
             </div>
 
             {/* Per-slide overlays — crossfade naturally with the slide,
@@ -184,7 +212,8 @@ export function HeroSlider({
       {/* ── Navigation ───────────────────────────────────────────── */}
       {slides.length > 1 && (
         <>
-          {/* Chevron arrows — appear on hover over the hero */}
+          {/* Chevron arrows — always visible below md (no hover state on touch), fade in
+              on hover at md+ where a pointer is assumed. */}
           <button
             type="button"
             onClick={() =>
@@ -193,7 +222,7 @@ export function HeroSlider({
               )
             }
             aria-label="Previous slide"
-            className="absolute left-5 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/20 bg-black/20 p-2.5 text-[var(--color-paper)] opacity-0 backdrop-blur-sm transition-all duration-300 hover:border-white/40 hover:bg-black/40 group-hover/hero:opacity-100 md:left-8"
+            className="absolute left-5 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/20 bg-black/20 p-2.5 text-[var(--color-paper)] backdrop-blur-sm transition-all duration-300 hover:border-white/40 hover:bg-black/40 md:left-8 md:opacity-0 md:group-hover/hero:opacity-100"
           >
             <svg
               className="h-5 w-5"
@@ -211,7 +240,7 @@ export function HeroSlider({
             type="button"
             onClick={() => goTo((currentRef.current + 1) % slides.length)}
             aria-label="Next slide"
-            className="absolute right-5 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/20 bg-black/20 p-2.5 text-[var(--color-paper)] opacity-0 backdrop-blur-sm transition-all duration-300 hover:border-white/40 hover:bg-black/40 group-hover/hero:opacity-100 md:right-8"
+            className="absolute right-5 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/20 bg-black/20 p-2.5 text-[var(--color-paper)] backdrop-blur-sm transition-all duration-300 hover:border-white/40 hover:bg-black/40 md:right-8 md:opacity-0 md:group-hover/hero:opacity-100"
           >
             <svg
               className="h-5 w-5"

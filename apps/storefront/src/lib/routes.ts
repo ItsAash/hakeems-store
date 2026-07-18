@@ -43,8 +43,9 @@ export const routes = {
   cart: (channel: ChannelCode) => `/${channel}/cart`,
 
   checkout: (channel: ChannelCode) => `/${channel}/checkout`,
-  checkoutConfirmation: (channel: ChannelCode, code: string) =>
-    `/${channel}/checkout/confirmation${query({ code })}`,
+  /** `orderId` is the Medusa order's id (e.g. "order_01…"), not its display_id. */
+  checkoutConfirmation: (channel: ChannelCode, orderId: string) =>
+    `/${channel}/checkout/confirmation${query({ order_id: orderId })}`,
 
   /** Account root, or a sub-page when `sub` is a leading-slash path like `/orders`. */
   account: (channel: ChannelCode, sub = '') => `/${channel}/account${sub}`,
@@ -53,5 +54,4 @@ export const routes = {
   login: (channel: ChannelCode, next?: string) => `/${channel}/login${query({ next })}`,
   register: (channel: ChannelCode) => `/${channel}/register`,
   forgotPassword: (channel: ChannelCode) => `/${channel}/forgot-password`,
-  verify: (channel: ChannelCode) => `/${channel}/verify`,
 } as const;

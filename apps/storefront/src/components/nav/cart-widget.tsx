@@ -2,52 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { getChannel, type ChannelCode } from '@/lib/channel';
+import type { ChannelCode } from '@/lib/channel';
 import { routes } from '@/lib/routes';
 import { onCartOpenRequest } from '@/lib/cart-events';
 import { formatPrice } from '@/lib/format';
 import { BagIcon, CloseIcon, LockIcon } from '@/components/ui/icons';
 import { Overlay } from '@/components/ui/overlay';
 import { CartLineItem, type CartLine } from '@/components/commerce/cart-line-item';
-
-/** Marketing nudge above the drawer CTA: progress toward the channel's free-shipping
- * threshold. Purely presentational — Vendure's shipping calculator owns the real pricing. */
-function FreeShippingMeter({
-  subTotalWithTax,
-  currencyCode,
-  channelCode,
-}: {
-  subTotalWithTax: number;
-  currencyCode: string;
-  channelCode: ChannelCode;
-}) {
-  const threshold = getChannel(channelCode).freeShippingThresholdMinor;
-  if (!threshold) return null;
-
-  const remaining = threshold - subTotalWithTax;
-  const progress = Math.min(1, subTotalWithTax / threshold);
-
-  return (
-    <div className="mb-4 flex flex-col gap-2">
-      <p className="text-xs text-[var(--color-ink-muted)]" role="status">
-        {remaining > 0 ? (
-          <>
-            You&rsquo;re <span className="font-medium text-[var(--color-ink)]">{formatPrice(remaining, currencyCode)}</span>{' '}
-            away from free shipping
-          </>
-        ) : (
-          <span className="font-medium text-[var(--color-ink)]">Your order ships free</span>
-        )}
-      </p>
-      <div className="h-1 w-full overflow-hidden rounded-full bg-[var(--color-hairline)]" aria-hidden>
-        <div
-          className="h-full rounded-full bg-[var(--color-ink)] transition-[width] duration-500 ease-out"
-          style={{ width: `${progress * 100}%` }}
-        />
-      </div>
-    </div>
-  );
-}
 
 export function CartWidget({
   initialCount,
@@ -76,7 +37,7 @@ export function CartWidget({
         onClick={() => setIsOpen(true)}
         aria-label={`Cart, ${initialCount} item${initialCount === 1 ? '' : 's'}`}
         aria-haspopup="dialog"
-        className="relative text-[var(--nav-fg)]"
+        className="relative text-[var(--nav-fg)] after:absolute after:-inset-3"
       >
         <BagIcon className="h-5 w-5" />
         {initialCount > 0 && (
@@ -96,7 +57,7 @@ export function CartWidget({
       >
         <div className="flex items-center justify-between border-b hairline px-6 py-5">
           <h2 className="text-sm tracking-wide uppercase">Cart ({initialCount})</h2>
-          <button type="button" onClick={close} aria-label="Close cart">
+          <button type="button" onClick={close} aria-label="Close cart" className="relative after:absolute after:-inset-3">
             <CloseIcon className="h-5 w-5" />
           </button>
         </div>
@@ -116,11 +77,6 @@ export function CartWidget({
         <div className="border-t hairline p-6">
           {initialLines.length > 0 && (
             <>
-              <FreeShippingMeter
-                subTotalWithTax={subTotalWithTax}
-                currencyCode={currencyCode}
-                channelCode={channelCode}
-              />
               <div className="mb-4 flex items-center justify-between text-sm">
                 <span className="text-[var(--color-ink-muted)]">Subtotal</span>
                 <span className="text-[var(--color-ink)]">{formatPrice(subTotalWithTax, currencyCode)}</span>

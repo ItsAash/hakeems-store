@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { FacetFilterGroup } from '@/lib/vendure/plp';
+import type { FacetFilterGroup } from '@/lib/medusa/facets';
 import { CheckIcon } from '@/components/ui/icons';
 
 export type SearchParamsRecord = Record<string, string | string[] | undefined>;

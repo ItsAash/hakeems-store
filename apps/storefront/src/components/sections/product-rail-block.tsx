@@ -1,15 +1,14 @@
 import { CONTAINER } from '@/lib/ui';
 import type { ChannelCode } from '@/lib/channel';
 import type { SectionOf } from '@/lib/strapi/types';
-import { getVendureClient } from '@/lib/vendure/client';
-import { buildSpotlightCards } from '@/lib/vendure/product-card';
+import { listCollectionProducts } from '@/lib/medusa/products';
 import { SpotlightCarousel } from '@/components/commerce/spotlight-carousel';
 
-const VARIANT_FETCH_LIMIT = 100;
+const PRODUCT_FETCH_LIMIT = 100;
 
 /**
- * `section.product-rail` — a horizontal product carousel for a Vendure collection (by slug),
- * with a Strapi-authored header + CTA. Products come live from Vendure; renders nothing if
+ * `section.product-rail` — a horizontal product carousel for a Medusa collection (by slug),
+ * with a Strapi-authored header + CTA. Products come live from Medusa; renders nothing if
  * the collection is empty.
  */
 export async function ProductRailBlock({
@@ -19,12 +18,9 @@ export async function ProductRailBlock({
   section: SectionOf<'section.product-rail'>;
   channelCode: ChannelCode;
 }) {
-  const client = getVendureClient(channelCode);
-  const result = await client
-    .SpotlightCollection({ slug: section.vendureCollectionSlug, take: VARIANT_FETCH_LIMIT })
-    .catch(() => null);
-
-  const cards = buildSpotlightCards(result?.collection?.productVariants.items ?? []);
+  const cards = await listCollectionProducts(channelCode, section.vendureCollectionSlug, PRODUCT_FETCH_LIMIT).catch(
+    () => [],
+  );
   if (cards.length === 0) return null;
 
   return (

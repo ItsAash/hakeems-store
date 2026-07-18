@@ -7,11 +7,24 @@ import {
   createCustomerAddressAction,
   deleteCustomerAddressAction,
   updateCustomerAddressAction,
-} from '@/lib/vendure/auth-actions';
+} from '@/lib/medusa/auth-actions';
 import { Field } from '@/components/ui/field';
-import type { CustomerAddressFieldsFragment, CountriesQuery } from '@/lib/vendure/generated';
 
-type Country = CountriesQuery['availableCountries'][number];
+type Country = { code: string; name: string };
+
+type AddressField = {
+  id: string;
+  fullName: string;
+  streetLine1: string;
+  streetLine2: string;
+  city: string;
+  province: string;
+  postalCode: string;
+  country: { code: string; name: string };
+  phoneNumber: string;
+  defaultShippingAddress: boolean;
+  defaultBillingAddress: boolean;
+};
 
 type AddressFormState = {
   fullName: string;
@@ -26,7 +39,7 @@ type AddressFormState = {
   defaultBillingAddress: boolean;
 };
 
-function toFormState(address: CustomerAddressFieldsFragment | undefined, defaultCountryCode: string): AddressFormState {
+function toFormState(address: AddressField | undefined, defaultCountryCode: string): AddressFormState {
   return {
     fullName: address?.fullName ?? '',
     streetLine1: address?.streetLine1 ?? '',
@@ -65,11 +78,11 @@ function AddressFields({
       <Field idPrefix={idPrefix} label="Full name" required value={form.fullName} onChange={setField('fullName')} />
       <Field idPrefix={idPrefix} label="Address" required value={form.streetLine1} onChange={setField('streetLine1')} />
       <Field idPrefix={idPrefix} label="Apartment, suite, etc. (optional)" value={form.streetLine2} onChange={setField('streetLine2')} />
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field idPrefix={idPrefix} label="City" required value={form.city} onChange={setField('city')} />
         <Field idPrefix={idPrefix} label="Province / State" required value={form.province} onChange={setField('province')} />
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field idPrefix={idPrefix} label="Postal code" required value={form.postalCode} onChange={setField('postalCode')} />
         <div className="flex flex-col gap-1.5">
           <label htmlFor={`${idPrefix}-country`} className="text-xs text-[var(--color-ink-muted)]">
@@ -111,7 +124,7 @@ function AddressCard({
   channelCode,
   countries,
 }: {
-  address: CustomerAddressFieldsFragment;
+  address: AddressField;
   channelCode: ChannelCode;
   countries: Country[];
 }) {
@@ -125,7 +138,15 @@ function AddressCard({
     event.preventDefault();
     setIsSubmitting(true);
     setError(null);
-    const result = await updateCustomerAddressAction(channelCode, { id: address.id, ...form });
+    const result = await updateCustomerAddressAction(channelCode, address.id, {
+      address_1: form.streetLine1,
+      address_2: form.streetLine2 || undefined,
+      city: form.city,
+      province: form.province || undefined,
+      postal_code: form.postalCode || undefined,
+      country_code: form.countryCode,
+      phone: form.phoneNumber || undefined,
+    });
     setIsSubmitting(false);
     if (!result.success) {
       setError(result.message);
@@ -208,7 +229,7 @@ export function AddressBook({
   defaultCountryCode,
 }: {
   channelCode: ChannelCode;
-  addresses: CustomerAddressFieldsFragment[];
+  addresses: AddressField[];
   countries: Country[];
   defaultCountryCode: string;
 }) {
@@ -222,7 +243,15 @@ export function AddressBook({
     event.preventDefault();
     setIsSubmitting(true);
     setError(null);
-    const result = await createCustomerAddressAction(channelCode, form);
+    const result = await createCustomerAddressAction(channelCode, {
+      address_1: form.streetLine1,
+      address_2: form.streetLine2 || undefined,
+      city: form.city,
+      province: form.province || undefined,
+      postal_code: form.postalCode || undefined,
+      country_code: form.countryCode,
+      phone: form.phoneNumber || undefined,
+    });
     setIsSubmitting(false);
     if (!result.success) {
       setError(result.message);

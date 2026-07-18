@@ -3,12 +3,12 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ChannelCode } from '@/lib/channel';
-import { applyCouponCodeAction, removeCouponCodeAction } from '@/lib/vendure/actions';
+import { applyPromoCodeAction, removePromoCodeAction } from '@/lib/medusa/checkout-actions';
 import { CloseIcon } from '@/components/ui/icons';
 
 /**
- * Coupon entry + the currently applied codes, backed by Vendure's applyCouponCode /
- * removeCouponCode. Invalid/expired codes surface Vendure's own error message inline;
+ * Coupon entry + the currently applied codes, backed by Medusa's addPromotions /
+ * removePromotions cart endpoints. Invalid/expired codes surface an inline error;
  * a successful apply refreshes the route so every total (summary, cart badge) updates.
  */
 export function PromoCodeForm({
@@ -28,7 +28,7 @@ export function PromoCodeForm({
     if (!trimmed || isPending) return;
     setError(null);
     startTransition(async () => {
-      const result = await applyCouponCodeAction(channelCode, trimmed);
+      const result = await applyPromoCodeAction(channelCode, trimmed);
       if (result.success) {
         setCode('');
         router.refresh();
@@ -42,7 +42,7 @@ export function PromoCodeForm({
     if (isPending) return;
     setError(null);
     startTransition(async () => {
-      await removeCouponCodeAction(channelCode, couponCode);
+      await removePromoCodeAction(channelCode, couponCode);
       router.refresh();
     });
   };

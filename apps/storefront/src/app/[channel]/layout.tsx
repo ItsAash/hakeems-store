@@ -30,7 +30,10 @@ export default async function ChannelLayout({
   const channel = getChannel(channelParam);
   // The announcement bar is site-wide (every route), but its content is authored on the
   // 'home' Page — the old home-page content type used to own it (see lib/announcements.ts).
-  const [homePage, siteSetting] = await Promise.all([getPage('home', channel.code), getSiteSetting()]);
+  const [homePage, siteSetting] = await Promise.all([
+    getPage('home', channel.code).catch(() => null),
+    getSiteSetting().catch(() => null),
+  ]);
   const activeAnnouncements = getVisibleAnnouncements(
     homePage?.announcementBarEnabled ?? null,
     homePage?.announcements ?? [],

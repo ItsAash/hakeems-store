@@ -4,8 +4,7 @@ import { NOINDEX_METADATA } from '@/lib/seo/metadata';
 export const metadata = { ...NOINDEX_METADATA, title: 'My Account' };
 import { getChannel, isChannelCode } from '@/lib/channel';
 import { routes } from '@/lib/routes';
-import { getVendureClient } from '@/lib/vendure/client';
-import { getVendureSessionCookies } from '@/lib/session';
+import { fetchCustomerAction } from '@/lib/medusa/auth-actions';
 import { CONTAINER } from '@/lib/ui';
 import { AccountNav } from '@/components/account/account-nav';
 
@@ -20,9 +19,8 @@ export default async function AccountLayout({
   if (!isChannelCode(channelParam)) notFound();
   const channel = getChannel(channelParam);
 
-  const sessionCookies = await getVendureSessionCookies();
-  const { activeCustomer } = await getVendureClient(channel.code, sessionCookies).ActiveCustomer();
-  if (!activeCustomer) redirect(routes.login(channel.code, routes.account(channel.code)));
+  const customer = await fetchCustomerAction(channel.code);
+  if (!customer) redirect(routes.login(channel.code, routes.account(channel.code)));
 
   return (
     <main className={`flex-1 py-section-sm ${CONTAINER}`}>

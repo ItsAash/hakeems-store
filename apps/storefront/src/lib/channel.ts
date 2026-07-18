@@ -2,37 +2,28 @@ export type ChannelCode = 'nepal' | 'hongkong';
 
 export type ChannelDefinition = {
   code: ChannelCode;
-  /** Matches Vendure's channel `token` exactly — sent as the `vendure-token` header. */
-  vendureToken: string;
   currencyCode: 'NPR' | 'HKD';
   locale: string;
   countryName: string;
-  /** Default country for the checkout address form's country select. */
+  /** The channel's single supported shipping/billing country (each Medusa region is
+   * single-country) — checkout applies this directly, no country selector needed. */
   countryCode: 'NP' | 'HK';
-  /** Free-shipping threshold in minor units (paisa/cents) for the cart drawer's progress
-   * bar. `null` disables the bar. Marketing copy only — actual shipping pricing stays in
-   * Vendure's shipping calculators, so keep the two aligned when either changes. */
-  freeShippingThresholdMinor: number | null;
 };
 
 export const CHANNELS: Record<ChannelCode, ChannelDefinition> = {
   nepal: {
     code: 'nepal',
-    vendureToken: 'nepal',
     currencyCode: 'NPR',
     locale: 'en-NP',
     countryName: 'Nepal',
     countryCode: 'NP',
-    freeShippingThresholdMinor: 500_000, // NPR 5,000
   },
   hongkong: {
     code: 'hongkong',
-    vendureToken: 'hongkong',
     currencyCode: 'HKD',
     locale: 'en-HK',
     countryName: 'Hong Kong',
     countryCode: 'HK',
-    freeShippingThresholdMinor: 60_000, // HKD 600
   },
 };
 

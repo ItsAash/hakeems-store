@@ -1,5 +1,7 @@
+import { Suspense } from 'react';
 import type { ChannelCode } from '@/lib/channel';
 import type { PageSection } from '@/lib/strapi/types';
+import { CONTAINER } from '@/lib/ui';
 import { HeroSlider } from '@/components/marketing/hero-slider';
 import { FacetCategoryGrid } from '@/components/marketing/facet-category-grid';
 import { ProductRailBlock } from '@/components/sections/product-rail-block';
@@ -10,6 +12,17 @@ import { TestimonialsBlock } from '@/components/sections/testimonials-block';
 import { FaqBlock } from '@/components/sections/faq-block';
 import { ProseBlock } from '@/components/sections/prose-block';
 
+/** Generic placeholder for a section still fetching its own data (category tile counts,
+ * product-rail/editorial-banner product lists) — sized to roughly match a real section so
+ * the page doesn't jump much once it resolves. */
+function SectionSkeleton() {
+  return (
+    <div className={`py-section ${CONTAINER}`} aria-hidden="true">
+      <div className="h-64 w-full animate-pulse bg-[var(--color-hairline)]" />
+    </div>
+  );
+}
+
 /**
  * Renders a page's dynamic zone by mapping each block's Strapi `__component` to its React
  * renderer. The switch is exhaustive over the PageSection discriminated union, so adding a
@@ -17,7 +30,11 @@ import { ProseBlock } from '@/components/sections/prose-block';
  * Strapi ahead of code) is skipped rather than crashing the page.
  *
  * Order is whatever the editor arranged in Strapi — reordering there reorders the page with
- * no code change.
+ * no code change. The three block types that fetch their own product data from Medusa
+ * (category-grid's tile counts, product-rail, editorial-banner) are each wrapped in their
+ * own Suspense boundary so a slow one streams in independently instead of blocking every
+ * section below it — the hero and pure-Strapi blocks need no such wrapping since they have
+ * no further data fetching of their own.
  */
 export function SectionRenderer({ sections, channelCode }: { sections: PageSection[]; channelCode: ChannelCode }) {
   return (
@@ -31,12 +48,22 @@ export function SectionRenderer({ sections, channelCode }: { sections: PageSecti
             return <HeroSlider key={key} slides={section.slides} channelCode={channelCode} />;
           case 'section.category-grid':
             return (
-              <FacetCategoryGrid key={key} tiles={section.tiles} header={section.header} channelCode={channelCode} />
+              <Suspense key={key} fallback={<SectionSkeleton />}>
+                <FacetCategoryGrid tiles={section.tiles} header={section.header} channelCode={channelCode} />
+              </Suspense>
             );
           case 'section.product-rail':
-            return <ProductRailBlock key={key} section={section} channelCode={channelCode} />;
+            return (
+              <Suspense key={key} fallback={<SectionSkeleton />}>
+                <ProductRailBlock section={section} channelCode={channelCode} />
+              </Suspense>
+            );
           case 'section.editorial-banner':
-            return <EditorialBannerBlock key={key} section={section} channelCode={channelCode} />;
+            return (
+              <Suspense key={key} fallback={<SectionSkeleton />}>
+                <EditorialBannerBlock section={section} channelCode={channelCode} />
+              </Suspense>
+            );
           case 'section.brand-story':
             return <BrandStoryBlock key={key} section={section} />;
           case 'section.value-props':

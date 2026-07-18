@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { ChannelCode } from '@/lib/channel';
 import { routes } from '@/lib/routes';
-import type { ProductCardModel } from '@/lib/vendure/product-card';
+import type { ProductCardModel } from '@/lib/medusa/product-card';
 import { formatPrice } from '@/lib/format';
 import { QuickAddButton } from '@/components/commerce/quick-add-button';
 import { ArrowLeftIcon, ArrowRightIcon } from '@/components/ui/icons';
@@ -14,8 +14,8 @@ const MAX_VISIBLE_SWATCHES = 5;
 
 /**
  * The one product card used across every listing (spotlight rail, collection/shop grid,
- * search). Everything is driven by the Vendure-built ProductCardModel — image gallery, colour
- * swatches, sale pricing and badge — with nothing hardcoded.
+ * search). Everything is driven by ProductCardModel — image gallery, colour swatches, sale
+ * pricing and badge — with nothing hardcoded.
  *
  * Picking a colour swaps to that colour's gallery; the arrows page through that colour's photos
  * in place (no navigation), and switching colour resets to its first shot. The image and name
@@ -26,10 +26,13 @@ export function ProductCard({
   card,
   channelCode,
   showQuickAdd = false,
+  priority = false,
 }: {
   card: ProductCardModel;
   channelCode: ChannelCode;
   showQuickAdd?: boolean;
+  /** Set for the first row of an above-the-fold grid so its image isn't lazy-loaded. */
+  priority?: boolean;
 }) {
   const [selectedCode, setSelectedCode] = useState<string | null>(card.colors[0]?.code ?? null);
   const [imageIndex, setImageIndex] = useState(0);
@@ -71,6 +74,7 @@ export function ProductCard({
               src={currentImage}
               alt={card.name}
               fill
+              priority={priority}
               sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
               className="object-cover transition-transform duration-500 ease-out group-hover/card:scale-105"
             />
@@ -101,7 +105,7 @@ export function ProductCard({
       </div>
 
       {card.colors.length > 0 && (
-        <div className="mt-3 flex items-center gap-1.5">
+        <div className="mt-3 flex items-center gap-2">
           {visibleColors.map((color) => {
             const isSelected = color.code === selectedCode;
             return (
@@ -112,7 +116,7 @@ export function ProductCard({
                 aria-label={color.label}
                 aria-pressed={isSelected}
                 title={color.label}
-                className={`h-4 w-4 rounded-full border transition-shadow ${
+                className={`relative h-5 w-5 rounded-full border transition-shadow after:absolute after:-inset-1 ${
                   isSelected
                     ? 'border-transparent ring-1 ring-[var(--color-ink)] ring-offset-1 ring-offset-[var(--color-paper)]'
                     : 'border-[var(--color-hairline)]'

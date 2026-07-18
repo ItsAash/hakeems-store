@@ -10,6 +10,7 @@ export function AnnouncementBar({ announcements }: { announcements: Announcement
 
   useEffect(() => {
     if (announcements.length < 2) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const timer = setInterval(() => {
       setIndex((current) => (current + 1) % announcements.length);
     }, ROTATE_MS);
@@ -20,13 +21,16 @@ export function AnnouncementBar({ announcements }: { announcements: Announcement
   if (!current) return null;
 
   return (
-    <div className="relative flex items-center justify-center bg-[var(--color-ink)] px-10 py-2.5 text-center text-xs tracking-wide text-[var(--color-paper)]">
+    <div
+      className="relative flex items-center justify-center gap-1 bg-[var(--color-ink)] px-10 py-2.5 text-center text-xs tracking-wide text-[var(--color-paper)]"
+      aria-live="polite"
+    >
       {current.href ? (
-        <a href={current.href} className="underline-offset-4 hover:underline">
+        <a href={current.href} className="truncate underline-offset-4 hover:underline">
           {current.text}
         </a>
       ) : (
-        <span>{current.text}</span>
+        <span className="truncate">{current.text}</span>
       )}
     </div>
   );

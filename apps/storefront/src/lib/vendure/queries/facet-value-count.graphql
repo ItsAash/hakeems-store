@@ -1,5 +1,0 @@
-query FacetValueCount($facetValueId: ID!) {
-  search(input: { facetValueFilters: [{ and: $facetValueId }], groupByProduct: true, take: 1 }) {
-    totalItems
-  }
-}

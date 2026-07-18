@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { CHANNEL_CODES, type ChannelCode } from '@/lib/channel';
 import { routes } from '@/lib/routes';
-import { getVendureClient } from '@/lib/vendure/client';
+import { createMedusaClient } from '@/lib/medusa/client';
 import { getLegalPageSlugs } from '@/lib/strapi/queries';
 import { CHANNEL_OG_LOCALE, PRIMARY_CHANNEL, absoluteUrl } from '@/lib/seo/site';
 
@@ -9,25 +9,31 @@ import { CHANNEL_OG_LOCALE, PRIMARY_CHANNEL, absoluteUrl } from '@/lib/seo/site'
 // appear automatically with no code change.
 export const revalidate = 3600;
 
-// Vendure caps list queries at 100 rows — page through until both lists are exhausted so the
-// sitemap scales past 100 products/collections.
 const PAGE_SIZE = 100;
 
 type CatalogEntry = { slug: string; updatedAt?: string | null };
 
 async function fetchCatalog(): Promise<{ products: CatalogEntry[]; collections: CatalogEntry[] }> {
-  const client = getVendureClient(PRIMARY_CHANNEL);
+  const client = createMedusaClient(PRIMARY_CHANNEL);
+
   const products: CatalogEntry[] = [];
-  const collections: CatalogEntry[] = [];
-  let skip = 0;
-  for (;;) {
-    const page = await client.SitemapEntries({ take: PAGE_SIZE, skip }).catch(() => null);
-    if (!page) break;
-    products.push(...page.products.items);
-    collections.push(...page.collections.items);
-    skip += PAGE_SIZE;
-    if (skip >= page.products.totalItems && skip >= page.collections.totalItems) break;
+  for (let offset = 0; ; offset += PAGE_SIZE) {
+    const { products: page, count } = await client.store.product
+      .list({ limit: PAGE_SIZE, offset, fields: 'handle,updated_at' })
+      .catch(() => ({ products: [], count: 0 }));
+    products.push(...page.map((p) => ({ slug: p.handle ?? '', updatedAt: p.updated_at as string | undefined })));
+    if (offset + PAGE_SIZE >= count || page.length === 0) break;
   }
+
+  const collections: CatalogEntry[] = [];
+  for (let offset = 0; ; offset += PAGE_SIZE) {
+    const { collections: page, count } = await client.store.collection
+      .list({ limit: PAGE_SIZE, offset, fields: 'handle,updated_at' })
+      .catch(() => ({ collections: [], count: 0 }));
+    collections.push(...page.map((c) => ({ slug: c.handle ?? '', updatedAt: c.updated_at as string | undefined })));
+    if (offset + PAGE_SIZE >= count || page.length === 0) break;
+  }
+
   return { products, collections };
 }
 

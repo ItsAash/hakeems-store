@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import type { FacetFilterGroup } from '@/lib/vendure/plp';
+import type { FacetFilterGroup } from '@/lib/medusa/facets';
 import { toURLSearchParams, type SearchParamsRecord } from '@/components/commerce/facet-filter-sidebar';
 import { Overlay } from '@/components/ui/overlay';
 import { CheckIcon, CloseIcon } from '@/components/ui/icons';
@@ -85,7 +85,7 @@ export function FilterDrawer({
       >
         <div className="flex items-center justify-between border-b hairline px-6 py-5">
           <h2 className="text-sm tracking-wide uppercase">Filter</h2>
-          <button type="button" onClick={close} aria-label="Close filters">
+          <button type="button" onClick={close} aria-label="Close filters" className="relative after:absolute after:-inset-3">
             <CloseIcon className="h-5 w-5" />
           </button>
         </div>

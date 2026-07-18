@@ -436,6 +436,30 @@ const CHANNEL_ANNOUNCEMENTS: Record<'nepal' | 'hongkong', Array<{ text: string }
   ],
 };
 
+/** Brand-pillar strip shown right under the hero — channel-agnostic, matches the voice
+ * already established in seedBrandStory. */
+const VALUE_PROPS = [
+  { heading: 'Small-Batch Drops', body: "Every style is cut in limited runs — once it's gone, it's gone. No overproduction, no filler." },
+  { heading: 'Fabric You Can Feel', body: 'Technical knits and heavyweight fleece, tested on the street before they ever hit a rack.' },
+  { heading: 'Unisex By Design', body: 'Every piece is cut for any body. Fit is a choice, not an aisle.' },
+  { heading: 'Made Between Nepal & Hong Kong', body: 'Designed in Kathmandu, worn from Jhamsikhel to the harbour — one collection, two cities.' },
+];
+
+/** Per-channel social proof — quotes are written to feel local to each market rather
+ * than reused verbatim across channels. */
+const CHANNEL_TESTIMONIALS: Record<'nepal' | 'hongkong', Array<{ quote: string; author: string; context: string }>> = {
+  nepal: [
+    { quote: 'The Coaster Sweatshirt is the only thing I wear to Jawalakhel pop-ups now. Fits like nothing else.', author: 'Aayusha R.', context: 'Kathmandu' },
+    { quote: 'Ordered the Stash Tank in three colours after the first one. Real quality, not fast-fashion quality.', author: 'Bibek T.', context: 'Lalitpur' },
+    { quote: 'First streetwear brand that actually fits the way it looks on the model.', author: 'Prakriti S.', context: 'Verified buyer' },
+  ],
+  hongkong: [
+    { quote: "Cut for actual humidity — finally a brand that gets HK summers.", author: 'Chloe W.', context: 'Hong Kong Island' },
+    { quote: 'The crossbody bag survived a rainstorm at PMQ and still looks new.', author: 'Marcus L.', context: 'Kowloon' },
+    { quote: 'Ordered from the Kathmandu drop, arrived in HK in days. Worth it.', author: 'Priya N.', context: 'Verified buyer' },
+  ],
+};
+
 /**
  * Composes each channel's 'home' Page (dynamic zone) directly — the sole source of truth
  * for home-page content now that the home-page collection type is retired. Sections are
@@ -519,6 +543,12 @@ async function seedPages(strapi: Core.Strapi) {
     const sections: any[] = [
       { __component: 'section.hero-slider', slides: HERO_SLIDES[channel] },
       {
+        __component: 'section.value-props',
+        header: { eyebrow: 'Why Hakeems', heading: 'What Makes It Ours', align: 'left' },
+        items: VALUE_PROPS,
+        backgroundToken: 'paper',
+      },
+      {
         __component: 'section.category-grid',
         header: { eyebrow: 'Shop By Category', heading: 'Shop The Edit', align: 'left' },
         tiles: facetCategoryTiles,
@@ -540,6 +570,12 @@ async function seedPages(strapi: Core.Strapi) {
         vendureCollectionSlug: 'new-arrivals',
         cta: { label: 'Shop New Arrivals', href: '/collections/new-arrivals', variant: 'primary', openInNewTab: false },
         backgroundToken: 'blush',
+      },
+      {
+        __component: 'section.testimonials',
+        header: { eyebrow: 'From The Community', heading: 'Worn, Not Just Bought', align: 'left' },
+        items: CHANNEL_TESTIMONIALS[channel],
+        backgroundToken: 'sand',
       },
     ];
 

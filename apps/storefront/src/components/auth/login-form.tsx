@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { ChannelCode } from '@/lib/channel';
 import { routes } from '@/lib/routes';
-import { loginAction } from '@/lib/vendure/auth-actions';
+import { loginAction } from '@/lib/medusa/auth-actions';
 import { Field } from '@/components/ui/field';
 
 export function LoginForm({ channelCode, next }: { channelCode: ChannelCode; next: string }) {
@@ -21,7 +21,7 @@ export function LoginForm({ channelCode, next }: { channelCode: ChannelCode; nex
     setIsSubmitting(true);
     setError(null);
 
-    const result = await loginAction(channelCode, { username: email, password, rememberMe });
+    const result = await loginAction(channelCode, { email, password });
     if (!result.success) {
       setError(result.message);
       setIsSubmitting(false);
@@ -60,14 +60,7 @@ export function LoginForm({ channelCode, next }: { channelCode: ChannelCode; nex
         </Link>
       </div>
 
-      {error && (
-        <p className="text-sm text-danger">
-          {error}{' '}
-          <Link href={routes.verify(channelCode)} className="underline underline-offset-2">
-            Resend verification email?
-          </Link>
-        </p>
-      )}
+      {error && <p className="text-sm text-danger">{error}</p>}
 
       <button
         type="submit"

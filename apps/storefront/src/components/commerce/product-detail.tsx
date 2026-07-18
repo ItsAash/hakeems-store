@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ChannelCode } from '@/lib/channel';
-import { findVariantForSelection, type PdpVariantMatrix } from '@/lib/vendure/pdp';
-import { addItemToOrderAction } from '@/lib/vendure/actions';
+import { findVariantForSelection, type PdpVariantMatrix } from '@/lib/medusa/pdp';
+import { addItemToCartAction } from '@/lib/medusa/cart-actions';
 import { requestCartOpen } from '@/lib/cart-events';
 import { formatPrice } from '@/lib/format';
 import { ProductGallery } from '@/components/commerce/product-gallery';
@@ -48,13 +48,14 @@ export function ProductDetail({
 
   const selectedVariant = useMemo(() => findVariantForSelection(matrix, selections), [matrix, selections]);
 
+  const colorGroup = matrix.optionGroups.find((g) => g.code.toLowerCase() === 'color');
+  const colorGroupCode = colorGroup?.code ?? '';
+  const selectedColorCode = selections[colorGroupCode] ?? '';
+  const selectedColorName = colorGroup?.options.find((option) => option.code === selectedColorCode)?.name;
+
   // The gallery follows the selected variant's imagery (colours differ; sizes share), falling
   // back to product-level images when a variant has none.
   const galleryImages = selectedVariant && selectedVariant.images.length > 0 ? selectedVariant.images : productImages;
-  const selectedColorCode = selections['color'] ?? '';
-  const selectedColorName = matrix.optionGroups
-    .find((group) => group.code === 'color')
-    ?.options.find((option) => option.code === selectedColorCode)?.name;
 
   // Drive the mobile sticky bar from the primary button's viewport visibility.
   useEffect(() => {
@@ -76,7 +77,7 @@ export function ProductDetail({
   const handleAddToCart = async () => {
     if (!selectedVariant) return;
     setStatus('loading');
-    const result = await addItemToOrderAction(channelCode, selectedVariant.id, 1);
+    const result = await addItemToCartAction(channelCode, selectedVariant.id, 1);
     if (result.success) {
       setStatus('added');
       router.refresh();
@@ -102,28 +103,30 @@ export function ProductDetail({
   const showStickyBar = !buyButtonVisible && !!selectedVariant;
 
   return (
-    <div className="mt-6 grid gap-10 lg:grid-cols-2 lg:gap-16">
+    <div className="mt-6 grid gap-6 lg:grid-cols-2 lg:gap-16">
       {/* Keyed by colour so the active thumbnail resets to the new colour's first image. */}
       <ProductGallery key={selectedColorCode || 'default'} images={galleryImages} alt={productName} />
 
       <div className="flex flex-col gap-6 lg:max-w-md lg:py-4">
-        <h1 className="font-serif text-3xl text-[var(--color-ink)] md:text-4xl">{productName}</h1>
+        <h1 className="font-serif text-2xl text-[var(--color-ink)] md:text-3xl lg:text-4xl">{productName}</h1>
 
-        <p className="text-2xl text-[var(--color-ink)]">
+        <p className="text-xl text-[var(--color-ink)] md:text-2xl">
           {selectedVariant ? formatPrice(selectedVariant.priceWithTax, selectedVariant.currencyCode) : '—'}
         </p>
 
-        {matrix.optionGroups.map((group) => (
+        {matrix.optionGroups.map((group) => {
+          const isColor = colorGroupCode && group.code === colorGroupCode;
+          return (
           <div key={group.code}>
             <p className="mb-2.5 text-xs font-semibold tracking-[0.1em] text-[var(--color-ink)] uppercase">
               {group.name}
-              {group.code === 'color' && selectedColorName && (
+              {isColor && selectedColorName && (
                 <span className="ml-2 font-normal text-[var(--color-ink-muted)] normal-case">· {selectedColorName}</span>
               )}
             </p>
             <div className="flex flex-wrap gap-2">
               {group.options.map((option) =>
-                group.code === 'color' ? (
+                isColor ? (
                   <ColorSwatchButton
                     key={option.id}
                     name={option.name}
@@ -142,7 +145,8 @@ export function ProductDetail({
               )}
             </div>
           </div>
-        ))}
+          );
+        })}
 
         {selectedVariant?.stockLevel === 'LOW_STOCK' && (
           <p className="flex items-center gap-2 text-sm text-[var(--color-accent)]" role="status">
@@ -169,9 +173,9 @@ export function ProductDetail({
       {/* Mobile sticky buy bar — mounted only while the primary button is off screen so
           screen readers never see two identical buttons at once. */}
       {showStickyBar && (
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t hairline bg-[var(--color-paper-raised)] px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_16px_rgba(20,18,15,0.08)] lg:hidden">
-          <div className="flex items-center gap-4">
-            <div className="flex min-w-0 flex-col">
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t hairline bg-[var(--color-paper-raised)] px-6 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_16px_rgba(20,18,15,0.08)] lg:hidden">
+          <div className="mx-auto flex max-w-6xl items-center gap-4">
+            <div className="flex min-w-0 flex-1 flex-col">
               <p className="truncate text-xs text-[var(--color-ink-muted)]">{productName}</p>
               <p className="text-sm font-medium text-[var(--color-ink)]">
                 {selectedVariant ? formatPrice(selectedVariant.priceWithTax, selectedVariant.currencyCode) : ''}
@@ -181,7 +185,7 @@ export function ProductDetail({
               type="button"
               onClick={handleAddToCart}
               disabled={buttonDisabled}
-              className="flex-1 bg-[var(--color-ink)] py-3.5 text-sm font-medium tracking-[0.1em] text-[var(--color-paper)] uppercase transition-opacity hover:opacity-90 disabled:opacity-40"
+              className="shrink-0 bg-[var(--color-ink)] px-6 py-3.5 text-sm font-medium tracking-[0.1em] text-[var(--color-paper)] uppercase transition-opacity hover:opacity-90 disabled:opacity-40"
             >
               {buttonLabel}
             </button>
@@ -210,7 +214,7 @@ function ColorSwatchButton({
       title={name}
       aria-label={name}
       aria-pressed={isSelected}
-      className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition-colors duration-200 ${
+      className={`flex h-11 w-11 items-center justify-center rounded-full border-2 transition-colors duration-200 ${
         isSelected ? 'border-[var(--color-ink)]' : 'border-transparent hover:border-[var(--color-hairline)]'
       }`}
     >

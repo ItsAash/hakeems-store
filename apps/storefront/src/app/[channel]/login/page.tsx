@@ -4,8 +4,7 @@ import { NOINDEX_METADATA } from '@/lib/seo/metadata';
 export const metadata = { ...NOINDEX_METADATA, title: 'Sign In' };
 import { getChannel, isChannelCode } from '@/lib/channel';
 import { routes } from '@/lib/routes';
-import { getVendureClient } from '@/lib/vendure/client';
-import { getVendureSessionCookies } from '@/lib/session';
+import { fetchCustomerAction } from '@/lib/medusa/auth-actions';
 import { CONTAINER } from '@/lib/ui';
 import { LoginForm } from '@/components/auth/login-form';
 
@@ -20,9 +19,8 @@ export default async function LoginPage({
   if (!isChannelCode(channelParam)) notFound();
   const channel = getChannel(channelParam);
 
-  const sessionCookies = await getVendureSessionCookies();
-  const { activeCustomer } = await getVendureClient(channel.code, sessionCookies).ActiveCustomer();
-  if (activeCustomer) redirect(next && next.startsWith('/') ? next : routes.account(channel.code));
+  const customer = await fetchCustomerAction(channel.code);
+  if (customer) redirect(next && next.startsWith('/') ? next : routes.account(channel.code));
 
   return (
     <main className={`flex-1 py-section-sm ${CONTAINER}`}>

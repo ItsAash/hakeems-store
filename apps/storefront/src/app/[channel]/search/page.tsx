@@ -2,15 +2,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getChannel, isChannelCode } from '@/lib/channel';
 import { routes } from '@/lib/routes';
-import { getVendureClient } from '@/lib/vendure/client';
-import {
-  groupFacetValuesByFacet,
-  isPlpSortKey,
-  PLP_PAGE_SIZE,
-  sortKeyToSearchSort,
-  type PlpSortKey,
-} from '@/lib/vendure/plp';
-import { loadProductCards } from '@/lib/vendure/product-cards-loader';
+import { getSearchPageData } from '@/lib/medusa/page-data';
+import { isPlpSortKey, type PlpSortKey } from '@/lib/medusa/products';
 import { CONTAINER } from '@/lib/ui';
 import { PlpResults } from '@/components/commerce/plp-results';
 
@@ -40,25 +33,12 @@ export default async function SearchPage({
   const term = (resolvedSearchParams.q ?? '').trim();
   const activeFacetValueIds = (resolvedSearchParams.facets ?? '').split(',').filter(Boolean);
   const sortKey: PlpSortKey = resolvedSearchParams.sort && isPlpSortKey(resolvedSearchParams.sort) ? resolvedSearchParams.sort : 'relevance';
-  const page = Math.max(1, Number.parseInt(resolvedSearchParams.page ?? '1', 10) || 1);
+  const page = resolvedSearchParams.page ?? '1';
   const basePath = routes.search(channel.code);
 
-  const { search } = term
-    ? await getVendureClient(channel.code).PlpSearch({
-        input: {
-          term,
-          groupByProduct: true,
-          take: PLP_PAGE_SIZE,
-          skip: (page - 1) * PLP_PAGE_SIZE,
-          sort: sortKeyToSearchSort(sortKey),
-          facetValueFilters: activeFacetValueIds.map((id) => ({ and: id })),
-        },
-      })
-    : { search: { totalItems: 0, items: [], facetValues: [] } };
-
-  const cards = await loadProductCards(channel.code, search.items);
-  const facetGroups = groupFacetValuesByFacet(search.facetValues);
-  const totalPages = Math.max(1, Math.ceil(search.totalItems / PLP_PAGE_SIZE));
+  const pageData = term
+    ? await getSearchPageData({ channelCode: channel.code, term, sort: sortKey, page, facets: resolvedSearchParams.facets })
+    : { cards: [], facetGroups: [], totalItems: 0, currentPage: 1, totalPages: 1 };
 
   return (
     <main className="flex flex-1 flex-col">
@@ -75,16 +55,16 @@ export default async function SearchPage({
       ) : (
         <div className={`pb-section ${CONTAINER}`}>
           <PlpResults
-            cards={cards}
+            cards={pageData.cards}
             channelCode={channel.code}
-            facetGroups={facetGroups}
+            facetGroups={pageData.facetGroups}
             activeFacetValueIds={activeFacetValueIds}
             basePath={basePath}
             searchParams={resolvedSearchParams}
             sortKey={sortKey}
-            totalItems={search.totalItems}
-            currentPage={page}
-            totalPages={totalPages}
+            totalItems={pageData.totalItems}
+            currentPage={pageData.currentPage}
+            totalPages={pageData.totalPages}
           />
         </div>
       )}

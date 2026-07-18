@@ -24,7 +24,7 @@ export function MobileMenu({ items, channelCode }: { items: NavItem[]; channelCo
         onClick={() => setIsOpen(true)}
         aria-label="Open menu"
         aria-haspopup="dialog"
-        className="text-[var(--nav-fg)] md:hidden"
+        className="relative text-[var(--nav-fg)] after:absolute after:-inset-3 md:hidden"
       >
         <MenuIcon className="h-5 w-5" />
       </button>
@@ -39,7 +39,7 @@ export function MobileMenu({ items, channelCode }: { items: NavItem[]; channelCo
       >
         <div className="flex items-center justify-between border-b hairline px-6 py-5">
           <span className="font-serif text-lg text-[var(--color-ink)]">Hakeems</span>
-          <button type="button" onClick={close} aria-label="Close menu">
+          <button type="button" onClick={close} aria-label="Close menu" className="relative after:absolute after:-inset-3">
             <CloseIcon className="h-5 w-5" />
           </button>
         </div>

@@ -1,5 +1,5 @@
 import type { ChannelCode } from '@/lib/channel';
-import { AddressForm, type Country, type CheckoutCustomer } from '@/components/checkout/address-form';
+import { AddressForm } from '@/components/checkout/address-form';
 import type { ZoneNode } from '@/components/checkout/shipping-zone-picker';
 import { ShippingMethodStep, type ShippingMethodOption } from '@/components/checkout/shipping-method-step';
 import { PaymentStep } from '@/components/checkout/payment-step';
@@ -13,35 +13,28 @@ const STEPS: Array<{ key: CheckoutStep; label: string }> = [
 ];
 
 /**
- * Which step to show is derived entirely from the order's own state (has a shipping
+ * Which step to show is derived entirely from the cart's own state (has a shipping
  * address? a shipping method?) rather than tracked as separate client state — after
  * each step's Server Action, the caller does `router.refresh()`, the parent Server
- * Component re-fetches the order, and this component just re-derives the step from
+ * Component re-fetches the cart, and this component just re-derives the step from
  * the fresh data. Refreshing mid-checkout can never lose progress.
+ *
+ * Guest checkout only for now — Medusa customer auth/saved addresses haven't been
+ * migrated off Vendure yet (see apps/storefront/src/lib/vendure/auth-actions.ts,
+ * still used by /account), so there's no signed-in prefill or address picker here.
  */
 export function CheckoutFlow({
   channelCode,
-  orderCode,
-  orderState,
   hasShippingAddress,
   hasShippingMethod,
-  countries,
-  defaultCountryCode,
-  customer,
   defaultEmail,
   shippingMethods,
   shippingZones,
   currencyCode,
 }: {
   channelCode: ChannelCode;
-  orderCode: string;
-  orderState: string;
   hasShippingAddress: boolean;
   hasShippingMethod: boolean;
-  countries: Country[];
-  defaultCountryCode: string;
-  /** The signed-in customer's profile + saved addresses, or null for guests. */
-  customer?: CheckoutCustomer | null;
   defaultEmail?: string;
   shippingMethods: ShippingMethodOption[];
   /** This channel's shipping-zone tree, for the address step's zone picker. */
@@ -57,9 +50,6 @@ export function CheckoutFlow({
       {step === 'address' && (
         <AddressForm
           channelCode={channelCode}
-          countries={countries}
-          defaultCountryCode={defaultCountryCode}
-          customer={customer}
           defaultEmail={defaultEmail}
           shippingZones={shippingZones}
           currencyCode={currencyCode}
@@ -68,7 +58,7 @@ export function CheckoutFlow({
       {step === 'shipping' && (
         <ShippingMethodStep methods={shippingMethods} currencyCode={currencyCode} channelCode={channelCode} />
       )}
-      {step === 'payment' && <PaymentStep channelCode={channelCode} orderState={orderState} orderCode={orderCode} />}
+      {step === 'payment' && <PaymentStep channelCode={channelCode} />}
     </div>
   );
 }

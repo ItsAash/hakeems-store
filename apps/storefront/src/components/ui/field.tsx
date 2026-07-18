@@ -31,7 +31,7 @@ export function Field({
         value={value}
         onChange={onChange}
         autoComplete={autoComplete}
-        className="border border-[var(--color-hairline)] bg-[var(--color-paper)] px-3 py-2.5 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-ink)] disabled:bg-[var(--color-paper-raised)] disabled:text-[var(--color-ink-muted)]"
+        className="border border-[var(--color-hairline)] bg-[var(--color-paper)] px-3 py-3 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-ink)] disabled:bg-[var(--color-paper-raised)] disabled:text-[var(--color-ink-muted)]"
       />
     </div>
   );

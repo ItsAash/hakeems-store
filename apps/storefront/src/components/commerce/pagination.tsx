@@ -25,7 +25,7 @@ function ArrowButton({
   icon: typeof ArrowLeftIcon;
 }) {
   const className =
-    'flex h-10 w-10 items-center justify-center rounded-full border border-[var(--color-ink)]/15 text-[var(--color-ink)] transition-colors duration-300';
+    'flex h-11 w-11 items-center justify-center rounded-full border border-[var(--color-ink)]/15 text-[var(--color-ink)] transition-colors duration-300';
 
   if (disabled) {
     return (

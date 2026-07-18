@@ -1,13 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Image from 'next/image';
 import { Overlay } from '@/components/ui/overlay';
 import { ArrowLeftIcon, ArrowRightIcon, CloseIcon } from '@/components/ui/icons';
 
+const SWIPE_THRESHOLD_PX = 40;
+
 export function ProductGallery({ images, alt }: { images: string[]; alt: string }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const touchStartX = useRef<number | null>(null);
 
   if (images.length === 0) {
     return <div className="aspect-[4/5] w-full bg-[var(--color-hairline)]" />;
@@ -16,11 +19,24 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
   const page = (direction: 1 | -1) =>
     setActiveIndex((current) => (current + direction + images.length) % images.length);
 
+  const onTouchStart = (event: React.TouchEvent) => {
+    touchStartX.current = event.touches[0]?.clientX ?? null;
+  };
+  const onTouchEnd = (event: React.TouchEvent) => {
+    if (touchStartX.current === null || images.length < 2) return;
+    const deltaX = (event.changedTouches[0]?.clientX ?? touchStartX.current) - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(deltaX) < SWIPE_THRESHOLD_PX) return;
+    page(deltaX < 0 ? 1 : -1);
+  };
+
   return (
     <div className="flex flex-col gap-3">
       <button
         type="button"
         onClick={() => setLightboxOpen(true)}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
         aria-label="Zoom image"
         aria-haspopup="dialog"
         className="relative block aspect-[4/5] w-full cursor-zoom-in overflow-hidden bg-[var(--color-hairline)]"
@@ -38,7 +54,6 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
       </button>
 
       {images.length > 1 && (
-        // Scrollable rail (not a wrapping flex) so a deep gallery never breaks the column.
         <div className="scrollbar-none flex gap-2 overflow-x-auto">
           {images.map((src, index) => (
             <button
@@ -47,11 +62,11 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
               onClick={() => setActiveIndex(index)}
               aria-label={`View image ${index + 1} of ${images.length}`}
               aria-current={index === activeIndex}
-              className={`relative h-16 w-14 shrink-0 overflow-hidden border transition-colors ${
+              className={`relative h-14 w-12 shrink-0 overflow-hidden border transition-colors sm:h-16 sm:w-14 ${
                 index === activeIndex ? 'border-[var(--color-ink)]' : 'border-transparent hover:border-[var(--color-hairline)]'
               }`}
             >
-              <Image src={src} alt="" fill sizes="56px" className="object-cover" />
+              <Image src={src} alt="" fill sizes="48px" className="object-cover" />
             </button>
           ))}
         </div>
@@ -77,13 +92,16 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
           <CloseIcon className="h-5 w-5" />
         </button>
 
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          key={images[activeIndex]}
-          src={images[activeIndex]}
-          alt={alt}
-          className="animate-fade-in max-h-full max-w-full object-contain"
-        />
+        <div className="relative h-[90vh] w-[90vw] max-h-full max-w-full">
+          <Image
+            key={images[activeIndex]}
+            src={images[activeIndex] ?? ''}
+            alt={alt}
+            fill
+            sizes="90vw"
+            className="animate-fade-in object-contain"
+          />
+        </div>
 
         {images.length > 1 && (
           <>

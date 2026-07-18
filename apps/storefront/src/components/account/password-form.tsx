@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import type { ChannelCode } from '@/lib/channel';
-import { updateCustomerPasswordAction } from '@/lib/vendure/auth-actions';
+import { changePasswordAction } from '@/lib/medusa/auth-actions';
 import { Field } from '@/components/ui/field';
 
 export function PasswordForm({ channelCode }: { channelCode: ChannelCode }) {
@@ -21,7 +21,7 @@ export function PasswordForm({ channelCode }: { channelCode: ChannelCode }) {
     setIsSubmitting(true);
     setError(null);
 
-    const result = await updateCustomerPasswordAction(channelCode, form);
+    const result = await changePasswordAction(channelCode, { new_password: form.newPassword });
     setIsSubmitting(false);
     if (!result.success) {
       setError(result.message);

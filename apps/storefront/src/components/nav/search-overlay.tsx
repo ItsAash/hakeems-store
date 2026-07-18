@@ -6,9 +6,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { ChannelCode } from '@/lib/channel';
 import { routes } from '@/lib/routes';
-import type { PlpProduct } from '@/lib/vendure/plp';
-import { searchSuggestionsAction } from '@/lib/vendure/search-actions';
-import { formatPriceRange } from '@/lib/format';
+import type { ProductCardModel } from '@/lib/medusa/product-card';
+import { searchSuggestionsAction } from '@/lib/medusa/search-actions';
+import { formatPrice } from '@/lib/format';
 import { SearchIcon, CloseIcon } from '@/components/ui/icons';
 import { Overlay } from '@/components/ui/overlay';
 
@@ -18,7 +18,7 @@ export function SearchOverlay({ channelCode }: { channelCode: ChannelCode }) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [term, setTerm] = useState('');
-  const [suggestions, setSuggestions] = useState<PlpProduct[]>([]);
+  const [suggestions, setSuggestions] = useState<ProductCardModel[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const requestId = useRef(0);
 
@@ -65,7 +65,7 @@ export function SearchOverlay({ channelCode }: { channelCode: ChannelCode }) {
         onClick={() => setIsOpen(true)}
         aria-label="Search"
         aria-haspopup="dialog"
-        className="text-[var(--nav-fg)]"
+        className="relative text-[var(--nav-fg)] after:absolute after:-inset-3"
       >
         <SearchIcon className="h-5 w-5" />
       </button>
@@ -88,7 +88,7 @@ export function SearchOverlay({ channelCode }: { channelCode: ChannelCode }) {
               placeholder="Search products…"
               className="w-full border-none bg-transparent font-serif text-2xl text-[var(--color-ink)] outline-none placeholder:text-[var(--color-ink-muted)]"
             />
-            <button type="button" onClick={close} aria-label="Close search">
+            <button type="button" onClick={close} aria-label="Close search" className="relative after:absolute after:-inset-3">
               <CloseIcon className="h-5 w-5" />
             </button>
           </form>
@@ -109,14 +109,14 @@ export function SearchOverlay({ channelCode }: { channelCode: ChannelCode }) {
                               className="flex items-center gap-4 rounded-sm px-2 py-2 transition-colors hover:bg-[var(--color-paper)]"
                             >
                               <div className="relative h-14 w-12 shrink-0 overflow-hidden bg-[var(--color-hairline)]">
-                                {product.imageUrl && (
-                                  <Image src={product.imageUrl} alt={product.name} fill sizes="48px" className="object-cover" />
+                                {product.defaultImageUrl && (
+                                  <Image src={product.defaultImageUrl} alt={product.name} fill sizes="48px" className="object-cover" />
                                 )}
                               </div>
                               <div className="flex flex-1 flex-col gap-0.5">
                                 <span className="text-sm font-medium text-[var(--color-ink)]">{product.name}</span>
                                 <span className="text-xs text-[var(--color-ink-muted)]">
-                                  {formatPriceRange(product.priceMin, product.priceMax, product.currencyCode)}
+                                  {formatPrice(product.price, product.currencyCode)}
                                 </span>
                               </div>
                             </Link>

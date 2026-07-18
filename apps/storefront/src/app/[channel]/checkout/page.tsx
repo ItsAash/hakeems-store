@@ -4,10 +4,10 @@ import { NOINDEX_METADATA } from '@/lib/seo/metadata';
 export const metadata = { ...NOINDEX_METADATA, title: 'Checkout' };
 import { getChannel, isChannelCode } from '@/lib/channel';
 import { routes } from '@/lib/routes';
-import { getVendureClient } from '@/lib/vendure/client';
-import { getVendureSessionCookies } from '@/lib/session';
+import { fetchCartAction } from '@/lib/medusa/cart-actions';
+import { toCartLines, toCartTotals } from '@/lib/medusa/cart-mapper';
+import { listShippingOptionsAction, fetchShippingZoneTreeAction } from '@/lib/medusa/checkout-actions';
 import { CONTAINER } from '@/lib/ui';
-import type { CartLine } from '@/components/commerce/cart-line-item';
 import { CheckoutFlow } from '@/components/checkout/checkout-flow';
 import { OrderSummary } from '@/components/checkout/order-summary';
 
@@ -16,37 +16,24 @@ export default async function CheckoutPage({ params }: { params: Promise<{ chann
   if (!isChannelCode(channelParam)) notFound();
   const channel = getChannel(channelParam);
 
-  const sessionCookies = await getVendureSessionCookies();
-  const client = getVendureClient(channel.code, sessionCookies);
-
-  const [
-    { activeOrder },
-    { availableCountries },
-    { eligibleShippingMethods },
-    { activeCustomer },
-    { activeChannelShippingZones },
-  ] = await Promise.all([
-    client.ActiveOrderFull(),
-    client.Countries(),
-    client.EligibleShippingMethods(),
-    client.ActiveCustomer(),
-    client.ActiveChannelShippingZones(),
-  ]);
-
-  if (!activeOrder || activeOrder.lines.length === 0) {
+  const cart = await fetchCartAction(channel.code);
+  if (!cart || (cart.items?.length ?? 0) === 0) {
     redirect(routes.cart(channel.code));
   }
 
-  const lines: CartLine[] = activeOrder.lines.map((line) => ({
-    id: line.id,
-    quantity: line.quantity,
-    linePriceWithTax: line.linePriceWithTax,
-    currencyCode: activeOrder.currencyCode,
-    imageUrl: line.featuredAsset?.preview ?? null,
-    productName: line.productVariant.name,
-    productSlug: line.productVariant.product.slug,
-    variantLabel: line.productVariant.options.map((option) => option.name).join(' / ') || null,
-  }));
+  const hasShippingAddress = !!cart.shipping_address?.address_1;
+  const hasShippingMethod = (cart.shipping_methods?.length ?? 0) > 0;
+
+  // The zone tree only matters for the address step; shipping options only resolve
+  // once an address is set (the fulfillment provider needs it to calculate a price).
+  const [shippingZones, shippingOptionsResult] = await Promise.all([
+    !hasShippingAddress ? fetchShippingZoneTreeAction(channel.code) : Promise.resolve([]),
+    hasShippingAddress && !hasShippingMethod ? listShippingOptionsAction(channel.code) : Promise.resolve(null),
+  ]);
+  const shippingMethods = shippingOptionsResult?.success ? shippingOptionsResult.options : [];
+
+  const lines = toCartLines(cart);
+  const totals = toCartTotals(cart, channel.currencyCode);
 
   return (
     <main className={`flex-1 py-section-sm ${CONTAINER}`}>
@@ -55,43 +42,23 @@ export default async function CheckoutPage({ params }: { params: Promise<{ chann
       <div className="grid gap-12 lg:grid-cols-[1fr_360px]">
         <CheckoutFlow
           channelCode={channel.code}
-          orderCode={activeOrder.code}
-          orderState={activeOrder.state}
-          hasShippingAddress={!!activeOrder.shippingAddress?.streetLine1}
-          hasShippingMethod={activeOrder.shippingLines.length > 0}
-          countries={availableCountries}
-          defaultCountryCode={channel.countryCode}
-          shippingZones={activeChannelShippingZones}
-          customer={
-            activeCustomer
-              ? {
-                  firstName: activeCustomer.firstName,
-                  lastName: activeCustomer.lastName,
-                  emailAddress: activeCustomer.emailAddress,
-                  phoneNumber: activeCustomer.phoneNumber,
-                  addresses: activeCustomer.addresses ?? [],
-                }
-              : null
-          }
-          shippingMethods={eligibleShippingMethods.map((method) => ({
-            id: method.id,
-            name: method.name,
-            description: method.description,
-            priceWithTax: method.priceWithTax,
-          }))}
-          currencyCode={activeOrder.currencyCode}
+          hasShippingAddress={hasShippingAddress}
+          hasShippingMethod={hasShippingMethod}
+          defaultEmail={cart.email ?? undefined}
+          shippingZones={shippingZones}
+          shippingMethods={shippingMethods}
+          currencyCode={totals.currencyCode}
         />
 
         <div className="lg:border-l lg:hairline lg:pl-12">
           <OrderSummary
             lines={lines}
-            subTotalWithTax={activeOrder.subTotalWithTax}
-            shippingWithTax={activeOrder.shippingWithTax}
-            totalWithTax={activeOrder.totalWithTax}
-            currencyCode={activeOrder.currencyCode}
+            subTotalWithTax={totals.subtotal}
+            shippingWithTax={totals.shippingTotal}
+            totalWithTax={totals.total}
+            currencyCode={totals.currencyCode}
             channelCode={channel.code}
-            discounts={activeOrder.discounts}
-            appliedCouponCodes={activeOrder.couponCodes}
+            promotions={cart.promotions}
           />
         </div>
       </div>

@@ -4,14 +4,16 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ChannelCode } from '@/lib/channel';
 import { routes } from '@/lib/routes';
-import { addFonepayPlaceholderPaymentAction } from '@/lib/vendure/actions';
+import { getMedusaConfig } from '@/lib/medusa/config';
+import { initiatePaymentSessionAction, completeCartAction } from '@/lib/medusa/payment-actions';
 
 /**
- * Nepal's payment method settles synchronously (see fonepay-placeholder.handler.ts —
- * it's an explicit placeholder Vendure-side, not a real Fonepay integration yet), so
- * there's no redirect or client SDK: one mutation call places the order.
+ * Nepal's payment method settles synchronously (see apps/medusa's fonepay-placeholder
+ * module — it's an explicit placeholder, not a real Fonepay integration yet), so
+ * there's no redirect or client SDK: starting the payment session and completing the
+ * cart both happen in one click.
  */
-export function FonepayPlaceholderPayment({ channelCode, orderCode }: { channelCode: ChannelCode; orderCode: string }) {
+export function FonepayPlaceholderPayment({ channelCode }: { channelCode: ChannelCode }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -20,14 +22,22 @@ export function FonepayPlaceholderPayment({ channelCode, orderCode }: { channelC
     setIsSubmitting(true);
     setError(null);
 
-    const result = await addFonepayPlaceholderPaymentAction(channelCode);
-    if (!result.success) {
-      setError(result.message);
+    const { paymentProviderId } = getMedusaConfig(channelCode);
+    const sessionResult = await initiatePaymentSessionAction(channelCode, paymentProviderId);
+    if (!sessionResult.success) {
+      setError(sessionResult.message);
       setIsSubmitting(false);
       return;
     }
 
-    router.push(routes.checkoutConfirmation(channelCode, result.orderCode ?? orderCode));
+    const completeResult = await completeCartAction(channelCode);
+    if (!completeResult.success) {
+      setError(completeResult.message);
+      setIsSubmitting(false);
+      return;
+    }
+
+    router.push(routes.checkoutConfirmation(channelCode, completeResult.order.id));
   };
 
   return (

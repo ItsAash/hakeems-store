@@ -3,7 +3,8 @@ import Link from 'next/link';
 import type { ChannelCode } from '@/lib/channel';
 import type { FacetCategoryTile, SectionHeader } from '@/lib/strapi/types';
 import { pickImageUrl } from '@/lib/strapi/client';
-import { getVendureClient } from '@/lib/vendure/client';
+import { createMedusaClient } from '@/lib/medusa/client';
+import { getCollectionByHandle } from '@/lib/medusa/products';
 import { routes } from '@/lib/routes';
 import { CONTAINER } from '@/lib/ui';
 
@@ -11,11 +12,11 @@ import { CONTAINER } from '@/lib/ui';
  * "Shop By Category" tiles. Each tile is a category entry point, so it always links to that
  * category's Collection page (`/{channel}/collections/{slug}`) — never `/shop?facet=…`.
  *
- * Strapi stores a stable facet-value **code** (`"<facetCode>:<valueCode>"`, e.g.
- * "categories:tops"), never a database id. The value segment mirrors the Vendure collection
- * slug by convention (the seed guarantees `categories:*` ⇄ collection slugs), so we route by
- * that slug. The facet-value id is still resolved from Vendure's live facets — but only to
- * show each tile's "N items" count, never for the link.
+ * Strapi stores a stable `"<facetCode>:<collectionSlug>"` code (e.g. "categories:tops") —
+ * a naming leftover from the Vendure days, kept as-is so existing Strapi content doesn't
+ * need re-authoring. Only the value segment (the collection slug) is actually used: it's
+ * both the link target and, resolved to a Medusa collection id, the source of each tile's
+ * "N items" count.
  */
 export async function FacetCategoryGrid({
   tiles,
@@ -29,28 +30,19 @@ export async function FacetCategoryGrid({
 }) {
   if (tiles.length === 0) return null;
 
-  const client = getVendureClient(channelCode);
-
-  // Build a "<facetCode>:<valueCode>" -> facetValueId map from Vendure's live facets.
-  const facetData = await client.FacetValues().catch(() => null);
-  const codeToId = new Map<string, string>();
-  for (const facet of facetData?.facets.items ?? []) {
-    for (const value of facet.values) {
-      codeToId.set(`${facet.code}:${value.code}`, value.id);
-    }
-  }
-
-  const resolved = tiles.map((tile) => ({ tile, facetValueId: codeToId.get(tile.vendureFacetValueCode) ?? null }));
+  const client = createMedusaClient(channelCode);
 
   const counts = await Promise.all(
-    resolved.map(({ facetValueId }) =>
-      facetValueId
-        ? client
-            .FacetValueCount({ facetValueId })
-            .then((result) => result.search.totalItems)
-            .catch(() => null)
-        : Promise.resolve(null),
-    ),
+    tiles.map(async (tile) => {
+      const collectionSlug = tile.vendureFacetValueCode.split(':')[1] ?? '';
+      if (!collectionSlug) return null;
+      const collection = await getCollectionByHandle(channelCode, collectionSlug);
+      if (!collection) return null;
+      return client.store.product
+        .list({ collection_id: [collection.id], limit: 1 })
+        .then((result) => result.count)
+        .catch(() => null);
+    }),
   );
 
   return (
@@ -65,7 +57,7 @@ export async function FacetCategoryGrid({
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">
-        {resolved.map(({ tile, facetValueId }, i) => {
+        {tiles.map((tile, i) => {
           const imageUrl = tile.image ? pickImageUrl(tile.image, ['medium', 'small']) : null;
           const count = counts[i];
           // The value segment of "<facetCode>:<valueCode>" is the collection slug. Route to

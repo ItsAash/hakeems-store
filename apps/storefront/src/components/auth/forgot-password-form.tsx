@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import type { ChannelCode } from '@/lib/channel';
-import { requestPasswordResetAction } from '@/lib/vendure/auth-actions';
+import { requestPasswordResetAction } from '@/lib/medusa/auth-actions';
 import { Field } from '@/components/ui/field';
 
 export function ForgotPasswordForm({ channelCode }: { channelCode: ChannelCode }) {

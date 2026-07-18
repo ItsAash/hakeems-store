@@ -86,7 +86,10 @@ export async function strapiFetch<T>(path: string, options: StrapiFetchOptions =
     if (response.status === 404 && options.notFoundAsNull) {
       return { data: null } as T;
     }
-    throw new Error(`Strapi request failed: ${response.status} ${path}`);
+    // 401 (invalid/expired API token) or any unexpected status: log a warning and
+    // return null instead of crashing the page, so the rest of the site still renders.
+    console.warn(`[strapi] ${response.status} for "${path}" — returning empty data`);
+    return { data: null } as T;
   }
 
   const json = await response.json();

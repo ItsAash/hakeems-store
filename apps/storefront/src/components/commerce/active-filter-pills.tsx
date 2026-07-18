@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { FacetFilterGroup } from '@/lib/vendure/plp';
+import type { FacetFilterGroup } from '@/lib/medusa/facets';
 import {
   buildToggleHref,
   toURLSearchParams,
