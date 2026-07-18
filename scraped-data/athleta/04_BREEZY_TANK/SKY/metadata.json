@@ -1,0 +1,34 @@
+{
+  "product_name": "Breezy Tank",
+  "color": "Sky",
+  "parent_color": null,
+  "full_name": "Breezy Tank | Sky",
+  "category": "Tops > Tank Tops",
+  "description": "FOR: Everyday wear, travel and exploring the outdoors FEEL: Lightweight with a linen&#45like texture FAVE: Flattering, curved hemline provides more coverage Product #384043",
+  "price": 26.4,
+  "currency": "USD",
+  "sizes_available": 9,
+  "materials": null,
+  "rating": 4.59,
+  "rating_count": 7787,
+  "sku_style": "384043",
+  "sku_color": "384043572",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=384043572",
+  "image_files": [
+    "SKY_01.jpg",
+    "SKY_02.jpg",
+    "SKY_03.jpg",
+    "SKY_04.jpg",
+    "SKY_05.jpg",
+    "SKY_06.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0062/227/373/cn62227373.jpg",
+    "https://athleta.gap.com/webcontent/0062/227/477/cn62227477.jpg",
+    "https://athleta.gap.com/webcontent/0062/227/496/cn62227496.jpg",
+    "https://athleta.gap.com/webcontent/0062/501/137/cn62501137.jpg",
+    "https://athleta.gap.com/webcontent/0062/501/143/cn62501143.jpg",
+    "https://athleta.gap.com/webcontent/0062/579/092/cn62579092.jpg"
+  ]
+}

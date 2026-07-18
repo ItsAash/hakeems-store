@@ -1,0 +1,38 @@
+{
+  "product_name": "Brooklyn Mid Rise Ankle Pant",
+  "color": "Breaker",
+  "parent_color": null,
+  "full_name": "Brooklyn Mid Rise Ankle Pant | Breaker",
+  "category": "Bottoms > Pants",
+  "description": "FOR: Your workday commute and weekend travels, from meetings to meetups FEEL: Featherweight Stretch is made with recycled polyester and feels light as air FAVE: Rib knit waistband and side panels for superior mobility and comfort Easy-access pockets to stash your essentials Product #198671",
+  "price": 74.97,
+  "currency": "USD",
+  "sizes_available": 13,
+  "materials": null,
+  "rating": 4.61,
+  "rating_count": 23824,
+  "sku_style": "198671",
+  "sku_color": "198671542",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=198671542",
+  "image_files": [
+    "BREAKER_01.jpg",
+    "BREAKER_02.jpg",
+    "BREAKER_03.jpg",
+    "BREAKER_04.jpg",
+    "BREAKER_05.jpg",
+    "BREAKER_06.jpg",
+    "BREAKER_07.jpg",
+    "BREAKER_08.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0061/168/480/cn61168480.jpg",
+    "https://athleta.gap.com/webcontent/0061/168/604/cn61168604.jpg",
+    "https://athleta.gap.com/webcontent/0061/168/592/cn61168592.jpg",
+    "https://athleta.gap.com/webcontent/0061/265/819/cn61265819.jpg",
+    "https://athleta.gap.com/webcontent/0061/265/822/cn61265822.jpg",
+    "https://athleta.gap.com/webcontent/0061/310/437/cn61310437.jpg",
+    "https://athleta.gap.com/webcontent/0061/819/879/cn61819879.jpg",
+    "https://athleta.gap.com/webcontent/0059/627/801/cn59627801.jpg"
+  ]
+}

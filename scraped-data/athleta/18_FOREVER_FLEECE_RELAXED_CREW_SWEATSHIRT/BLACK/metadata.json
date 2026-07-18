@@ -1,0 +1,32 @@
+{
+  "product_name": "Forever Fleece Relaxed Crew Sweatshirt",
+  "color": "Black",
+  "parent_color": null,
+  "full_name": "Forever Fleece Relaxed Crew Sweatshirt | Black",
+  "category": "Tops > Sweatshirts",
+  "description": "FOR: Lounge and everyday movement FEEL: Plush stretch fleece has a soft, brushed interior FAVE: Rib cuffs and collar provide extra comfort Product #414588",
+  "price": 22.97,
+  "currency": "USD",
+  "sizes_available": 9,
+  "materials": null,
+  "rating": 4.76,
+  "rating_count": 1789,
+  "sku_style": "414588",
+  "sku_color": "414588012",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=414588012",
+  "image_files": [
+    "BLACK_01.jpg",
+    "BLACK_02.jpg",
+    "BLACK_03.jpg",
+    "BLACK_04.jpg",
+    "BLACK_05.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0059/366/731/cn59366731.jpg",
+    "https://athleta.gap.com/webcontent/0059/366/624/cn59366624.jpg",
+    "https://athleta.gap.com/webcontent/0059/366/638/cn59366638.jpg",
+    "https://athleta.gap.com/webcontent/0056/583/236/cn56583236.jpg",
+    "https://athleta.gap.com/webcontent/0059/627/701/cn59627701.jpg"
+  ]
+}

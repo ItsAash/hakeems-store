@@ -1,0 +1,34 @@
+{
+  "product_name": "Forever Fleece Relaxed Crew Sweatshirt",
+  "color": "Magnolia White",
+  "parent_color": null,
+  "full_name": "Forever Fleece Relaxed Crew Sweatshirt | Magnolia White",
+  "category": "Tops > Sweatshirts",
+  "description": "FOR: Lounge and everyday movement FEEL: Plush stretch fleece has a soft, brushed interior FAVE: Rib cuffs and collar provide extra comfort Product #414588",
+  "price": 22.97,
+  "currency": "USD",
+  "sizes_available": 9,
+  "materials": null,
+  "rating": 4.76,
+  "rating_count": 1789,
+  "sku_style": "414588",
+  "sku_color": "414588072",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=414588072",
+  "image_files": [
+    "MAGNOLIA_WHITE_01.jpg",
+    "MAGNOLIA_WHITE_02.jpg",
+    "MAGNOLIA_WHITE_03.jpg",
+    "MAGNOLIA_WHITE_04.jpg",
+    "MAGNOLIA_WHITE_05.jpg",
+    "MAGNOLIA_WHITE_06.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0059/627/748/cn59627748.jpg",
+    "https://athleta.gap.com/webcontent/0059/627/734/cn59627734.jpg",
+    "https://athleta.gap.com/webcontent/0059/627/732/cn59627732.jpg",
+    "https://athleta.gap.com/webcontent/0059/611/005/cn59611005.jpg",
+    "https://athleta.gap.com/webcontent/0059/846/906/cn59846906.jpg",
+    "https://athleta.gap.com/webcontent/0059/627/701/cn59627701.jpg"
+  ]
+}

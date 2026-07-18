@@ -1,0 +1,34 @@
+{
+  "product_name": "Breezy Tank",
+  "color": "Solstice",
+  "parent_color": null,
+  "full_name": "Breezy Tank | Solstice",
+  "category": "Tops > Tank Tops",
+  "description": "FOR: Everyday wear, travel and exploring the outdoors FEEL: Lightweight with a linen&#45like texture FAVE: Flattering, curved hemline provides more coverage Product #384043",
+  "price": 26.4,
+  "currency": "USD",
+  "sizes_available": 9,
+  "materials": null,
+  "rating": 4.59,
+  "rating_count": 7787,
+  "sku_style": "384043",
+  "sku_color": "384043632",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=384043632",
+  "image_files": [
+    "SOLSTICE_01.jpg",
+    "SOLSTICE_02.jpg",
+    "SOLSTICE_03.jpg",
+    "SOLSTICE_04.jpg",
+    "SOLSTICE_05.jpg",
+    "SOLSTICE_06.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0062/359/723/cn62359723.jpg",
+    "https://athleta.gap.com/webcontent/0062/360/034/cn62360034.jpg",
+    "https://athleta.gap.com/webcontent/0062/360/061/cn62360061.jpg",
+    "https://athleta.gap.com/webcontent/0062/369/065/cn62369065.jpg",
+    "https://athleta.gap.com/webcontent/0062/369/084/cn62369084.jpg",
+    "https://athleta.gap.com/webcontent/0062/501/148/cn62501148.jpg"
+  ]
+}

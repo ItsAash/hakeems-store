@@ -1,0 +1,36 @@
+{
+  "product_name": "Salutation Crop Jacket",
+  "color": "Breaker",
+  "parent_color": null,
+  "full_name": "Salutation Crop Jacket | Breaker",
+  "category": "Jackets > All Jackets",
+  "description": "FOR: Yoga or studio practice FEEL: Powervita fabric is buttery soft with support that feels like a gentle hug FAVE: Thumbholes that keep your sleeves in place Side zip pockets secure your essentials Product #413489",
+  "price": 39.97,
+  "currency": "USD",
+  "sizes_available": 6,
+  "materials": null,
+  "rating": 4.67,
+  "rating_count": 890,
+  "sku_style": "413489",
+  "sku_color": "413489242",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=413489242",
+  "image_files": [
+    "BREAKER_01.jpg",
+    "BREAKER_02.jpg",
+    "BREAKER_03.jpg",
+    "BREAKER_04.jpg",
+    "BREAKER_05.jpg",
+    "BREAKER_06.jpg",
+    "BREAKER_07.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0061/168/492/cn61168492.jpg",
+    "https://athleta.gap.com/webcontent/0061/168/579/cn61168579.jpg",
+    "https://athleta.gap.com/webcontent/0061/167/846/cn61167846.jpg",
+    "https://athleta.gap.com/webcontent/0061/317/009/cn61317009.jpg",
+    "https://athleta.gap.com/webcontent/0061/275/678/cn61275678.jpg",
+    "https://athleta.gap.com/webcontent/0061/317/011/cn61317011.jpg",
+    "https://athleta.gap.com/webcontent/0061/187/812/cn61187812.jpg"
+  ]
+}

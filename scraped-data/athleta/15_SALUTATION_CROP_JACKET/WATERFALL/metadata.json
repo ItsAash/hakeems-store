@@ -1,0 +1,36 @@
+{
+  "product_name": "Salutation Crop Jacket",
+  "color": "Waterfall",
+  "parent_color": null,
+  "full_name": "Salutation Crop Jacket | Waterfall",
+  "category": "Jackets > All Jackets",
+  "description": "FOR: Yoga or studio practice FEEL: Powervita fabric is buttery soft with support that feels like a gentle hug FAVE: Thumbholes that keep your sleeves in place Side zip pockets secure your essentials Product #413489",
+  "price": 49.99,
+  "currency": "USD",
+  "sizes_available": 6,
+  "materials": null,
+  "rating": 4.67,
+  "rating_count": 890,
+  "sku_style": "413489",
+  "sku_color": "413489252",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=413489252",
+  "image_files": [
+    "WATERFALL_01.jpg",
+    "WATERFALL_02.jpg",
+    "WATERFALL_03.jpg",
+    "WATERFALL_04.jpg",
+    "WATERFALL_05.jpg",
+    "WATERFALL_06.jpg",
+    "WATERFALL_07.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0062/327/501/cn62327501.jpg",
+    "https://athleta.gap.com/webcontent/0062/329/658/cn62329658.jpg",
+    "https://athleta.gap.com/webcontent/0062/327/795/cn62327795.jpg",
+    "https://athleta.gap.com/webcontent/0062/327/789/cn62327789.jpg",
+    "https://athleta.gap.com/webcontent/0062/327/811/cn62327811.jpg",
+    "https://athleta.gap.com/webcontent/0062/327/804/cn62327804.jpg",
+    "https://athleta.gap.com/webcontent/0061/187/812/cn61187812.jpg"
+  ]
+}

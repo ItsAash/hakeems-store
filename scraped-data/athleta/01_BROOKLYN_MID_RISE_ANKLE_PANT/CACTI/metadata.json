@@ -1,0 +1,36 @@
+{
+  "product_name": "Brooklyn Mid Rise Ankle Pant",
+  "color": "Cacti",
+  "parent_color": null,
+  "full_name": "Brooklyn Mid Rise Ankle Pant | Cacti",
+  "category": "Bottoms > Pants",
+  "description": "FOR: Your workday commute and weekend travels, from meetings to meetups FEEL: Featherweight Stretch is made with recycled polyester and feels light as air FAVE: Rib knit waistband and side panels for superior mobility and comfort Easy-access pockets to stash your essentials Product #198671",
+  "price": 59.4,
+  "currency": "USD",
+  "sizes_available": 13,
+  "materials": null,
+  "rating": 4.61,
+  "rating_count": 23824,
+  "sku_style": "198671",
+  "sku_color": "198671552",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=198671552",
+  "image_files": [
+    "CACTI_01.jpg",
+    "CACTI_02.jpg",
+    "CACTI_03.jpg",
+    "CACTI_04.jpg",
+    "CACTI_05.jpg",
+    "CACTI_06.jpg",
+    "CACTI_07.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0061/385/819/cn61385819.jpg",
+    "https://athleta.gap.com/webcontent/0061/485/331/cn61485331.jpg",
+    "https://athleta.gap.com/webcontent/0061/393/508/cn61393508.jpg",
+    "https://athleta.gap.com/webcontent/0061/564/379/cn61564379.jpg",
+    "https://athleta.gap.com/webcontent/0061/310/447/cn61310447.jpg",
+    "https://athleta.gap.com/webcontent/0061/575/630/cn61575630.jpg",
+    "https://athleta.gap.com/webcontent/0059/627/801/cn59627801.jpg"
+  ]
+}

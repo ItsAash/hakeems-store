@@ -1,0 +1,36 @@
+{
+  "product_name": "Pranayama Restore Rib Wrap",
+  "color": "Bone Rib",
+  "parent_color": null,
+  "full_name": "Pranayama Restore Rib Wrap | Bone Rib",
+  "category": "Tops > Sweatshirts",
+  "description": "FOR: Layering up to and from your workout FEEL: Lightweight with a super-soft rib texture FAVE: Side pockets stash your essentials Thumbholes hold sleeves in place and keep warmth in Product #415557",
+  "price": 39.97,
+  "currency": "USD",
+  "sizes_available": 9,
+  "materials": null,
+  "rating": 4.79,
+  "rating_count": 18505,
+  "sku_style": "415557",
+  "sku_color": "415557002",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=415557002",
+  "image_files": [
+    "BONE_RIB_01.jpg",
+    "BONE_RIB_02.jpg",
+    "BONE_RIB_03.jpg",
+    "BONE_RIB_04.jpg",
+    "BONE_RIB_05.jpg",
+    "BONE_RIB_06.jpg",
+    "BONE_RIB_07.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0059/611/218/cn59611218.jpg",
+    "https://athleta.gap.com/webcontent/0059/606/052/cn59606052.jpg",
+    "https://athleta.gap.com/webcontent/0059/606/058/cn59606058.jpg",
+    "https://athleta.gap.com/webcontent/0056/136/410/cn56136410.jpg",
+    "https://athleta.gap.com/webcontent/0060/338/883/cn60338883.jpg",
+    "https://athleta.gap.com/webcontent/0060/338/877/cn60338877.jpg",
+    "https://athleta.gap.com/webcontent/0060/475/744/cn60475744.jpg"
+  ]
+}

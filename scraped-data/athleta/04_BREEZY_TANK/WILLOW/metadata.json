@@ -1,0 +1,32 @@
+{
+  "product_name": "Breezy Tank",
+  "color": "Willow",
+  "parent_color": null,
+  "full_name": "Breezy Tank | Willow",
+  "category": "Tops > Tank Tops",
+  "description": "FOR: Everyday wear, travel and exploring the outdoors FEEL: Lightweight with a linen&#45like texture FAVE: Flattering, curved hemline provides more coverage Product #384043",
+  "price": 27.99,
+  "currency": "USD",
+  "sizes_available": 9,
+  "materials": null,
+  "rating": 4.59,
+  "rating_count": 7787,
+  "sku_style": "384043",
+  "sku_color": "384043602",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=384043602",
+  "image_files": [
+    "WILLOW_01.jpg",
+    "WILLOW_02.jpg",
+    "WILLOW_03.jpg",
+    "WILLOW_04.jpg",
+    "WILLOW_05.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0061/698/002/cn61698002.jpg",
+    "https://athleta.gap.com/webcontent/0061/707/224/cn61707224.jpg",
+    "https://athleta.gap.com/webcontent/0061/464/207/cn61464207.jpg",
+    "https://athleta.gap.com/webcontent/0061/464/194/cn61464194.jpg",
+    "https://athleta.gap.com/webcontent/0061/659/493/cn61659493.jpg"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "product_name": "Breezy Tank",
+  "color": "Black",
+  "parent_color": null,
+  "full_name": "Breezy Tank | Black",
+  "category": "Tops > Tank Tops",
+  "description": "FOR: Everyday wear, travel and exploring the outdoors FEEL: Lightweight with a linen&#45like texture FAVE: Flattering, curved hemline provides more coverage Product #384043",
+  "price": 26.4,
+  "currency": "USD",
+  "sizes_available": 9,
+  "materials": null,
+  "rating": 4.59,
+  "rating_count": 7787,
+  "sku_style": "384043",
+  "sku_color": "384043082",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=384043082",
+  "image_files": [
+    "BLACK_01.jpg",
+    "BLACK_02.jpg",
+    "BLACK_03.jpg",
+    "BLACK_04.jpg",
+    "BLACK_05.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0062/126/479/cn62126479.jpg",
+    "https://athleta.gap.com/webcontent/0059/488/922/cn59488922.jpg",
+    "https://athleta.gap.com/webcontent/0062/126/485/cn62126485.jpg",
+    "https://athleta.gap.com/webcontent/0059/604/501/cn59604501.jpg",
+    "https://athleta.gap.com/webcontent/0059/604/493/cn59604493.jpg"
+  ]
+}

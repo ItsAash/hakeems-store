@@ -1,0 +1,36 @@
+{
+  "product_name": "Brooklyn Mid Rise Ankle Pant",
+  "color": "Woodland",
+  "parent_color": null,
+  "full_name": "Brooklyn Mid Rise Ankle Pant | Woodland",
+  "category": "Bottoms > Pants",
+  "description": "FOR: Your workday commute and weekend travels, from meetings to meetups FEEL: Featherweight Stretch is made with recycled polyester and feels light as air FAVE: Rib knit waistband and side panels for superior mobility and comfort Easy-access pockets to stash your essentials Product #198671",
+  "price": 99,
+  "currency": "USD",
+  "sizes_available": 14,
+  "materials": null,
+  "rating": 4.61,
+  "rating_count": 23824,
+  "sku_style": "198671",
+  "sku_color": "198671592",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=198671592",
+  "image_files": [
+    "WOODLAND_01.jpg",
+    "WOODLAND_02.jpg",
+    "WOODLAND_03.jpg",
+    "WOODLAND_04.jpg",
+    "WOODLAND_05.jpg",
+    "WOODLAND_06.jpg",
+    "WOODLAND_07.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0061/711/116/cn61711116.jpg",
+    "https://athleta.gap.com/webcontent/0061/710/903/cn61710903.jpg",
+    "https://athleta.gap.com/webcontent/0061/711/146/cn61711146.jpg",
+    "https://athleta.gap.com/webcontent/0061/863/494/cn61863494.jpg",
+    "https://athleta.gap.com/webcontent/0061/863/485/cn61863485.jpg",
+    "https://athleta.gap.com/webcontent/0061/956/632/cn61956632.jpg",
+    "https://athleta.gap.com/webcontent/0059/627/801/cn59627801.jpg"
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "product_name": "Salutation Crop Jacket",
+  "color": "Auburn",
+  "parent_color": null,
+  "full_name": "Salutation Crop Jacket | Auburn",
+  "category": "Jackets > All Jackets",
+  "description": "FOR: Yoga or studio practice FEEL: Powervita fabric is buttery soft with support that feels like a gentle hug FAVE: Thumbholes that keep your sleeves in place Side zip pockets secure your essentials Product #413489",
+  "price": 32.97,
+  "currency": "USD",
+  "sizes_available": 6,
+  "materials": null,
+  "rating": 4.67,
+  "rating_count": 890,
+  "sku_style": "413489",
+  "sku_color": "413489152",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=413489152",
+  "image_files": [
+    "AUBURN_01.jpg",
+    "AUBURN_02.jpg",
+    "AUBURN_03.jpg",
+    "AUBURN_04.jpg",
+    "AUBURN_05.jpg",
+    "AUBURN_06.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0059/718/129/cn59718129.jpg",
+    "https://athleta.gap.com/webcontent/0059/718/319/cn59718319.jpg",
+    "https://athleta.gap.com/webcontent/0059/718/316/cn59718316.jpg",
+    "https://athleta.gap.com/webcontent/0059/758/518/cn59758518.jpg",
+    "https://athleta.gap.com/webcontent/0059/758/521/cn59758521.jpg",
+    "https://athleta.gap.com/webcontent/0061/187/812/cn61187812.jpg"
+  ]
+}

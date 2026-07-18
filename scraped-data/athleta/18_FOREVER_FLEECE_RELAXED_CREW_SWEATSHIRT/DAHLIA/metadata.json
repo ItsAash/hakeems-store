@@ -1,0 +1,38 @@
+{
+  "product_name": "Forever Fleece Relaxed Crew Sweatshirt",
+  "color": "Dahlia",
+  "parent_color": null,
+  "full_name": "Forever Fleece Relaxed Crew Sweatshirt | Dahlia",
+  "category": "Tops > Sweatshirts",
+  "description": "FOR: Lounge and everyday movement FEEL: Plush stretch fleece has a soft, brushed interior FAVE: Rib cuffs and collar provide extra comfort Product #414588",
+  "price": 22.97,
+  "currency": "USD",
+  "sizes_available": 9,
+  "materials": null,
+  "rating": 4.76,
+  "rating_count": 1789,
+  "sku_style": "414588",
+  "sku_color": "414588342",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=414588342",
+  "image_files": [
+    "DAHLIA_01.jpg",
+    "DAHLIA_02.jpg",
+    "DAHLIA_03.jpg",
+    "DAHLIA_04.jpg",
+    "DAHLIA_05.jpg",
+    "DAHLIA_06.jpg",
+    "DAHLIA_07.jpg",
+    "DAHLIA_08.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0061/159/927/cn61159927.jpg",
+    "https://athleta.gap.com/webcontent/0061/159/868/cn61159868.jpg",
+    "https://athleta.gap.com/webcontent/0061/159/884/cn61159884.jpg",
+    "https://athleta.gap.com/webcontent/0061/159/877/cn61159877.jpg",
+    "https://athleta.gap.com/webcontent/0061/095/128/cn61095128.jpg",
+    "https://athleta.gap.com/webcontent/0061/125/594/cn61125594.jpg",
+    "https://athleta.gap.com/webcontent/0060/862/169/cn60862169.jpg",
+    "https://athleta.gap.com/webcontent/0059/627/701/cn59627701.jpg"
+  ]
+}

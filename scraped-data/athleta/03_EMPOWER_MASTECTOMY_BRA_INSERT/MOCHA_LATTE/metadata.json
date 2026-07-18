@@ -1,0 +1,30 @@
+{
+  "product_name": "Empower Mastectomy Bra Insert",
+  "color": "Mocha Latte",
+  "parent_color": null,
+  "full_name": "Empower Mastectomy Bra Insert | Mocha Latte",
+  "category": "Bras > All Sports Bras",
+  "description": "MEET YOUR EMPOWER PADS:These lightweight, washable, beautifully shaped bra inserts were inspired by breast cancer survivors who told us theirprosthetics were too heavy and uncomfortable for workouts. As they tested our designs, they told us the Empower Pads weren’t just more comfortable for workouts. They were more comfortable for everything. WHERE THEY GO:  Slip them into the pad pockets in any Athleta bra with the Empower Pad Friendly symbol on the tag. Product #372047",
+  "price": 5,
+  "currency": "USD",
+  "sizes_available": 8,
+  "materials": null,
+  "rating": 4.71,
+  "rating_count": 694,
+  "sku_style": "372047",
+  "sku_color": "372047002",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=372047002",
+  "image_files": [
+    "MOCHA_LATTE_01.jpg",
+    "MOCHA_LATTE_02.jpg",
+    "MOCHA_LATTE_03.jpg",
+    "MOCHA_LATTE_04.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0060/569/972/cn60569972.jpg",
+    "https://athleta.gap.com/webcontent/0060/353/240/cn60353240.jpg",
+    "https://athleta.gap.com/webcontent/0060/353/419/cn60353419.jpg",
+    "https://athleta.gap.com/webcontent/0062/734/044/cn62734044.jpg"
+  ]
+}

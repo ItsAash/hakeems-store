@@ -1,0 +1,38 @@
+{
+  "product_name": "Forever Fleece Relaxed Crew Sweatshirt",
+  "color": "Grey Heather",
+  "parent_color": null,
+  "full_name": "Forever Fleece Relaxed Crew Sweatshirt | Grey Heather",
+  "category": "Tops > Sweatshirts",
+  "description": "FOR: Lounge and everyday movement FEEL: Plush stretch fleece has a soft, brushed interior FAVE: Rib cuffs and collar provide extra comfort Product #414588",
+  "price": 24.97,
+  "currency": "USD",
+  "sizes_available": 9,
+  "materials": null,
+  "rating": 4.76,
+  "rating_count": 1789,
+  "sku_style": "414588",
+  "sku_color": "414588002",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=414588002",
+  "image_files": [
+    "GREY_HEATHER_01.jpg",
+    "GREY_HEATHER_02.jpg",
+    "GREY_HEATHER_03.jpg",
+    "GREY_HEATHER_04.jpg",
+    "GREY_HEATHER_05.jpg",
+    "GREY_HEATHER_06.jpg",
+    "GREY_HEATHER_07.jpg",
+    "GREY_HEATHER_08.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0059/317/751/cn59317751.jpg",
+    "https://athleta.gap.com/webcontent/0059/317/750/cn59317750.jpg",
+    "https://athleta.gap.com/webcontent/0057/271/912/cn57271912.jpg",
+    "https://athleta.gap.com/webcontent/0059/314/055/cn59314055.jpg",
+    "https://athleta.gap.com/webcontent/0059/317/696/cn59317696.jpg",
+    "https://athleta.gap.com/webcontent/0059/317/772/cn59317772.jpg",
+    "https://athleta.gap.com/webcontent/0059/317/783/cn59317783.jpg",
+    "https://athleta.gap.com/webcontent/0059/627/701/cn59627701.jpg"
+  ]
+}

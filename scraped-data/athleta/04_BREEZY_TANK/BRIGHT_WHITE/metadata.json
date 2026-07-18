@@ -1,0 +1,32 @@
+{
+  "product_name": "Breezy Tank",
+  "color": "Bright White",
+  "parent_color": null,
+  "full_name": "Breezy Tank | Bright White",
+  "category": "Tops > Tank Tops",
+  "description": "FOR: Everyday wear, travel and exploring the outdoors FEEL: Lightweight with a linen&#45like texture FAVE: Flattering, curved hemline provides more coverage Product #384043",
+  "price": 26.4,
+  "currency": "USD",
+  "sizes_available": 9,
+  "materials": null,
+  "rating": 4.59,
+  "rating_count": 7787,
+  "sku_style": "384043",
+  "sku_color": "384043002",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=384043002",
+  "image_files": [
+    "BRIGHT_WHITE_01.jpg",
+    "BRIGHT_WHITE_02.jpg",
+    "BRIGHT_WHITE_03.jpg",
+    "BRIGHT_WHITE_04.jpg",
+    "BRIGHT_WHITE_05.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0061/317/098/cn61317098.jpg",
+    "https://athleta.gap.com/webcontent/0061/317/110/cn61317110.jpg",
+    "https://athleta.gap.com/webcontent/0059/488/894/cn59488894.jpg",
+    "https://athleta.gap.com/webcontent/0059/571/522/cn59571522.jpg",
+    "https://athleta.gap.com/webcontent/0059/571/529/cn59571529.jpg"
+  ]
+}

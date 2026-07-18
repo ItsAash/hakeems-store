@@ -1,0 +1,34 @@
+{
+  "product_name": "Salutation Crop Jacket",
+  "color": "Blue Star",
+  "parent_color": null,
+  "full_name": "Salutation Crop Jacket | Blue Star",
+  "category": "Jackets > All Jackets",
+  "description": "FOR: Yoga or studio practice FEEL: Powervita fabric is buttery soft with support that feels like a gentle hug FAVE: Thumbholes that keep your sleeves in place Side zip pockets secure your essentials Product #413489",
+  "price": 34.97,
+  "currency": "USD",
+  "sizes_available": 6,
+  "materials": null,
+  "rating": 4.67,
+  "rating_count": 890,
+  "sku_style": "413489",
+  "sku_color": "413489142",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=413489142",
+  "image_files": [
+    "BLUE_STAR_01.jpg",
+    "BLUE_STAR_02.jpg",
+    "BLUE_STAR_03.jpg",
+    "BLUE_STAR_04.jpg",
+    "BLUE_STAR_05.jpg",
+    "BLUE_STAR_06.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0059/371/678/cn59371678.jpg",
+    "https://athleta.gap.com/webcontent/0059/372/169/cn59372169.jpg",
+    "https://athleta.gap.com/webcontent/0059/372/163/cn59372163.jpg",
+    "https://athleta.gap.com/webcontent/0059/403/300/cn59403300.jpg",
+    "https://athleta.gap.com/webcontent/0059/403/312/cn59403312.jpg",
+    "https://athleta.gap.com/webcontent/0061/187/812/cn61187812.jpg"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "product_name": "Transcend Top",
+  "color": "Plum",
+  "parent_color": null,
+  "full_name": "Transcend Top | Plum",
+  "category": "Tops > Long Sleeve Tops",
+  "description": "FOR: Your yoga flow and sessions in the studio FEEL: VitaFree fabric with enhanced LYCRA® fiber is our lightest-feel yoga fabric for a barely there, yet fully covered sensation FAVE: Second-skin fabric stretches to your body and maintains its shape Thumbholes hold sleeves in place and keep warmth in Product #415288",
+  "price": 18.97,
+  "currency": "USD",
+  "sizes_available": 6,
+  "materials": null,
+  "rating": 4.71,
+  "rating_count": 587,
+  "sku_style": "415288",
+  "sku_color": "415288182",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=415288182",
+  "image_files": [
+    "PLUM_01.jpg",
+    "PLUM_02.jpg",
+    "PLUM_03.jpg",
+    "PLUM_04.jpg",
+    "PLUM_05.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0060/370/465/cn60370465.jpg",
+    "https://athleta.gap.com/webcontent/0060/405/474/cn60405474.jpg",
+    "https://athleta.gap.com/webcontent/0060/370/424/cn60370424.jpg",
+    "https://athleta.gap.com/webcontent/0060/360/869/cn60360869.jpg",
+    "https://athleta.gap.com/webcontent/0060/360/885/cn60360885.jpg"
+  ]
+}

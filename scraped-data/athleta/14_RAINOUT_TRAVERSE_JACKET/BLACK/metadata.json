@@ -1,0 +1,36 @@
+{
+  "product_name": "RainOut Traverse Jacket",
+  "color": "Black",
+  "parent_color": null,
+  "full_name": "RainOut Traverse Jacket | Black",
+  "category": "Jackets > All Jackets",
+  "description": "FOR: Staying dry in drizzles and downpours FEEL: Waterproof and lightweight fabric made from recycled polyester is breathable FAVE: YKK AquaGuard® water-repellent zipper closure Secure zip pockets to store your essentials Locker loop for easy hanging  Product #413450",
+  "price": 64.97,
+  "currency": "USD",
+  "sizes_available": 6,
+  "materials": null,
+  "rating": 4.63,
+  "rating_count": 190,
+  "sku_style": "413450",
+  "sku_color": "413450002",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=413450002",
+  "image_files": [
+    "BLACK_01.jpg",
+    "BLACK_02.jpg",
+    "BLACK_03.jpg",
+    "BLACK_04.jpg",
+    "BLACK_05.jpg",
+    "BLACK_06.jpg",
+    "BLACK_07.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0059/468/661/cn59468661.jpg",
+    "https://athleta.gap.com/webcontent/0059/468/673/cn59468673.jpg",
+    "https://athleta.gap.com/webcontent/0059/468/680/cn59468680.jpg",
+    "https://athleta.gap.com/webcontent/0059/468/687/cn59468687.jpg",
+    "https://athleta.gap.com/webcontent/0059/468/694/cn59468694.jpg",
+    "https://athleta.gap.com/webcontent/0059/468/701/cn59468701.jpg",
+    "https://athleta.gap.com/webcontent/0057/918/378/cn57918378.jpg"
+  ]
+}

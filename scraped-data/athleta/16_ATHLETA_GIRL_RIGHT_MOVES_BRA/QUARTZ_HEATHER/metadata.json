@@ -1,0 +1,30 @@
+{
+  "product_name": "Athleta Girl Right Moves Bra",
+  "color": "Quartz Heather",
+  "parent_color": null,
+  "full_name": "Athleta Girl Right Moves Bra | Quartz Heather",
+  "category": "Athleta Girl > Girl Bras & Undies",
+  "description": "FOR: School, practice, and play FEEL: Organic cotton is lightweight and breathable FAVE: Super soft and stretchy straps don't dig into her shoulders Product #413967",
+  "price": 14.97,
+  "currency": "USD",
+  "sizes_available": 6,
+  "materials": null,
+  "rating": 4.74,
+  "rating_count": 191,
+  "sku_style": "413967",
+  "sku_color": "413967082",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=413967082",
+  "image_files": [
+    "QUARTZ_HEATHER_01.jpg",
+    "QUARTZ_HEATHER_02.jpg",
+    "QUARTZ_HEATHER_03.jpg",
+    "QUARTZ_HEATHER_04.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0059/549/195/cn59549195.jpg",
+    "https://athleta.gap.com/webcontent/0059/550/346/cn59550346.jpg",
+    "https://athleta.gap.com/webcontent/0056/328/303/cn56328303.jpg",
+    "https://athleta.gap.com/webcontent/0056/328/311/cn56328311.jpg"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "product_name": "Transcend Scoop Sports Bra A-C",
+  "color": "Willow",
+  "parent_color": null,
+  "full_name": "Transcend Scoop Sports Bra A-C | Willow",
+  "category": "Bras > All Sports Bras",
+  "description": "BEST FOR STUDIO: yoga + barre + pilates IMPACT: Light-impact workouts, best for A-C cups FEEL: VITAFREE fabric with enhanced LYCRA® fiber is our lightest-feel yoga fabric for a barely there, yet fully covered sensation FAVE: Internal shelf bra with removable pads for support and coverage Removable pads hold their shape from wash to wear Product #413241",
+  "price": 29.99,
+  "currency": "USD",
+  "sizes_available": 5,
+  "materials": null,
+  "rating": 4.79,
+  "rating_count": 1341,
+  "sku_style": "413241",
+  "sku_color": "413241332",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=413241332",
+  "image_files": [
+    "WILLOW_01.jpg",
+    "WILLOW_02.jpg",
+    "WILLOW_03.jpg",
+    "WILLOW_04.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0062/609/373/cn62609373.jpg",
+    "https://athleta.gap.com/webcontent/0062/609/294/cn62609294.jpg",
+    "https://athleta.gap.com/webcontent/0062/609/290/cn62609290.jpg",
+    "https://athleta.gap.com/webcontent/0062/609/279/cn62609279.jpg"
+  ]
+}

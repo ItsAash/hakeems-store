@@ -1,0 +1,34 @@
+{
+  "product_name": "Essential V-Neck Tee",
+  "color": "Navy",
+  "parent_color": null,
+  "full_name": "Essential V-Neck Tee | Navy",
+  "category": "Tops > Short Sleeve Tops",
+  "description": "FOR: Your workday commute and weekend travels, from meetings to meetups FEEL: Always-soft SUPIMA® stretch cotton is lightweight and durable with bounce-back resilience FAVE: Infinitely versatile staple plays well with literally everything, everytime Product #413154",
+  "price": 12.97,
+  "currency": "USD",
+  "sizes_available": 9,
+  "materials": null,
+  "rating": 4.61,
+  "rating_count": 1473,
+  "sku_style": "413154",
+  "sku_color": "413154112",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=413154112",
+  "image_files": [
+    "NAVY_01.jpg",
+    "NAVY_02.jpg",
+    "NAVY_03.jpg",
+    "NAVY_04.jpg",
+    "NAVY_05.jpg",
+    "NAVY_06.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0059/604/570/cn59604570.jpg",
+    "https://athleta.gap.com/webcontent/0059/604/554/cn59604554.jpg",
+    "https://athleta.gap.com/webcontent/0059/604/549/cn59604549.jpg",
+    "https://athleta.gap.com/webcontent/0059/723/234/cn59723234.jpg",
+    "https://athleta.gap.com/webcontent/0059/723/236/cn59723236.jpg",
+    "https://athleta.gap.com/webcontent/0059/571/340/cn59571340.jpg"
+  ]
+}

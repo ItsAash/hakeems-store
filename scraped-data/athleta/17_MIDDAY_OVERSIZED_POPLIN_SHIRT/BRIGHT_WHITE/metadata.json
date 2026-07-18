@@ -1,0 +1,34 @@
+{
+  "product_name": "Midday Oversized Poplin Shirt",
+  "color": "Bright White",
+  "parent_color": null,
+  "full_name": "Midday Oversized Poplin Shirt | Bright White",
+  "category": "Tops > All Tops",
+  "description": "FOR: Travel, vacation, or exploring your town or city FEEL: Performance Poplin is lightweight, quick drying, and breathable with an easy stretch FAVE: Sport-strength fabric meets clean tailoring to elevate your everyday Product #414480",
+  "price": 74.99,
+  "currency": "USD",
+  "sizes_available": 6,
+  "materials": null,
+  "rating": 4.72,
+  "rating_count": 537,
+  "sku_style": "414480",
+  "sku_color": "414480002",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=414480002",
+  "image_files": [
+    "BRIGHT_WHITE_01.jpg",
+    "BRIGHT_WHITE_02.jpg",
+    "BRIGHT_WHITE_03.jpg",
+    "BRIGHT_WHITE_04.jpg",
+    "BRIGHT_WHITE_05.jpg",
+    "BRIGHT_WHITE_06.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0061/054/448/cn61054448.jpg",
+    "https://athleta.gap.com/webcontent/0061/054/460/cn61054460.jpg",
+    "https://athleta.gap.com/webcontent/0060/541/118/cn60541118.jpg",
+    "https://athleta.gap.com/webcontent/0060/540/083/cn60540083.jpg",
+    "https://athleta.gap.com/webcontent/0060/540/090/cn60540090.jpg",
+    "https://athleta.gap.com/webcontent/0059/442/037/cn59442037.jpg"
+  ]
+}

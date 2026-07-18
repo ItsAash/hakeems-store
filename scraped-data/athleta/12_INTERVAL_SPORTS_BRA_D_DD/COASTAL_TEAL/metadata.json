@@ -1,0 +1,30 @@
+{
+  "product_name": "Interval Sports Bra D-DD",
+  "color": "Coastal Teal",
+  "parent_color": null,
+  "full_name": "Interval Sports Bra D-DD | Coastal Teal",
+  "category": "Bras > All Sports Bras",
+  "description": "BEST FOR CARDIO: run + train + HIIT IMPACT: Medium-impact workouts, best for D-DD cups FEEL: PowerMove fabric is sleek, weightless, and helps keep you cool with quick-drying properties FAVE: Stay-put straps and shaping seams for a secure, sculpted fit Built-in pockets with removable pads for optional coverage Removable pads hold their shape from wash to wear Lined with PowerMesh for breathable, sheer-proof coverage Easily pairs with the Empower Mastectomy Bra Insert Product #413267",
+  "price": 29.99,
+  "currency": "USD",
+  "sizes_available": 5,
+  "materials": null,
+  "rating": 4.72,
+  "rating_count": 2711,
+  "sku_style": "413267",
+  "sku_color": "413267672",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=413267672",
+  "image_files": [
+    "COASTAL_TEAL_01.jpg",
+    "COASTAL_TEAL_02.jpg",
+    "COASTAL_TEAL_03.jpg",
+    "COASTAL_TEAL_04.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0062/296/512/cn62296512.jpg",
+    "https://athleta.gap.com/webcontent/0062/296/639/cn62296639.jpg",
+    "https://athleta.gap.com/webcontent/0062/296/660/cn62296660.jpg",
+    "https://athleta.gap.com/webcontent/0061/897/672/cn61897672.jpg"
+  ]
+}

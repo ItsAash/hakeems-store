@@ -1,0 +1,42 @@
+{
+  "product_name": "Salutation Crop Jacket",
+  "color": "Black",
+  "parent_color": null,
+  "full_name": "Salutation Crop Jacket | Black",
+  "category": "Jackets > All Jackets",
+  "description": "FOR: Yoga or studio practice FEEL: Powervita fabric is buttery soft with support that feels like a gentle hug FAVE: Thumbholes that keep your sleeves in place Side zip pockets secure your essentials Product #413489",
+  "price": 71.4,
+  "currency": "USD",
+  "sizes_available": 6,
+  "materials": null,
+  "rating": 4.67,
+  "rating_count": 890,
+  "sku_style": "413489",
+  "sku_color": "413489012",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=413489012",
+  "image_files": [
+    "BLACK_01.jpg",
+    "BLACK_02.jpg",
+    "BLACK_03.jpg",
+    "BLACK_04.jpg",
+    "BLACK_05.jpg",
+    "BLACK_06.jpg",
+    "BLACK_07.jpg",
+    "BLACK_08.jpg",
+    "BLACK_09.jpg",
+    "BLACK_10.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0061/258/105/cn61258105.jpg",
+    "https://athleta.gap.com/webcontent/0061/258/082/cn61258082.jpg",
+    "https://athleta.gap.com/webcontent/0061/258/079/cn61258079.jpg",
+    "https://athleta.gap.com/webcontent/0059/468/775/cn59468775.jpg",
+    "https://athleta.gap.com/webcontent/0059/995/748/cn59995748.jpg",
+    "https://athleta.gap.com/webcontent/0061/421/276/cn61421276.jpg",
+    "https://athleta.gap.com/webcontent/0061/421/283/cn61421283.jpg",
+    "https://athleta.gap.com/webcontent/0061/317/746/cn61317746.jpg",
+    "https://athleta.gap.com/webcontent/0061/055/015/cn61055015.jpg",
+    "https://athleta.gap.com/webcontent/0061/187/812/cn61187812.jpg"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "product_name": "Athleta Sateen Cap",
+  "color": "Black",
+  "parent_color": null,
+  "full_name": "Athleta Sateen Cap | Black",
+  "category": "Accessories > All Accessories",
+  "description": "FOR: Commuting, work, and travel FEEL: Sleek with subtle shine FAVE: Adjustable back for a custom fit Product #408914",
+  "price": 23.4,
+  "currency": "USD",
+  "sizes_available": 1,
+  "materials": null,
+  "rating": 4.82,
+  "rating_count": 246,
+  "sku_style": "408914",
+  "sku_color": "408914032",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=408914032",
+  "image_files": [
+    "BLACK_01.jpg",
+    "BLACK_02.jpg",
+    "BLACK_03.jpg",
+    "BLACK_04.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0059/152/318/cn59152318.jpg",
+    "https://athleta.gap.com/webcontent/0059/152/311/cn59152311.jpg",
+    "https://athleta.gap.com/webcontent/0056/236/333/cn56236333.jpg",
+    "https://athleta.gap.com/webcontent/0056/236/344/cn56236344.jpg"
+  ]
+}

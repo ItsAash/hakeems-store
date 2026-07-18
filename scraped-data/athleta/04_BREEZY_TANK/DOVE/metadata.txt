@@ -1,0 +1,17 @@
+Product Name: Breezy Tank
+Color: Dove
+Parent Color: N/A
+Full Name: Breezy Tank | Dove
+Category: Tops > Tank Tops
+Description: FOR: Everyday wear, travel and exploring the outdoors FEEL: Lightweight with a linen&#45like texture FAVE: Flattering, curved hemline provides more coverage Product #384043
+Price: 34.99
+Currency: USD
+Sizes Available: 9
+Materials: N/A
+Rating: 4.59
+Rating Count: 7787
+Sku Style: 384043
+Sku Color: 384043612
+Brand: Athleta
+Source Url: https://athleta.gap.com/browse/product.do?pid=384043612
+Image Files: DOVE_01.jpg, DOVE_02.jpg, DOVE_03.jpg, DOVE_04.jpg, DOVE_05.jpg, DOVE_06.jpg

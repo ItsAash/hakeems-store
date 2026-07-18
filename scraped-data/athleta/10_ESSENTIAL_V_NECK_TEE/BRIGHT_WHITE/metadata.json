@@ -1,0 +1,34 @@
+{
+  "product_name": "Essential V-Neck Tee",
+  "color": "Bright White",
+  "parent_color": null,
+  "full_name": "Essential V-Neck Tee | Bright White",
+  "category": "Tops > Short Sleeve Tops",
+  "description": "FOR: Your workday commute and weekend travels, from meetings to meetups FEEL: Always-soft SUPIMA® stretch cotton is lightweight and durable with bounce-back resilience FAVE: Infinitely versatile staple plays well with literally everything, everytime Product #413154",
+  "price": 12.97,
+  "currency": "USD",
+  "sizes_available": 9,
+  "materials": null,
+  "rating": 4.61,
+  "rating_count": 1473,
+  "sku_style": "413154",
+  "sku_color": "413154022",
+  "brand": "Athleta",
+  "source_url": "https://athleta.gap.com/browse/product.do?pid=413154022",
+  "image_files": [
+    "BRIGHT_WHITE_01.jpg",
+    "BRIGHT_WHITE_02.jpg",
+    "BRIGHT_WHITE_03.jpg",
+    "BRIGHT_WHITE_04.jpg",
+    "BRIGHT_WHITE_05.jpg",
+    "BRIGHT_WHITE_06.jpg"
+  ],
+  "image_source_urls": [
+    "https://athleta.gap.com/webcontent/0059/611/250/cn59611250.jpg",
+    "https://athleta.gap.com/webcontent/0059/611/228/cn59611228.jpg",
+    "https://athleta.gap.com/webcontent/0059/611/225/cn59611225.jpg",
+    "https://athleta.gap.com/webcontent/0059/846/902/cn59846902.jpg",
+    "https://athleta.gap.com/webcontent/0059/846/903/cn59846903.jpg",
+    "https://athleta.gap.com/webcontent/0059/571/340/cn59571340.jpg"
+  ]
+}
