@@ -10,41 +10,57 @@ import { requestCartOpen } from '@/lib/cart-events';
 import { formatPrice } from '@/lib/format';
 import { ProductGallery } from '@/components/commerce/product-gallery';
 import { ProductDetailsTabs, type ProductDetailsTab } from '@/components/commerce/product-details-tabs';
+import { WishlistButton } from '@/components/commerce/wishlist-button';
+import { Overlay } from '@/components/ui/overlay';
+import { CloseIcon } from '@/components/ui/icons';
 
 type Status = 'idle' | 'loading' | 'added' | 'error';
 
+/** CMS-curated colorway galleries keyed by lower-cased color name (see Strapi
+ * `product.colorway-gallery`): where present, a color's gallery and swatch hex override
+ * what Medusa's variants carry. */
+export type CmsColorwayMap = Record<string, { hex: string; images: string[] }>;
+
 /**
- * The interactive PDP shell. Owns the option selection so the gallery, price, stock, and
- * add-to-cart all react to it in one place — picking a colour instantly swaps the gallery to
- * that colour's images and updates the selected variant (price/stock), with no page reload.
- *
- * Everything is data-driven from the Vendure variant matrix: option groups, swatches, and
- * per-colour imagery all come from the variants, so adding a colour variant in Vendure makes
- * it appear here automatically — nothing is hardcoded.
+ * The interactive PDP shell, structured like an editorial fashion page: imagery leads on
+ * the left (a scrolling two-up grid on desktop, a swipe gallery on mobile) while the
+ * purchase column on the right stays pinned (`sticky`) as the images scroll. Owns the
+ * option selection so gallery, price, stock and add-to-cart react together — picking a
+ * colour crossfades the gallery to that colorway's assets (CMS gallery → variant images →
+ * product images) and updates the selected variant, with no page reload.
  *
  * On mobile, a sticky buy bar pins the price + add-to-cart to the viewport bottom whenever
- * the primary button has scrolled away (IntersectionObserver), so the purchase action is
- * never more than a thumb-reach away. A successful add opens the nav's cart drawer.
+ * the primary button has scrolled away (IntersectionObserver). A successful add opens the
+ * nav's cart drawer.
  */
 export function ProductDetail({
   matrix,
   channelCode,
   productName,
+  productSlug,
   productImages,
   detailTabs,
+  cmsColorways = {},
+  collectionLabel,
 }: {
   matrix: PdpVariantMatrix;
   channelCode: ChannelCode;
   productName: string;
+  productSlug: string;
   /** Product-level images — the fallback when the selected variant has no dedicated gallery. */
   productImages: string[];
   detailTabs: ProductDetailsTab[];
+  /** Strapi colorway galleries; empty when the product has no CMS entry. */
+  cmsColorways?: CmsColorwayMap;
+  /** Quiet eyebrow above the title (e.g. the collection name). */
+  collectionLabel?: string | null;
 }) {
   const router = useRouter();
   const [selections, setSelections] = useState<Record<string, string>>(() => matrix.variants[0]?.selections ?? {});
   const [status, setStatus] = useState<Status>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [buyButtonVisible, setBuyButtonVisible] = useState(true);
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const buyButtonRef = useRef<HTMLButtonElement>(null);
 
   const selectedVariant = useMemo(() => findVariantForSelection(matrix, selections), [matrix, selections]);
@@ -54,9 +70,19 @@ export function ProductDetail({
   const selectedColorCode = selections[colorGroupCode] ?? '';
   const selectedColorName = colorGroup?.options.find((option) => option.code === selectedColorCode)?.name;
 
-  // The gallery follows the selected variant's imagery (colours differ; sizes share), falling
-  // back to product-level images when a variant has none.
-  const galleryImages = selectedVariant && selectedVariant.images.length > 0 ? selectedVariant.images : productImages;
+  // Colorway isolation chain — selecting a swatch shows ONLY that color family's assets:
+  // CMS-curated colorway gallery (Strapi) → the variant's own images (Medusa) → the
+  // product-level images as a last resort.
+  const cmsColorway = selectedColorCode ? cmsColorways[selectedColorCode.toLowerCase()] : undefined;
+  const galleryImages =
+    cmsColorway && cmsColorway.images.length > 0
+      ? cmsColorway.images
+      : selectedVariant && selectedVariant.images.length > 0
+        ? selectedVariant.images
+        : productImages;
+
+  // The size-guide affordance next to the size selector opens the matching CMS panel.
+  const sizeGuideTab = detailTabs.find((tab) => /size\s*guide/i.test(tab.label));
 
   // Drive the mobile sticky bar from the primary button's viewport visibility.
   useEffect(() => {
@@ -104,72 +130,126 @@ export function ProductDetail({
   const showStickyBar = !buyButtonVisible && !!selectedVariant;
 
   return (
-    <div className="mt-6 grid gap-6 lg:grid-cols-2 lg:gap-16">
-      {/* Keyed by colour so the active thumbnail resets to the new colour's first image. */}
+    <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_26.5rem] lg:gap-20">
+      {/* Keyed by colour so the gallery resets to the new colorway's first image. */}
       <ProductGallery key={selectedColorCode || 'default'} images={galleryImages} alt={productName} />
 
-      <div className="flex flex-col gap-6 lg:max-w-md lg:py-4">
-        <h1 className="font-serif text-2xl text-[var(--color-ink)] md:text-3xl lg:text-4xl">{productName}</h1>
-
-        <p className="text-xl text-[var(--color-ink)] md:text-2xl">
-          {selectedVariant ? formatPrice(selectedVariant.priceWithTax, selectedVariant.currencyCode) : '—'}
-        </p>
-
-        {matrix.optionGroups.map((group) => {
-          const isColor = colorGroupCode && group.code === colorGroupCode;
-          return (
-          <div key={group.code}>
-            <p className="mb-2.5 text-xs font-semibold tracking-label text-[var(--color-ink)]">
-              {group.name}
-              {isColor && selectedColorName && (
-                <span className="ml-2 font-normal text-[var(--color-ink-muted)] normal-case">· {selectedColorName}</span>
-              )}
+      {/* Purchase column — pinned on desktop while the image column scrolls. */}
+      <div className="lg:sticky lg:top-28 lg:self-start">
+        <div className="flex flex-col gap-7">
+          <div className="flex flex-col gap-3">
+            {collectionLabel && <p className="eyebrow">{collectionLabel}</p>}
+            <h1 className="font-serif text-display-lg text-[var(--color-ink)]">{productName}</h1>
+            <p className="text-lg text-[var(--color-ink)]" aria-live="polite">
+              {selectedVariant ? formatPrice(selectedVariant.priceWithTax, selectedVariant.currencyCode) : '—'}
             </p>
-            <div className="flex flex-wrap gap-2">
-              {group.options.map((option) =>
-                isColor ? (
-                  <ColorSwatchButton
-                    key={option.id}
-                    name={option.name}
-                    swatch={option.swatch}
-                    isSelected={selections[group.code] === option.code}
-                    onClick={() => selectOption(group.code, option.code)}
-                  />
-                ) : (
-                  <SizeButton
-                    key={option.id}
-                    name={option.name}
-                    isSelected={selections[group.code] === option.code}
-                    onClick={() => selectOption(group.code, option.code)}
-                  />
-                ),
-              )}
-            </div>
           </div>
-          );
-        })}
 
-        {selectedVariant?.stockLevel === 'LOW_STOCK' && (
-          <p className="flex items-center gap-2 text-sm text-[var(--color-accent)]" role="status">
-            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" />
-            Low stock — only a few left
+          {matrix.optionGroups.map((group) => {
+            const isColor = colorGroupCode && group.code === colorGroupCode;
+            const isSize = group.code.toLowerCase() === 'size';
+            return (
+              <div key={group.code}>
+                <div className="mb-3 flex items-baseline justify-between">
+                  <p className="text-2xs font-medium tracking-label text-[var(--color-ink)] uppercase">
+                    {group.name}
+                    {isColor && selectedColorName && (
+                      <span className="ml-2 font-normal text-[var(--color-ink-muted)] normal-case">
+                        {selectedColorName}
+                      </span>
+                    )}
+                  </p>
+                  {isSize && sizeGuideTab && (
+                    <button
+                      type="button"
+                      onClick={() => setSizeGuideOpen(true)}
+                      className="border-b border-[var(--color-ink-muted)] pb-px text-xs text-[var(--color-ink-muted)] transition-colors duration-200 hover:border-[var(--color-ink)] hover:text-[var(--color-ink)]"
+                    >
+                      Size Guide
+                    </button>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {group.options.map((option) =>
+                    isColor ? (
+                      <ColorSwatchButton
+                        key={option.id}
+                        name={option.name}
+                        // CMS colorHex wins over the Medusa option-value metadata swatch.
+                        swatch={cmsColorways[option.code.toLowerCase()]?.hex ?? option.swatch}
+                        isSelected={selections[group.code] === option.code}
+                        onClick={() => selectOption(group.code, option.code)}
+                      />
+                    ) : (
+                      <SizeButton
+                        key={option.id}
+                        name={option.name}
+                        isSelected={selections[group.code] === option.code}
+                        onClick={() => selectOption(group.code, option.code)}
+                      />
+                    ),
+                  )}
+                </div>
+              </div>
+            );
+          })}
+
+          {selectedVariant?.stockLevel === 'LOW_STOCK' && (
+            <p className="flex items-center gap-2 text-sm text-[var(--color-accent)]" role="status">
+              <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" />
+              Low stock — only a few left
+            </p>
+          )}
+
+          <div className="flex gap-3">
+            <button
+              ref={buyButtonRef}
+              type="button"
+              onClick={handleAddToCart}
+              disabled={buttonDisabled}
+              className="min-w-0 flex-1 bg-[var(--color-ink)] py-4 text-2xs font-medium tracking-cta text-[var(--color-paper)] uppercase transition-opacity duration-300 hover:opacity-85 disabled:opacity-40"
+            >
+              {buttonLabel}
+            </button>
+            <WishlistButton slug={productSlug} productName={productName} size="pdp" className="shrink-0" />
+          </div>
+
+          <p className="text-xs leading-relaxed text-[var(--color-ink-muted)]">
+            Dispatched in 1–2 business days · 14-day returns · Shipping calculated at checkout
           </p>
-        )}
 
-        <button
-          ref={buyButtonRef}
-          type="button"
-          onClick={handleAddToCart}
-          disabled={buttonDisabled}
-          className="mt-2 w-full bg-[var(--color-ink)] py-4 text-sm font-medium tracking-[0.15em] text-[var(--color-paper)] uppercase transition-opacity duration-300 hover:opacity-90 disabled:opacity-40"
-        >
-          {buttonLabel}
-        </button>
+          {status === 'error' && errorMessage && <p className="text-sm text-danger">{errorMessage}</p>}
 
-        {status === 'error' && errorMessage && <p className="text-sm text-danger">{errorMessage}</p>}
-
-        <ProductDetailsTabs tabs={detailTabs} />
+          <ProductDetailsTabs tabs={detailTabs} />
+        </div>
       </div>
+
+      {/* Size guide overlay — the CMS panel content in a right-hand sheet. */}
+      {sizeGuideTab && (
+        <Overlay
+          open={sizeGuideOpen}
+          onClose={() => setSizeGuideOpen(false)}
+          label="Size guide"
+          panelClassName="absolute inset-y-0 right-0 flex w-full max-w-md flex-col bg-[var(--color-paper-raised)] shadow-overlay"
+          panelClosedClassName="translate-x-full"
+          panelOpenClassName="translate-x-0"
+        >
+          <div className="flex items-center justify-between border-b hairline px-6 py-5">
+            <p className="text-2xs font-medium tracking-label text-[var(--color-ink)] uppercase">Size Guide</p>
+            <button
+              type="button"
+              onClick={() => setSizeGuideOpen(false)}
+              aria-label="Close size guide"
+              className="relative after:absolute after:-inset-3"
+            >
+              <CloseIcon className="h-5 w-5" />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto px-6 py-6 text-sm text-[var(--color-ink-muted)]">
+            {sizeGuideTab.content}
+          </div>
+        </Overlay>
+      )}
 
       {/* Mobile sticky buy bar — mounted only while the primary button is off screen so
           screen readers never see two identical buttons at once. */}
@@ -186,7 +266,7 @@ export function ProductDetail({
               type="button"
               onClick={handleAddToCart}
               disabled={buttonDisabled}
-              className="shrink-0 bg-[var(--color-ink)] px-6 py-3.5 text-sm font-medium tracking-label text-[var(--color-paper)] uppercase transition-opacity hover:opacity-90 disabled:opacity-40"
+              className="shrink-0 bg-[var(--color-ink)] px-6 py-3.5 text-2xs font-medium tracking-cta text-[var(--color-paper)] uppercase transition-opacity duration-300 hover:opacity-85 disabled:opacity-40"
             >
               {buttonLabel}
             </button>
@@ -215,12 +295,12 @@ function ColorSwatchButton({
       title={name}
       aria-label={name}
       aria-pressed={isSelected}
-      className={`flex h-11 w-11 items-center justify-center rounded-full border-2 transition-colors duration-200 ${
+      className={`flex h-10 w-10 items-center justify-center rounded-full border transition-colors duration-200 ${
         isSelected ? 'border-[var(--color-ink)]' : 'border-transparent hover:border-[var(--color-hairline)]'
       }`}
     >
       <span
-        className="block h-full w-full rounded-full border border-[var(--color-hairline)]"
+        className="block h-7 w-7 rounded-full border border-[var(--color-hairline)]"
         style={{ backgroundColor: swatch ?? 'transparent' }}
       />
     </button>
@@ -233,7 +313,7 @@ function SizeButton({ name, isSelected, onClick }: { name: string; isSelected: b
       type="button"
       onClick={onClick}
       aria-pressed={isSelected}
-      className={`min-w-11 border px-3.5 py-2.5 text-sm transition-colors duration-200 ${
+      className={`min-w-12 border px-4 py-3 text-sm transition-colors duration-200 ${
         isSelected
           ? 'border-[var(--color-ink)] bg-[var(--color-ink)] text-[var(--color-paper)]'
           : 'border-[var(--color-hairline)] text-[var(--color-ink)] hover:border-[var(--color-ink)]'

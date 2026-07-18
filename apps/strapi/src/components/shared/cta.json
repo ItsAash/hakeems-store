@@ -9,11 +9,13 @@
   "attributes": {
     "label": {
       "type": "string",
-      "required": true
+      "required": true,
+      "maxLength": 60
     },
     "href": {
       "type": "string",
-      "required": true
+      "required": true,
+      "regex": "^(/[^\\s]*|https?://[^\\s]+)$"
     },
     "variant": {
       "type": "enumeration",

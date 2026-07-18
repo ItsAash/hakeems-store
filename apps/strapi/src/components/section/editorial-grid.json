@@ -1,0 +1,24 @@
+{
+  "collectionName": "components_section_editorial_grids",
+  "info": {
+    "displayName": "Section: Editorial Grid",
+    "icon": "apps",
+    "description": "Asymmetric editorial mosaic of 2–6 image tiles (the first `feature` tile anchors a 2×2 cell), each optionally linking out."
+  },
+  "options": {},
+  "attributes": {
+    "header": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.section-header"
+    },
+    "tiles": {
+      "type": "component",
+      "repeatable": true,
+      "component": "layout.editorial-tile",
+      "required": true,
+      "min": 2,
+      "max": 6
+    }
+  }
+}

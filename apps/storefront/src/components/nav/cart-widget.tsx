@@ -41,7 +41,7 @@ export function CartWidget({
       >
         <BagIcon className="h-5 w-5" />
         {initialCount > 0 && (
-          <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--color-accent)] px-1 text-[10px] font-medium text-[var(--color-paper)]">
+          <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--color-accent)] px-1 text-3xs font-medium text-[var(--color-paper)]">
             {initialCount}
           </span>
         )}
@@ -88,7 +88,7 @@ export function CartWidget({
               >
                 Checkout
               </Link>
-              <p className="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-[var(--color-ink-muted)]">
+              <p className="mt-3 flex items-center justify-center gap-1.5 text-2xs text-[var(--color-ink-muted)]">
                 <LockIcon className="h-3 w-3" aria-hidden />
                 Secure checkout · {channelCode === 'hongkong' ? 'Stripe' : 'Fonepay'} · Free returns within 30 days
               </p>

@@ -11,6 +11,7 @@ import { ArrowLeftIcon, ArrowRightIcon } from '@/components/ui/icons';
  * in groups rather than growing the grid (a long single-row/wrapped grid of every
  * product was the "super bad" layout this replaces). */
 const VISIBLE_ON_DESKTOP = 4;
+const AUTOPLAY_INTERVAL_MS = 4000;
 
 type SpotlightCarouselProps = {
   cards: ProductCardModel[];
@@ -20,6 +21,9 @@ type SpotlightCarouselProps = {
   paragraph: string | null;
   ctaLabel: string | null;
   ctaHref: string | null;
+  /** Auto-page the track every few seconds (wraps to the start at the end). Pauses while
+   * hovered/focused and is disabled entirely under prefers-reduced-motion. */
+  autoplay?: boolean;
 };
 
 /**
@@ -38,10 +42,12 @@ export function SpotlightCarousel({
   paragraph,
   ctaLabel,
   ctaHref,
+  autoplay = false,
 }: SpotlightCarouselProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     const track = trackRef.current;
@@ -67,12 +73,37 @@ export function SpotlightCarousel({
 
   const canPage = cards.length > VISIBLE_ON_DESKTOP;
 
+  // Autoplay — plain interval over the same native-scroll paging as the arrows; wraps to
+  // the start at the end of the track. Hover/focus pause and reduced-motion opt-out keep
+  // it from fighting the user.
+  useEffect(() => {
+    if (!autoplay || !canPage || isPaused) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const timer = setInterval(() => {
+      const track = trackRef.current;
+      if (!track) return;
+      const atEnd = track.scrollLeft >= track.scrollWidth - track.clientWidth - 4;
+      if (atEnd) {
+        track.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        track.scrollBy({ left: track.clientWidth, behavior: 'smooth' });
+      }
+    }, AUTOPLAY_INTERVAL_MS);
+    return () => clearInterval(timer);
+  }, [autoplay, canPage, isPaused]);
+
   return (
-    <div>
+    <div
+      onMouseEnter={autoplay ? () => setIsPaused(true) : undefined}
+      onMouseLeave={autoplay ? () => setIsPaused(false) : undefined}
+      onFocus={autoplay ? () => setIsPaused(true) : undefined}
+      onBlur={autoplay ? () => setIsPaused(false) : undefined}
+    >
       <div className="mb-8 flex items-end justify-between gap-6 md:mb-10">
-        <div className="flex max-w-xl flex-col gap-3">
-          {eyebrow && <p className="text-xs tracking-[0.2em] text-[var(--color-ink-muted)] uppercase">{eyebrow}</p>}
-          <h2 className="font-serif text-3xl text-[var(--color-ink)] md:text-4xl">{heading}</h2>
+        <div className="flex max-w-xl flex-col gap-4">
+          {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+          <h2 className="font-serif text-display-lg text-[var(--color-ink)]">{heading}</h2>
           {paragraph && <p className="text-[var(--color-ink-muted)]">{paragraph}</p>}
         </div>
 
@@ -98,7 +129,8 @@ export function SpotlightCarousel({
         ref={trackRef}
         // px-* gives the overflow clip box slack so a leftmost card's selected-swatch ring
         // isn't shaved; the matching -mx-* cancels it so the track still aligns to the grid.
-        className="scrollbar-none -mx-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 py-1 md:-mx-10 md:gap-5 md:px-10 lg:-mx-1 lg:px-1"
+        // Values mirror the CONTAINER gutters (px-5 sm:px-8 lg:px-12 — lib/ui.ts).
+        className="scrollbar-none -mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 py-1 sm:-mx-8 sm:px-8 md:gap-5 lg:-mx-1 lg:px-1"
       >
         {cards.map((card) => (
           <div

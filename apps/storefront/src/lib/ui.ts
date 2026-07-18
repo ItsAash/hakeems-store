@@ -3,4 +3,4 @@
  * copy, grids, everything. Same max-width + same padding everywhere means content
  * edges line up as you scroll, instead of every section inventing its own gutter.
  */
-export const CONTAINER = 'mx-auto w-full max-w-6xl px-6 md:px-10';
+export const CONTAINER = 'mx-auto w-full max-w-[88rem] px-5 sm:px-8 lg:px-12';

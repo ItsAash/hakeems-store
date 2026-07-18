@@ -19,15 +19,22 @@ export async function BrandStoryBlock({ section }: { section: SectionOf<'section
   if (!heading && paragraphs.length === 0) return null;
 
   return (
-    <section className={`py-section ${CONTAINER}`}>
-      <div className="flex max-w-xl flex-col gap-6">
-        {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-        {heading && <h2 className="font-serif text-4xl text-[var(--color-ink)]">{heading}</h2>}
-        {paragraphs.map((paragraph) => (
-          <p key={paragraph.id} className="text-[var(--color-ink-muted)]">
-            {paragraph.text}
-          </p>
-        ))}
+    // Editorial split: oversized serif statement on the left, the narrative in a
+    // comfortable reading measure offset to the right — a set piece, so it gets the
+    // large section rhythm.
+    <section className={`py-section-lg ${CONTAINER}`}>
+      <div className="grid gap-10 lg:grid-cols-12 lg:gap-8">
+        <div className="flex flex-col gap-5 lg:col-span-6">
+          {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+          {heading && <h2 className="max-w-lg font-serif text-display-xl text-[var(--color-ink)]">{heading}</h2>}
+        </div>
+        <div className="flex max-w-lg flex-col gap-6 lg:col-span-5 lg:col-start-8 lg:pt-2">
+          {paragraphs.map((paragraph) => (
+            <p key={paragraph.id} className="leading-relaxed text-[var(--color-ink-muted)]">
+              {paragraph.text}
+            </p>
+          ))}
+        </div>
       </div>
     </section>
   );

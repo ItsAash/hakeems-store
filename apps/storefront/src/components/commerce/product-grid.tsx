@@ -19,7 +19,8 @@ export function ProductGrid({ cards, channelCode }: { cards: ProductCardModel[];
   }
 
   return (
-    <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-5">
+    // Fashion-grid rhythm: tight horizontal gutters, tall vertical breathing room.
+    <div className="grid grid-cols-2 gap-x-3 gap-y-12 sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-4 lg:gap-y-16">
       {cards.map((card, index) => (
         <ProductCard
           key={card.productId}

@@ -100,6 +100,37 @@ export interface LayoutCollectionTile extends Struct.ComponentSchema {
   };
 }
 
+export interface LayoutEditorialTile extends Struct.ComponentSchema {
+  collectionName: 'components_layout_editorial_tiles';
+  info: {
+    description: 'One cell of the asymmetric editorial mosaic (section.editorial-grid). `span` controls how the cell stretches in the grid; `feature` is the 2\u00D72 anchor.';
+    displayName: 'Editorial Tile';
+    icon: 'grid';
+  };
+  attributes: {
+    alt: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 160;
+      }>;
+    href: Schema.Attribute.String;
+    image: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
+    label: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 80;
+      }>;
+    span: Schema.Attribute.Enumeration<
+      ['standard', 'wide', 'tall', 'feature']
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'standard'>;
+    tagline: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 120;
+      }>;
+  };
+}
+
 export interface LayoutFacetCategoryTile extends Struct.ComponentSchema {
   collectionName: 'components_layout_facet_category_tiles';
   info: {
@@ -181,6 +212,24 @@ export interface LayoutValueItem extends Struct.ComponentSchema {
   };
 }
 
+export interface ProductColorwayGallery extends Struct.ComponentSchema {
+  collectionName: 'components_product_colorway_galleries';
+  info: {
+    description: "Maps a curated image gallery to one product colorway. colorName must match the Medusa Color option value (case-insensitive) so the PDP can join the two; the hex renders the swatch chip and takes precedence over Medusa's metadata.swatch.";
+    displayName: 'Colorway Gallery';
+    icon: 'picture';
+  };
+  attributes: {
+    colorHex: Schema.Attribute.String & Schema.Attribute.Required;
+    colorName: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 60;
+      }>;
+    gallery: Schema.Attribute.Media<'images', true> & Schema.Attribute.Required;
+  };
+}
+
 export interface SectionBrandStory extends Struct.ComponentSchema {
   collectionName: 'components_section_brand_stories';
   info: {
@@ -226,6 +275,27 @@ export interface SectionEditorialBanner extends Struct.ComponentSchema {
   };
 }
 
+export interface SectionEditorialGrid extends Struct.ComponentSchema {
+  collectionName: 'components_section_editorial_grids';
+  info: {
+    description: 'Asymmetric editorial mosaic of 2\u20136 image tiles (the first `feature` tile anchors a 2\u00D72 cell), each optionally linking out.';
+    displayName: 'Section: Editorial Grid';
+    icon: 'apps';
+  };
+  attributes: {
+    header: Schema.Attribute.Component<'shared.section-header', false>;
+    tiles: Schema.Attribute.Component<'layout.editorial-tile', true> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          max: 6;
+          min: 2;
+        },
+        number
+      >;
+  };
+}
+
 export interface SectionFaq extends Struct.ComponentSchema {
   collectionName: 'components_section_faqs';
   info: {
@@ -249,6 +319,64 @@ export interface SectionHeroSlider extends Struct.ComponentSchema {
   };
   attributes: {
     slides: Schema.Attribute.Component<'layout.hero-slide', true>;
+  };
+}
+
+export interface SectionHeroSplit extends Struct.ComponentSchema {
+  collectionName: 'components_section_hero_splits';
+  info: {
+    description: 'Promotional split hero: editorial copy panel beside a full-bleed image, with a flippable image side, optional promo label, and a constrained background token.';
+    displayName: 'Section: Hero Split';
+    icon: 'layout';
+  };
+  attributes: {
+    backgroundToken: Schema.Attribute.Enumeration<
+      ['paper', 'paper-raised', 'blush', 'sand', 'hairline']
+    > &
+      Schema.Attribute.DefaultTo<'sand'>;
+    cta: Schema.Attribute.Component<'shared.cta', false>;
+    header: Schema.Attribute.Component<'shared.section-header', false> &
+      Schema.Attribute.Required;
+    imageSide: Schema.Attribute.Enumeration<['left', 'right']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'right'>;
+    media: Schema.Attribute.Component<'shared.media', false> &
+      Schema.Attribute.Required;
+    promoLabel: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 40;
+      }>;
+  };
+}
+
+export interface SectionProductCarousel extends Struct.ComponentSchema {
+  collectionName: 'components_section_product_carousels';
+  info: {
+    description: 'Configurable product carousel for a Medusa collection (by slug): editor-capped item count and optional autoplay. The presentational sibling of Product Rail \u2014 same renderer, marketing-tunable behavior.';
+    displayName: 'Section: Product Carousel';
+    icon: 'play';
+  };
+  attributes: {
+    autoplay: Schema.Attribute.Boolean &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<false>;
+    collectionSlug: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 191;
+      }>;
+    cta: Schema.Attribute.Component<'shared.cta', false>;
+    header: Schema.Attribute.Component<'shared.section-header', false>;
+    itemLimit: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          max: 24;
+          min: 4;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<12>;
   };
 }
 
@@ -337,7 +465,11 @@ export interface SharedCta extends Struct.ComponentSchema {
   };
   attributes: {
     href: Schema.Attribute.String & Schema.Attribute.Required;
-    label: Schema.Attribute.String & Schema.Attribute.Required;
+    label: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 60;
+      }>;
     openInNewTab: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     variant: Schema.Attribute.Enumeration<['primary', 'secondary', 'link']> &
       Schema.Attribute.Required &
@@ -463,16 +595,21 @@ declare module '@strapi/strapi' {
       'footer.newsletter': FooterNewsletter;
       'layout.announcement': LayoutAnnouncement;
       'layout.collection-tile': LayoutCollectionTile;
+      'layout.editorial-tile': LayoutEditorialTile;
       'layout.facet-category-tile': LayoutFacetCategoryTile;
       'layout.hero-slide': LayoutHeroSlide;
       'layout.nav-item': LayoutNavItem;
       'layout.testimonial': LayoutTestimonial;
       'layout.value-item': LayoutValueItem;
+      'product.colorway-gallery': ProductColorwayGallery;
       'section.brand-story': SectionBrandStory;
       'section.category-grid': SectionCategoryGrid;
       'section.editorial-banner': SectionEditorialBanner;
+      'section.editorial-grid': SectionEditorialGrid;
       'section.faq': SectionFaq;
       'section.hero-slider': SectionHeroSlider;
+      'section.hero-split': SectionHeroSplit;
+      'section.product-carousel': SectionProductCarousel;
       'section.product-rail': SectionProductRail;
       'section.prose': SectionProse;
       'section.testimonials': SectionTestimonials;

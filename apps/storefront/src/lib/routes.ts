@@ -42,6 +42,8 @@ export const routes = {
 
   cart: (channel: ChannelCode) => `/${channel}/cart`,
 
+  wishlist: (channel: ChannelCode) => `/${channel}/wishlist`,
+
   checkout: (channel: ChannelCode) => `/${channel}/checkout`,
   /** `orderId` is the Medusa order's id (e.g. "order_01…"), not its display_id. */
   checkoutConfirmation: (channel: ChannelCode, orderId: string) =>

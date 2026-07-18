@@ -156,12 +156,35 @@ export const legalPageSchema = z.object({
   updatedAt: z.string().nullable(),
 });
 
+/** One curated colorway gallery (mirrors Strapi `product.colorway-gallery`): CMS-managed
+ * imagery for a single color family. `colorName` joins against the Medusa Color option
+ * value case-insensitively; `colorHex` renders the swatch chip (wins over Medusa's
+ * option-value `metadata.swatch`). */
+export const colorwaySchema = z.object({
+  id: z.number(),
+  colorName: z.string(),
+  colorHex: z.string(),
+  gallery: z.array(mediaSchema),
+});
+
 /** Editorial layer over a Medusa product (matched by handle): titled Markdown panels
- * appended to the PDP's detail tabs. */
+ * appended to the PDP's detail accordion, plus optional colorway galleries. Both arrays
+ * `.catch([])` so an entry authored with only one of the two (panels is optional since the
+ * colorway rollout) degrades to an empty list, never a dropped page. */
 export const productPageSchema = z.object({
   id: z.number(),
   productSlug: z.string(),
-  panels: z.array(z.object({ id: z.number(), title: z.string(), content: z.string() })),
+  panels: z.array(z.object({ id: z.number(), title: z.string(), content: z.string() })).catch([]),
+  colorways: z.array(colorwaySchema).catch([]),
+});
+
+/** Slim shape for the bulk colorway lookup (`getProductColorwaysBySlugs`), which populates
+ * ONLY colorways — validating against the full productPageSchema would flag the absent
+ * `panels` on every listing render. */
+export const productColorwaysSchema = z.object({
+  id: z.number(),
+  productSlug: z.string(),
+  colorways: z.array(colorwaySchema).catch([]),
 });
 
 export const collectionPageSchema = z.object({
@@ -200,6 +223,40 @@ const heroSliderSectionSchema = z.object({
   __component: z.literal('section.hero-slider'),
   id: z.number(),
   slides: z.array(heroSlideSchema),
+});
+const heroSplitSectionSchema = z.object({
+  __component: z.literal('section.hero-split'),
+  id: z.number(),
+  header: sectionHeaderSchema,
+  media: mediaBlockSchema,
+  cta: ctaSchema.nullable(),
+  promoLabel: z.string().nullable(),
+  imageSide: z.enum(['left', 'right']).catch('right'),
+  backgroundToken: colorTokenSchema.nullable().catch(null),
+});
+const editorialTileSchema = z.object({
+  id: z.number(),
+  image: mediaSchema,
+  alt: z.string(),
+  label: z.string().nullable(),
+  tagline: z.string().nullable(),
+  href: z.string().nullable(),
+  span: z.enum(['standard', 'wide', 'tall', 'feature']).catch('standard'),
+});
+const editorialGridSectionSchema = z.object({
+  __component: z.literal('section.editorial-grid'),
+  id: z.number(),
+  header: sectionHeaderSchema.nullable(),
+  tiles: z.array(editorialTileSchema),
+});
+const productCarouselSectionSchema = z.object({
+  __component: z.literal('section.product-carousel'),
+  id: z.number(),
+  header: sectionHeaderSchema.nullable(),
+  collectionSlug: z.string(),
+  cta: ctaSchema.nullable(),
+  itemLimit: z.number().int().min(4).max(24).catch(12),
+  autoplay: z.boolean().catch(false),
 });
 const categoryGridSectionSchema = z.object({
   __component: z.literal('section.category-grid'),
@@ -260,8 +317,11 @@ const proseSectionSchema = z.object({
 
 export const pageSectionSchema = z.discriminatedUnion('__component', [
   heroSliderSectionSchema,
+  heroSplitSectionSchema,
   categoryGridSectionSchema,
+  editorialGridSectionSchema,
   productRailSectionSchema,
+  productCarouselSectionSchema,
   editorialBannerSectionSchema,
   brandStorySectionSchema,
   valuePropsSectionSchema,

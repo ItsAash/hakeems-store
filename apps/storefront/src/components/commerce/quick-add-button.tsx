@@ -33,21 +33,22 @@ export function QuickAddButton({ channelCode, variantId }: { channelCode: Channe
     }
   };
 
+  const label =
+    status === 'added' ? 'Added' : status === 'error' ? 'Try Again' : status === 'loading' ? 'Adding…' : 'Quick Add';
+
   return (
     <button
       type="button"
-      onClick={handleClick}
+      onClick={(event) => {
+        event.preventDefault();
+        void handleClick();
+      }}
       disabled={status === 'loading'}
       aria-label="Quick add to cart"
-      className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-ink)]/15 bg-[var(--color-paper-raised)] text-[var(--color-ink)] transition-colors duration-300 hover:border-[var(--color-ink)] disabled:opacity-50"
+      className="flex w-full items-center justify-center gap-2 bg-[var(--color-paper)]/95 py-3.5 text-3xs font-medium tracking-cta text-[var(--color-ink)] uppercase backdrop-blur transition-colors duration-200 hover:bg-[var(--color-paper)] disabled:opacity-60"
     >
-      {status === 'added' ? (
-        <CheckIcon className="h-4 w-4" />
-      ) : status === 'error' ? (
-        <span className="text-sm leading-none">!</span>
-      ) : (
-        <PlusIcon className="h-4 w-4" />
-      )}
+      {status === 'added' ? <CheckIcon className="h-3.5 w-3.5" /> : status === 'idle' ? <PlusIcon className="h-3.5 w-3.5" /> : null}
+      {label}
     </button>
   );
 }

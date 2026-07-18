@@ -49,7 +49,8 @@ export default async function ShopPage({
   return (
     <main className="flex flex-1 flex-col">
       <div className={`flex flex-col gap-3 py-section-sm ${CONTAINER}`}>
-        <h1 className="font-serif text-3xl text-[var(--color-ink)] md:text-4xl">Shop</h1>
+        <p className="eyebrow">The Catalogue</p>
+        <h1 className="font-serif text-display text-[var(--color-ink)]">Shop All</h1>
       </div>
 
       <div className={`pb-section ${CONTAINER}`}>

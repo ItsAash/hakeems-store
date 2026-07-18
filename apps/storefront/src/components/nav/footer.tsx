@@ -11,7 +11,7 @@ import { NewsletterForm } from '@/components/nav/newsletter-form';
 /** Shared column heading: the site's eyebrow treatment, recoloured for the dark footer. */
 function ColumnHeading({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="text-xs tracking-[0.14em] text-[var(--color-paper)]/45 uppercase">{children}</h2>
+    <h2 className="text-xs tracking-eyebrow text-[var(--color-paper)]/45 uppercase">{children}</h2>
   );
 }
 
@@ -74,12 +74,12 @@ export async function Footer({ channel }: { channel: ChannelDefinition }) {
           <div
             className={`${CONTAINER} flex flex-col gap-6 py-12 md:flex-row md:items-center md:justify-between md:py-14`}
           >
-            <div className="max-w-md">
+            <div className="max-w-lg">
               {newsletter.heading && (
-                <h2 className="font-serif text-2xl tracking-wide text-[var(--color-paper)]">{newsletter.heading}</h2>
+                <h2 className="font-serif text-display-lg text-[var(--color-paper)]">{newsletter.heading}</h2>
               )}
               {newsletter.description && (
-                <p className="mt-3 text-sm leading-relaxed text-[var(--color-paper)]/60">{newsletter.description}</p>
+                <p className="mt-4 text-sm leading-relaxed text-[var(--color-paper)]/60">{newsletter.description}</p>
               )}
             </div>
             <NewsletterForm
@@ -92,17 +92,17 @@ export async function Footer({ channel }: { channel: ChannelDefinition }) {
       )}
 
       {/* Main columns */}
-      <div className={`${CONTAINER} grid grid-cols-2 gap-x-8 gap-y-12 py-14 md:grid-cols-12 md:py-16`}>
+      <div className={`${CONTAINER} grid grid-cols-2 gap-x-8 gap-y-14 py-16 md:grid-cols-12 md:py-24`}>
         {/* Brand */}
         <div className="col-span-2 md:col-span-4">
           <Link
             href={routes.home(channel.code)}
-            className="font-serif text-2xl font-semibold tracking-wide text-[var(--color-paper)]"
+            className="font-serif text-display text-[var(--color-paper)]"
           >
             {brandName}
           </Link>
           {footer?.brandTagline && (
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-[var(--color-paper)]/60">{footer.brandTagline}</p>
+            <p className="mt-6 max-w-xs text-sm leading-relaxed text-[var(--color-paper)]/60">{footer.brandTagline}</p>
           )}
           {socialLinks.length > 0 && (
             <div className="mt-7 flex items-center gap-5">

@@ -12,6 +12,7 @@ const PRIVATE_SEGMENTS = [
   'forgot-password',
   'password-reset',
   'search',
+  'wishlist',
 ];
 
 export default function robots(): MetadataRoute.Robots {

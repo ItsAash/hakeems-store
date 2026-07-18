@@ -27,7 +27,7 @@ export function Overlay({
   panelClassName,
   panelClosedClassName,
   panelOpenClassName,
-  panelTransitionClassName = 'transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]',
+  panelTransitionClassName = 'transition-transform duration-300 ease-out',
   children,
 }: {
   open: boolean;

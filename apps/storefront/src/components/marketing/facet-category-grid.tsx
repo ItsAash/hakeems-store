@@ -46,10 +46,8 @@ export async function FacetCategoryGrid({
   return (
     <section className={`py-section ${CONTAINER}`}>
       <div className="mb-10 md:mb-14">
-        <p className="mb-3 text-xs tracking-[0.2em] text-[var(--color-ink-muted)] uppercase">
-          {header?.eyebrow ?? 'Shop By Category'}
-        </p>
-        <h2 className="font-serif text-3xl text-[var(--color-ink)] md:text-4xl">
+        <p className="mb-4 eyebrow">{header?.eyebrow ?? 'Shop By Category'}</p>
+        <h2 className="font-serif text-display-lg text-[var(--color-ink)]">
           {header?.heading ?? 'Shop The Edit'}
         </h2>
       </div>
@@ -76,7 +74,7 @@ export async function FacetCategoryGrid({
                   alt={`Shop ${tile.label}`}
                   fill
                   sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-                  className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                  className="object-cover transition-transform duration-700 ease-luxe group-hover:scale-[1.04]"
                 />
               )}
               <div className="absolute inset-0 bg-black/25 transition-colors duration-300 group-hover:bg-black/35" />
@@ -85,7 +83,7 @@ export async function FacetCategoryGrid({
                 {tile.tagline && <p className="text-xs text-[var(--color-paper)]/75">{tile.tagline}</p>}
                 {/* No badge at all when count is 0/unknown — a visible "0 items" reads
                     as broken on a category that simply has no products assigned yet. */}
-                <p className="mt-1 text-[11px] text-[var(--color-paper)]/60">{!!count ? count : '0'} items</p>
+                <p className="mt-1 text-2xs text-[var(--color-paper)]/60">{!!count ? count : '0'} items</p>
               </div>
             </Link>
           );

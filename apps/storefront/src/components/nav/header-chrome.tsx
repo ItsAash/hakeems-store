@@ -9,10 +9,12 @@ const SCROLL_THRESHOLD = 60;
 
 // Deterministic header heights used to reserve the spacer on the very first (server-rendered)
 // paint, before the ResizeObserver has measured the live element — this is what prevents the
-// content jump (CLS) that a spacer starting at height 0 would cause. NavBar is a fixed `h-16`
-// (64px); the announcement bar is `py-2.5` + `text-xs` (≈37px) and only present when authored.
+// content jump (CLS) that a spacer starting at height 0 would cause. NavBar is `h-16` on
+// mobile / `h-20` on lg (the mobile value is the first-paint guess; the observer corrects
+// desktop within a frame); the announcement bar is `py-2` + `text-3xs` (≈30px), only
+// present when authored.
 const NAV_HEIGHT = 64;
-const ANNOUNCEMENT_HEIGHT = 37;
+const ANNOUNCEMENT_HEIGHT = 30;
 
 /**
  * Owns the fixed positioning + transparent/solid background transition for the
@@ -77,7 +79,7 @@ export function HeaderChrome({
     <>
       <div
         ref={headerRef}
-        className={`fixed inset-x-0 top-0 z-30 transition-[background-color,box-shadow,border-color] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+        className={`fixed inset-x-0 top-0 z-30 transition-[background-color,box-shadow,border-color] duration-500 ease-out ${
           transparent
             ? 'border-b border-transparent bg-transparent'
             : 'border-b hairline bg-[var(--color-paper)]/95 backdrop-blur'

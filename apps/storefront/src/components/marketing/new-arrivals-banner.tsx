@@ -49,9 +49,9 @@ export function NewArrivalsBanner({
         {/* Left — editorial text panel. justify-between spreads eyebrow (top), headline
             (middle) and copy+CTA (bottom). Left padding matches the site CONTAINER so the
             text lines up with the nav bar's wordmark even though the banner is full-bleed. */}
-        <div className="flex flex-col justify-between gap-10 py-12 pr-6 pl-6 md:py-16 md:pr-12 md:pl-[calc(max((100vw-72rem)/2,0px)+2.5rem)] lg:pr-16">
+        <div className="flex flex-col justify-between gap-10 py-12 pr-6 pl-6 md:py-16 md:pr-12 md:pl-container-bleed lg:pr-16">
           <p className="eyebrow">{eyebrow ?? 'New Arrivals'}</p>
-          <h2 className="text-4xl leading-[1.02] tracking-[0.02em] text-[var(--color-ink)] uppercase md:text-5xl lg:text-6xl">
+          <h2 className="text-display-xl tracking-display text-[var(--color-ink)] uppercase">
             {heading}
           </h2>
           <div className="flex flex-col gap-6">
@@ -73,7 +73,7 @@ export function NewArrivalsBanner({
                 aria-hidden="true"
                 fill
                 sizes="(min-width: 768px) 25vw, 50vw"
-                className="object-cover transition-transform duration-[600ms] ease-out group-hover/cell:scale-105"
+                className="object-cover transition-transform duration-700 ease-luxe group-hover/cell:scale-[1.04]"
               />
             </div>
           ))}

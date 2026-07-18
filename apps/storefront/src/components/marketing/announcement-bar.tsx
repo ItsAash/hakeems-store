@@ -22,11 +22,11 @@ export function AnnouncementBar({ announcements }: { announcements: Announcement
 
   return (
     <div
-      className="relative flex items-center justify-center gap-1 bg-[var(--color-ink)] px-10 py-2.5 text-center text-xs tracking-wide text-[var(--color-paper)]"
+      className="relative flex items-center justify-center gap-1 bg-[var(--color-ink)] px-10 py-2 text-center text-3xs font-medium tracking-label text-[var(--color-paper)]/90 uppercase"
       aria-live="polite"
     >
       {current.href ? (
-        <a href={current.href} className="truncate underline-offset-4 hover:underline">
+        <a href={current.href} className="truncate underline-offset-4 transition-colors duration-200 hover:text-[var(--color-paper)] hover:underline">
           {current.text}
         </a>
       ) : (

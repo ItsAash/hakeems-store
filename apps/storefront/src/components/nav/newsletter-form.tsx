@@ -60,7 +60,7 @@ export function NewsletterForm({
         />
         <button
           type="submit"
-          className="shrink-0 whitespace-nowrap py-2.5 text-xs font-medium tracking-[0.14em] text-[var(--color-paper)]/75 uppercase transition-colors duration-300 hover:text-[var(--color-accent)]"
+          className="shrink-0 whitespace-nowrap py-2.5 text-xs font-medium tracking-eyebrow text-[var(--color-paper)]/75 uppercase transition-colors duration-300 hover:text-[var(--color-accent)]"
         >
           {buttonLabel}
         </button>

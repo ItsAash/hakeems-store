@@ -1,0 +1,43 @@
+{
+  "collectionName": "components_section_hero_splits",
+  "info": {
+    "displayName": "Section: Hero Split",
+    "icon": "layout",
+    "description": "Promotional split hero: editorial copy panel beside a full-bleed image, with a flippable image side, optional promo label, and a constrained background token."
+  },
+  "options": {},
+  "attributes": {
+    "header": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.section-header",
+      "required": true
+    },
+    "media": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.media",
+      "required": true
+    },
+    "cta": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.cta"
+    },
+    "promoLabel": {
+      "type": "string",
+      "maxLength": 40
+    },
+    "imageSide": {
+      "type": "enumeration",
+      "enum": ["left", "right"],
+      "default": "right",
+      "required": true
+    },
+    "backgroundToken": {
+      "type": "enumeration",
+      "enum": ["paper", "paper-raised", "blush", "sand", "hairline"],
+      "default": "sand"
+    }
+  }
+}

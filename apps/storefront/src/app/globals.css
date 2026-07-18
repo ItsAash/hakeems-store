@@ -25,12 +25,35 @@
   --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
 
   /* A generous, luxury-leaning spacing scale layered on top of Tailwind's default —
-     section rhythm should read as deliberate whitespace, not cramped defaults. */
-  --spacing-section: 6rem;
-  --spacing-section-sm: 3rem;
+     section rhythm should read as deliberate whitespace, not cramped defaults. `lg` is
+     reserved for editorial set-pieces so the page rhythm varies instead of repeating. */
+  --spacing-section: 7.5rem;
+  --spacing-section-sm: 4rem;
+  --spacing-section-lg: 10rem;
+
+  /* Display type scale — serif (Fraunces) only, with baked line-heights. Everything
+     below `display` uses Tailwind's stock sizes; micro sizes use --text-3xs/2xs. */
+  --text-display-2xl: clamp(3rem, 6.5vw, 5.75rem);
+  --text-display-2xl--line-height: 0.98;
+  --text-display-xl: clamp(2.5rem, 4.5vw, 4.25rem);
+  --text-display-xl--line-height: 1.02;
+  --text-display-lg: clamp(2rem, 3vw, 3rem);
+  --text-display-lg--line-height: 1.08;
+  --text-display: clamp(1.65rem, 2.2vw, 2.25rem);
+  --text-display--line-height: 1.12;
 
   --tracking-eyebrow: 0.14em;
   --tracking-label: 0.1em;
+  /* Wider display letterspacing for carousel/overlay eyebrows and the primary buy CTA;
+     `display` is the tight spacing for large serif banner headlines. One ladder — no
+     component invents its own tracking-[…] again. */
+  --tracking-hero: 0.2em;
+  --tracking-cta: 0.15em;
+  --tracking-display: 0.02em;
+
+  /* The single named easing for slow media movements (hero Ken Burns, montage zooms).
+     Interaction-speed transitions use Tailwind's plain `ease-out`. */
+  --ease-luxe: cubic-bezier(0.25, 0.1, 0.25, 1);
 
   --shadow-card: 0 1px 3px 0 rgb(20 18 15 / 0.08);
   --shadow-raised: 0 4px 12px 0 rgb(20 18 15 / 0.1);
@@ -85,6 +108,18 @@
 
   .hairline {
     border-color: var(--color-hairline);
+  }
+}
+
+/* Left padding for full-bleed sections whose copy must align with the site CONTAINER
+   (mx-auto max-w-[88rem] px-5 sm:px-8 lg:px-12 — see lib/ui.ts): centre offset + the
+   container gutter at that breakpoint. `@utility` (not @layer) so it composes with
+   responsive variants (md:…). */
+@utility pl-container-bleed {
+  padding-left: calc(max((100vw - 88rem) / 2, 0px) + 2rem);
+
+  @media (min-width: 1024px) {
+    padding-left: calc(max((100vw - 88rem) / 2, 0px) + 3rem);
   }
 }
 

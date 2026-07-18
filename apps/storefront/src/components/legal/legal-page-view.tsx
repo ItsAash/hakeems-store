@@ -56,7 +56,7 @@ export async function LegalPageView({ slug, params }: { slug: string; params: Le
           <h1 className="font-serif text-4xl text-[var(--color-ink)] md:text-5xl">{page.title}</h1>
           {updated && <p className="mt-4 text-sm text-[var(--color-ink-muted)]">Last updated {updated}</p>}
         </header>
-        <div className="text-[15px]">
+        <div className="text-sm-base">
           <Markdown content={page.content} />
         </div>
       </article>

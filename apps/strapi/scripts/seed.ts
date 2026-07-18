@@ -46,7 +46,7 @@ async function uploadImage(strapi: Core.Strapi, url: string, fileName: string): 
   return uploaded.id;
 }
 
-type DraftUID = 'api::site-nav.site-nav' | 'api::legal-page.legal-page';
+type DraftUID = 'api::site-nav.site-nav' | 'api::legal-page.legal-page' | 'api::product-page.product-page';
 
 // Seed data is assembled as plain object literals below, which won't structurally match
 // the Document Service's generated per-content-type Input types (components in particular
@@ -394,6 +394,110 @@ async function seedCollectionPages(strapi: Core.Strapi) {
 }
 
 /**
+ * Editorial product-pages exercising the Colorway Media Engine: per-color curated
+ * galleries (product.colorway-gallery) whose colorName joins the Medusa Color option
+ * value case-insensitively, plus Markdown panels for the PDP accordion. Hexes mirror
+ * COLOR_SWATCHES in apps/medusa/src/seed.ts — the CMS hex intentionally wins on the PDP.
+ * Idempotent by productSlug.
+ */
+async function seedProductPages(strapi: Core.Strapi) {
+  const img = async (photoId: string, fileName: string, crop = 'w=1400&h=1750&fit=crop&q=80') =>
+    uploadImage(strapi, unsplash(photoId, crop), fileName);
+
+  const CARE_PANEL = {
+    title: 'Materials & Care',
+    content: `- Buttery Powervita knit — 79% recycled nylon, 21% elastane
+- Machine wash cold with like colours, inside out
+- Lay flat to dry; no fabric softener, no iron
+- Garment-dyed pieces deepen in character with wear`,
+  };
+  const SIZE_PANEL = {
+    title: 'Size Guide',
+    content: `| Size | Chest (cm) | Waist (cm) |
+|------|-----------|-----------|
+| S | 88–94 | 72–78 |
+| M | 94–100 | 78–84 |
+| L | 100–108 | 84–92 |
+| XL | 108–116 | 92–100 |
+
+Between sizes? Size down for a sculpted fit, up for lounge.`,
+  };
+
+  const entries: Array<{ productSlug: string; panels: any[]; colorways: any[] }> = [
+    {
+      productSlug: 'coaster-luxe-sweatshirt',
+      panels: [CARE_PANEL, SIZE_PANEL],
+      colorways: [
+        {
+          colorName: 'Sandstone',
+          colorHex: '#C4A882',
+          gallery: [
+            await img('photo-1556905055-8f358a7a47b2', 'colorway-coaster-sandstone-1.jpg'),
+            await img('photo-1556905055-8f358a7a47b2', 'colorway-coaster-sandstone-2.jpg', 'w=1400&h=1750&fit=crop&crop=top&q=80'),
+          ],
+        },
+        {
+          colorName: 'Onyx',
+          colorHex: '#0F0F0F',
+          gallery: [
+            await img('photo-1552902865-b72c031ac5ea', 'colorway-coaster-onyx-1.jpg'),
+            await img('photo-1518611012118-696072aa579a', 'colorway-coaster-onyx-2.jpg'),
+          ],
+        },
+        {
+          colorName: 'Soft Sage',
+          colorHex: '#BEC5B0',
+          gallery: [
+            await img('photo-1620799140408-edc6dcb6d633', 'colorway-coaster-sage-1.jpg'),
+            await img('photo-1503341504253-dff4815485f1', 'colorway-coaster-sage-2.jpg'),
+          ],
+        },
+      ],
+    },
+    {
+      productSlug: 'salutation-stash-tight',
+      panels: [CARE_PANEL, SIZE_PANEL],
+      colorways: [
+        {
+          colorName: 'Onyx',
+          colorHex: '#0F0F0F',
+          gallery: [
+            await img('photo-1516762689617-e1cffcef479d', 'colorway-tight-onyx-1.jpg'),
+            await img('photo-1594633312681-425c7b97ccd1', 'colorway-tight-onyx-2.jpg'),
+          ],
+        },
+        {
+          colorName: 'Soft Sage',
+          colorHex: '#BEC5B0',
+          gallery: [
+            await img('photo-1518611012118-696072aa579a', 'colorway-tight-sage-1.jpg'),
+            await img('photo-1544367567-0f2fcb009e0b', 'colorway-tight-sage-2.jpg'),
+          ],
+        },
+        {
+          colorName: 'Espresso',
+          colorHex: '#4A3728',
+          gallery: [
+            await img('photo-1441986300917-64674bd600d8', 'colorway-tight-espresso-1.jpg'),
+            await img('photo-1560243563-062bfc001d68', 'colorway-tight-espresso-2.jpg'),
+          ],
+        },
+      ],
+    },
+  ];
+
+  for (const entry of entries) {
+    await upsertAndPublish(
+      strapi,
+      'api::product-page.product-page',
+      { productSlug: entry.productSlug },
+      entry,
+    );
+  }
+  console.log(`Seeded product-pages with colorway galleries (${entries.map((e) => e.productSlug).join(', ')})`);
+}
+
+/**
  * The global, channel-agnostic brand story — authored once here as the single source of
  * truth. Section blocks render this shared story by default, so it's never duplicated
  * per channel. No longer sourced from home-page (retired in favor of the Page builder).
@@ -478,6 +582,17 @@ async function seedPages(strapi: Core.Strapi) {
     { categoryCode: 'categories:sets', label: 'Sets', tagline: 'Matching pieces, worn together', image: tileEssentials },
   ];
 
+  const heroSplitImage = await uploadImage(
+    strapi,
+    unsplash('photo-1571945153237-4929e783af4a', 'w=1600&h=2000&fit=crop&q=80'),
+    'hero-split-drop.jpg',
+  );
+  const editorialFeature = await uploadImage(strapi, unsplash('photo-1558769132-cb1aea458c5e', 'w=1600&h=2000&fit=crop&q=80'), 'editorial-feature.jpg');
+  const editorialStreet = await uploadImage(strapi, unsplash('photo-1552902865-b72c031ac5ea', 'w=1200&h=1500&fit=crop&q=80'), 'editorial-street.jpg');
+  const editorialDetail = await uploadImage(strapi, unsplash('photo-1553062407-98eeb64c6a62', 'w=1200&h=1500&fit=crop&q=80'), 'editorial-detail.jpg');
+  const editorialStudio = await uploadImage(strapi, unsplash('photo-1518611012118-696072aa579a', 'w=1600&h=1000&fit=crop&q=80'), 'editorial-studio.jpg');
+  const editorialFabric = await uploadImage(strapi, unsplash('photo-1620799140408-edc6dcb6d633', 'w=1200&h=1500&fit=crop&q=80'), 'editorial-fabric.jpg');
+
   const heroBlockUp = await uploadImage(strapi, unsplash('photo-1558769132-cb1aea458c5e'), 'hero-block-up.jpg');
   const heroEssentials = await uploadImage(strapi, unsplash('photo-1487222477894-8943e31ef7b2'), 'hero-essentials.jpg');
   const heroAccessories = await uploadImage(strapi, unsplash('photo-1553062407-98eeb64c6a62'), 'hero-accessories.jpg');
@@ -554,15 +669,45 @@ async function seedPages(strapi: Core.Strapi) {
         tiles: facetCategoryTiles,
       },
       {
-        __component: 'section.product-rail',
+        // The configurable carousel variant of the product rail — exercises autoplay +
+        // the editor-capped item count.
+        __component: 'section.product-carousel',
         header: { eyebrow: 'The Spotlight', heading: 'This Week, Front Row', align: 'left' },
         collectionSlug: 'spotlight',
         cta: { label: 'Shop The Spotlight', href: '/collections/spotlight', variant: 'link', openInNewTab: false },
+        itemLimit: 12,
+        autoplay: true,
+      },
+      {
+        __component: 'section.hero-split',
+        header: {
+          eyebrow: 'Limited Drop',
+          heading: 'The Monsoon Layer',
+          subheading:
+            'Water-shrugging shells and quick-dry knits, cut for the season the city actually has. Small batch — gone when it rains out.',
+          align: 'left',
+        },
+        media: { image: heroSplitImage, alt: 'Model in a Hakeems water-resistant shell against a rain-washed street' },
+        cta: { label: 'Shop The Drop', href: '/collections/spotlight', variant: 'primary', openInNewTab: false },
+        promoLabel: 'This Week Only',
+        imageSide: 'right',
+        backgroundToken: 'sand',
       },
       {
         // Content-less marker — renders the shared global brand story. Set header /
         // paragraphs on this block to override the shared story for this channel only.
         __component: 'section.brand-story',
+      },
+      {
+        __component: 'section.editorial-grid',
+        header: { eyebrow: 'The Lookbook', heading: 'Worn On The Street', align: 'center' },
+        tiles: [
+          { image: editorialFeature, alt: 'Full Hakeems fit shot on a rooftop at dusk', label: 'The Rooftop Fit', tagline: 'Coaster + Rainier', href: '/collections/tops', span: 'feature' },
+          { image: editorialStreet, alt: 'Stash tank styled with utility pants at a street market', label: 'Market Day', href: '/collections/tops', span: 'standard' },
+          { image: editorialDetail, alt: 'Close-up of the All-About crossbody bag hardware', label: 'The Details', href: '/collections/accessories', span: 'standard' },
+          { image: editorialStudio, alt: 'Studio set worn mid-movement in natural light', label: 'Studio Hours', tagline: 'Bra + tight set', href: '/collections/sets', span: 'wide' },
+          { image: editorialFabric, alt: 'Folded garment-dyed tees showing fabric texture', label: 'Fabric First', href: '/collections/tops', span: 'standard' },
+        ],
       },
       {
         __component: 'section.editorial-banner',
@@ -616,6 +761,7 @@ async function main() {
   await seedLegalPages(app);
   await seedBrandStory(app);
   await seedCollectionPages(app);
+  await seedProductPages(app);
   await seedPages(app);
   console.log('Hakeems Strapi seed complete.');
 

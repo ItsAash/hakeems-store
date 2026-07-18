@@ -154,3 +154,36 @@ export function buildProductCard(product: StoreProduct): ProductCardModel {
 export function buildProductCards(products: StoreProduct[]): ProductCardModel[] {
   return products.map(buildProductCard);
 }
+
+type CmsColorway = { colorName: string; colorHex: string; gallery: Array<{ url: string }> };
+
+/**
+ * Layers CMS-curated colorway galleries (Strapi `product.colorway-gallery`, fetched in bulk
+ * per listing page) over the Medusa-derived card colors: where a colorway matches a color
+ * option value (case-insensitive), its hex replaces the metadata swatch and its gallery
+ * replaces the variant imagery — so the PLP swatch shows exactly the color family the
+ * merchandiser curated. `resolveImageUrl` maps a Strapi media entity to a usable URL.
+ */
+export function applyCmsColorways(
+  cards: ProductCardModel[],
+  colorwaysBySlug: Record<string, CmsColorway[] | undefined>,
+  resolveImageUrl: (media: { url: string }) => string,
+): ProductCardModel[] {
+  return cards.map((card) => {
+    const colorways = colorwaysBySlug[card.slug];
+    if (!colorways || colorways.length === 0 || card.colors.length === 0) return card;
+
+    const bySlugName = new Map(colorways.map((c) => [c.colorName.toLowerCase(), c]));
+    const colors = card.colors.map((color) => {
+      const cms = bySlugName.get(color.code.toLowerCase());
+      if (!cms) return color;
+      const images = cms.gallery.map(resolveImageUrl).filter(Boolean);
+      return {
+        ...color,
+        hex: cms.colorHex,
+        images: images.length > 0 ? images : color.images,
+      };
+    });
+    return { ...card, colors };
+  });
+}

@@ -1,9 +1,22 @@
 import type { ChannelCode } from '@/lib/channel';
 import { createMedusaClient } from '@/lib/medusa/client';
 import { getMedusaConfig } from '@/lib/medusa/config';
-import { buildProductCards, type ProductCardModel } from '@/lib/medusa/product-card';
+import { applyCmsColorways, buildProductCards, type ProductCardModel } from '@/lib/medusa/product-card';
 import type { MedusaProduct, MedusaProductListResponse } from '@/lib/medusa/types';
 import { buildFacetGroupsFromProducts, productMatchesActiveFacets, type FacetFilterGroup } from '@/lib/medusa/facets';
+import { getProductColorwaysBySlugs } from '@/lib/strapi/queries';
+import { pickImageUrl } from '@/lib/strapi/client';
+import type { StrapiMedia } from '@/lib/strapi/types';
+
+/**
+ * Layers CMS colorway galleries over freshly built cards — one bulk Strapi request per
+ * listing (never per card). Fail-soft: any CMS hiccup returns the Medusa-only cards.
+ */
+async function withCmsColorways(cards: ProductCardModel[]): Promise<ProductCardModel[]> {
+  if (cards.length === 0) return cards;
+  const colorways = await getProductColorwaysBySlugs(cards.map((c) => c.slug)).catch(() => ({}));
+  return applyCmsColorways(cards, colorways, (media) => pickImageUrl(media as StrapiMedia, ['large', 'medium']));
+}
 
 export type PlpSortKey = 'relevance' | 'price-asc' | 'price-desc' | 'name-asc' | 'newest' | 'best-selling';
 
@@ -158,7 +171,7 @@ export async function listProducts(params: PlpSearchParams): Promise<PlpSearchRe
   }
 
   const pageProducts = filtered.slice(skip, skip + take);
-  const cards = buildProductCards(pageProducts);
+  const cards = await withCmsColorways(buildProductCards(pageProducts));
 
   return {
     cards,
@@ -205,7 +218,30 @@ export async function listProductsByIds(
     fields: '*variants.calculated_price,*variants.images,*variants.options,*variants.inventory_quantity,*variants.manage_inventory,*variants.allow_backorder,*images',
   } as any) as unknown as MedusaProductListResponse;
 
-  return buildProductCards(data.products);
+  return withCmsColorways(buildProductCards(data.products));
+}
+
+/** Cards for an explicit set of product handles (e.g. the client-side wishlist), in the
+ * caller's order. Unknown handles are silently absent from the result. */
+export async function listProductsByHandles(
+  channelCode: ChannelCode,
+  handles: string[],
+): Promise<ProductCardModel[]> {
+  if (!handles.length) return [];
+  const client = createMedusaClient(channelCode);
+  const config = getMedusaConfig(channelCode);
+
+  const data = await client.store.product.list({
+    handle: handles,
+    sales_channel_id: config.salesChannelId,
+    region_id: config.regionId,
+    limit: handles.length,
+    fields: '*variants.calculated_price,*variants.images,*variants.options,*variants.inventory_quantity,*variants.manage_inventory,*variants.allow_backorder,*images',
+  } as any) as unknown as MedusaProductListResponse;
+
+  const cards = await withCmsColorways(buildProductCards(data.products));
+  const order = new Map(handles.map((h, i) => [h, i]));
+  return cards.sort((a, b) => (order.get(a.slug) ?? 0) - (order.get(b.slug) ?? 0));
 }
 
 export async function listCollectionProducts(
@@ -227,5 +263,5 @@ export async function listCollectionProducts(
     fields: '*variants.calculated_price,*variants.images,*variants.options,*variants.inventory_quantity,*variants.manage_inventory,*variants.allow_backorder,*images',
   } as any) as unknown as MedusaProductListResponse;
 
-  return buildProductCards(data.products);
+  return withCmsColorways(buildProductCards(data.products));
 }

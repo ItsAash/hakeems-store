@@ -7,6 +7,7 @@ import {
   legalPageSchema,
   listResponse,
   pageSchema,
+  productColorwaysSchema,
   productPageSchema,
   singleResponse,
   siteNavSchema,
@@ -36,7 +37,7 @@ const POPULATE: Record<string, string[]> = {
   brandStory: ['paragraphs', 'image'],
   collectionPage: ['heroImage', 'seo.ogImage'],
   legalPage: ['seo.ogImage'],
-  productPage: ['panels'],
+  productPage: ['panels', 'colorways.gallery'],
 };
 
 /**
@@ -49,8 +50,11 @@ const PAGE_POPULATE = {
   sections: {
     on: {
       'section.hero-slider': { populate: { slides: { populate: '*' } } },
+      'section.hero-split': { populate: { header: true, media: { populate: '*' }, cta: true } },
       'section.category-grid': { populate: { header: true, tiles: { populate: '*' } } },
+      'section.editorial-grid': { populate: { header: true, tiles: { populate: '*' } } },
       'section.product-rail': { populate: { header: true, cta: true } },
+      'section.product-carousel': { populate: { header: true, cta: true } },
       'section.editorial-banner': { populate: { header: true, cta: true } },
       'section.brand-story': { populate: { header: true, paragraphs: true, image: true } },
       'section.value-props': { populate: { header: true, items: true } },
@@ -145,6 +149,30 @@ export async function getCollectionPage(collectionSlug: string): Promise<Collect
     schema: listResponse(collectionPageSchema),
   });
   return response.data[0] ?? null;
+}
+
+/**
+ * Colorway galleries for a whole listing page in ONE request (`$in` filter) — this is what
+ * lets PLP/rail cards use CMS-curated colorway imagery without an N+1 query per card.
+ * Returns a map keyed by productSlug; missing/failed lookups simply mean "no CMS colorways".
+ */
+export async function getProductColorwaysBySlugs(
+  productSlugs: string[],
+): Promise<Record<string, ProductPage['colorways']>> {
+  if (productSlugs.length === 0) return {};
+  const response = await strapiFetch<StrapiListResponse<Pick<ProductPage, 'id' | 'productSlug' | 'colorways'>>>(
+    'product-pages',
+    {
+      filters: { productSlug: { $in: productSlugs } },
+      populate: { colorways: { populate: '*' } },
+      schema: listResponse(productColorwaysSchema),
+    },
+  );
+  const map: Record<string, ProductPage['colorways']> = {};
+  for (const entry of response.data) {
+    if (entry.colorways.length > 0) map[entry.productSlug] = entry.colorways;
+  }
+  return map;
 }
 
 /** Editorial Markdown panels for a product's PDP (matched by Medusa handle). Optional by

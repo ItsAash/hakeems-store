@@ -1,0 +1,40 @@
+{
+  "collectionName": "components_layout_editorial_tiles",
+  "info": {
+    "displayName": "Editorial Tile",
+    "icon": "grid",
+    "description": "One cell of the asymmetric editorial mosaic (section.editorial-grid). `span` controls how the cell stretches in the grid; `feature` is the 2×2 anchor."
+  },
+  "options": {},
+  "attributes": {
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": ["images"]
+    },
+    "alt": {
+      "type": "string",
+      "required": true,
+      "maxLength": 160
+    },
+    "label": {
+      "type": "string",
+      "maxLength": 80
+    },
+    "tagline": {
+      "type": "string",
+      "maxLength": 120
+    },
+    "href": {
+      "type": "string",
+      "regex": "^$|^(/[^\\s]*|https?://[^\\s]+)$"
+    },
+    "span": {
+      "type": "enumeration",
+      "enum": ["standard", "wide", "tall", "feature"],
+      "default": "standard",
+      "required": true
+    }
+  }
+}

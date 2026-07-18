@@ -3,17 +3,28 @@
 import { useRef, useState } from 'react';
 import Image from 'next/image';
 import { Overlay } from '@/components/ui/overlay';
-import { ArrowLeftIcon, ArrowRightIcon, CloseIcon } from '@/components/ui/icons';
+import { ArrowLeftIcon, ArrowRightIcon, CloseIcon, GridViewIcon, SingleViewIcon } from '@/components/ui/icons';
 
 const SWIPE_THRESHOLD_PX = 40;
 
+type GalleryLayout = 'single' | 'grid';
+
+/**
+ * The PDP gallery, designed per medium instead of shrunk:
+ * — Mobile: a swipeable single image with a thumbnail rail (thumb-first interaction).
+ * — Desktop: an editorial two-up grid of the active colorway's full gallery by default
+ *   (the images ARE the page), with a toggle back to a focused single-image view.
+ * Every image opens the shared full-screen lightbox; colour changes remount the component
+ * (keyed upstream) so the crossfade re-runs and the index resets to the new colorway.
+ */
 export function ProductGallery({ images, alt }: { images: string[]; alt: string }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [layout, setLayout] = useState<GalleryLayout>('grid');
   const touchStartX = useRef<number | null>(null);
 
   if (images.length === 0) {
-    return <div className="aspect-[4/5] w-full bg-[var(--color-hairline)]" />;
+    return <div className="aspect-[3/4] w-full bg-[var(--color-hairline)]" />;
   }
 
   const page = (direction: 1 | -1) =>
@@ -30,7 +41,12 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
     page(deltaX < 0 ? 1 : -1);
   };
 
-  return (
+  const openLightboxAt = (index: number) => {
+    setActiveIndex(index);
+    setLightboxOpen(true);
+  };
+
+  const singleView = (
     <div className="flex flex-col gap-3">
       <button
         type="button"
@@ -39,7 +55,7 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
         onTouchEnd={onTouchEnd}
         aria-label="Zoom image"
         aria-haspopup="dialog"
-        className="relative block aspect-[4/5] w-full cursor-zoom-in overflow-hidden bg-[var(--color-hairline)]"
+        className="relative block aspect-[3/4] w-full cursor-zoom-in overflow-hidden bg-[var(--color-hairline)]"
       >
         {/* Keyed on src so selecting a thumbnail re-triggers the crossfade instead of hard-cutting. */}
         <Image
@@ -48,7 +64,7 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
           alt={alt}
           fill
           priority={activeIndex === 0}
-          sizes="(min-width: 1024px) 50vw, 100vw"
+          sizes="(min-width: 1024px) 55vw, 100vw"
           className="animate-fade-in object-cover"
         />
       </button>
@@ -62,7 +78,7 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
               onClick={() => setActiveIndex(index)}
               aria-label={`View image ${index + 1} of ${images.length}`}
               aria-current={index === activeIndex}
-              className={`relative h-14 w-12 shrink-0 overflow-hidden border transition-colors sm:h-16 sm:w-14 ${
+              className={`relative h-16 w-12 shrink-0 overflow-hidden border transition-colors duration-200 ${
                 index === activeIndex ? 'border-[var(--color-ink)]' : 'border-transparent hover:border-[var(--color-hairline)]'
               }`}
             >
@@ -71,6 +87,59 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
           ))}
         </div>
       )}
+    </div>
+  );
+
+  return (
+    <div className="relative">
+      {/* Mobile — always the swipe view. */}
+      <div className="lg:hidden">{singleView}</div>
+
+      {/* Desktop — editorial grid by default, single-focus on demand. */}
+      <div className="hidden lg:block">
+        {images.length > 1 && (
+          <div className="absolute top-3 right-3 z-10 flex gap-1" role="group" aria-label="Gallery layout">
+            <GalleryLayoutButton
+              label="Grid view"
+              active={layout === 'grid'}
+              onClick={() => setLayout('grid')}
+              Icon={GridViewIcon}
+            />
+            <GalleryLayoutButton
+              label="Single image view"
+              active={layout === 'single'}
+              onClick={() => setLayout('single')}
+              Icon={SingleViewIcon}
+            />
+          </div>
+        )}
+
+        {layout === 'grid' && images.length > 1 ? (
+          <div className="grid grid-cols-2 gap-2">
+            {images.map((src, index) => (
+              <button
+                key={src}
+                type="button"
+                onClick={() => openLightboxAt(index)}
+                aria-label={`Zoom image ${index + 1} of ${images.length}`}
+                aria-haspopup="dialog"
+                className="relative aspect-[3/4] cursor-zoom-in overflow-hidden bg-[var(--color-hairline)]"
+              >
+                <Image
+                  src={src}
+                  alt={`${alt} — image ${index + 1}`}
+                  fill
+                  priority={index < 2}
+                  sizes="(min-width: 1024px) 28vw, 50vw"
+                  className="animate-fade-in object-cover"
+                />
+              </button>
+            ))}
+          </div>
+        ) : (
+          singleView
+        )}
+      </div>
 
       {/* Full-screen zoom — same Overlay primitive as every other dialog (focus trap,
           Escape, scroll lock). Arrows page within the current colour's gallery. */}
@@ -125,5 +194,33 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
         )}
       </Overlay>
     </div>
+  );
+}
+
+function GalleryLayoutButton({
+  label,
+  active,
+  onClick,
+  Icon,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+  Icon: (props: { className?: string }) => React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      aria-pressed={active}
+      className={`flex h-9 w-9 items-center justify-center backdrop-blur transition-colors duration-200 ${
+        active
+          ? 'bg-[var(--color-ink)] text-[var(--color-paper)]'
+          : 'bg-[var(--color-paper)]/85 text-[var(--color-ink)] hover:bg-[var(--color-paper)]'
+      }`}
+    >
+      <Icon className="h-4 w-4" />
+    </button>
   );
 }

@@ -23,7 +23,7 @@ function OrderSummaryLine({ line, currencyCode }: { line: CartLine; currencyCode
         </div>
         <span
           aria-label={`Quantity: ${line.quantity}`}
-          className="absolute -top-2 -right-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-ink)] px-1 text-[11px] font-medium text-[var(--color-paper)] ring-2 ring-[var(--color-paper)]"
+          className="absolute -top-2 -right-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-ink)] px-1 text-2xs font-medium text-[var(--color-paper)] ring-2 ring-[var(--color-paper)]"
         >
           ×{line.quantity}
         </span>

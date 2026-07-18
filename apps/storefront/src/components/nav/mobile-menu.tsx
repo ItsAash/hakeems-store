@@ -43,44 +43,61 @@ export function MobileMenu({ items, channelCode }: { items: NavItem[]; channelCo
             <CloseIcon className="h-5 w-5" />
           </button>
         </div>
-        <nav className="flex flex-1 flex-col overflow-y-auto px-6 py-4">
-              {items.map((item) => {
-                const hasChildren = item.children.length > 0;
-                const isExpanded = expandedId === item.id;
-                return (
-                  <div key={item.id} className="border-b hairline">
-                    <div className="flex items-center justify-between py-4">
-                      <Link href={withChannel(channelCode, item.href)} onClick={close} className="text-base text-[var(--color-ink)]">
-                        {item.label}
-                      </Link>
-                      {hasChildren && (
-                        <button
-                          type="button"
-                          onClick={() => setExpandedId(isExpanded ? null : item.id)}
-                          aria-label={`Toggle ${item.label} submenu`}
-                          className="p-2 text-[var(--color-ink-muted)]"
-                        >
-                          <ChevronDownIcon className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-                        </button>
-                      )}
-                    </div>
-                    {hasChildren && isExpanded && (
-                      <div className="flex flex-col gap-3 pb-4 pl-4">
+        {/* Editorial menu list: oversized serif entries with breathing room — designed for
+            the thumb, not a shrunken desktop nav. */}
+        <nav className="flex flex-1 flex-col overflow-y-auto px-6 py-6">
+          {items.map((item) => {
+            const hasChildren = item.children.length > 0;
+            const isExpanded = expandedId === item.id;
+            return (
+              <div key={item.id} className="border-b hairline">
+                <div className="flex items-center justify-between py-5">
+                  <Link
+                    href={withChannel(channelCode, item.href)}
+                    onClick={close}
+                    className="font-serif text-2xl text-[var(--color-ink)]"
+                  >
+                    {item.label}
+                  </Link>
+                  {hasChildren && (
+                    <button
+                      type="button"
+                      onClick={() => setExpandedId(isExpanded ? null : item.id)}
+                      aria-label={`Toggle ${item.label} submenu`}
+                      aria-expanded={isExpanded}
+                      className="p-2 text-[var(--color-ink-muted)]"
+                    >
+                      <ChevronDownIcon
+                        className={`h-4 w-4 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
+                      />
+                    </button>
+                  )}
+                </div>
+                {hasChildren && (
+                  <div
+                    className={`grid transition-[grid-template-rows] duration-300 ease-out ${
+                      isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+                    }`}
+                  >
+                    <div className="overflow-hidden">
+                      <div className="flex flex-col gap-4 pb-6 pl-1">
                         {item.children.map((child) => (
                           <Link
                             key={child.id}
                             href={withChannel(channelCode, child.href)}
                             onClick={close}
-                            className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink)]"
+                            className="text-sm tracking-label text-[var(--color-ink-muted)] uppercase transition-colors duration-200 hover:text-[var(--color-ink)]"
                           >
                             {child.label}
                           </Link>
                         ))}
                       </div>
-                    )}
+                    </div>
                   </div>
-                );
-              })}
+                )}
+              </div>
+            );
+          })}
         </nav>
       </Overlay>
     </>

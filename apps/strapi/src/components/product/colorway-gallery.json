@@ -1,0 +1,28 @@
+{
+  "collectionName": "components_product_colorway_galleries",
+  "info": {
+    "displayName": "Colorway Gallery",
+    "icon": "picture",
+    "description": "Maps a curated image gallery to one product colorway. colorName must match the Medusa Color option value (case-insensitive) so the PDP can join the two; the hex renders the swatch chip and takes precedence over Medusa's metadata.swatch."
+  },
+  "options": {},
+  "attributes": {
+    "colorName": {
+      "type": "string",
+      "required": true,
+      "maxLength": 60,
+      "regex": "^[A-Za-z][A-Za-z0-9' &-]*$"
+    },
+    "colorHex": {
+      "type": "string",
+      "required": true,
+      "regex": "^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$"
+    },
+    "gallery": {
+      "type": "media",
+      "multiple": true,
+      "required": true,
+      "allowedTypes": ["images"]
+    }
+  }
+}

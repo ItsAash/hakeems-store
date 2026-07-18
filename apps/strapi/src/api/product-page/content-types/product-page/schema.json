@@ -5,7 +5,7 @@
     "singularName": "product-page",
     "pluralName": "product-pages",
     "displayName": "Product Page",
-    "description": "Editorial layer over a Medusa product (matched by handle): rich Markdown panels (size guide, fabric tables…) appended to the PDP's detail tabs. Medusa stays the source of truth for the product itself."
+    "description": "Editorial layer over a Medusa product (matched by handle): rich Markdown panels (size guide, fabric tables…) appended to the PDP's detail accordion, plus curated colorway galleries that override the variant imagery per color. Medusa stays the source of truth for the product itself."
   },
   "options": {
     "draftAndPublish": true
@@ -16,13 +16,18 @@
       "type": "string",
       "required": true,
       "unique": true,
-      "maxLength": 191
+      "maxLength": 191,
+      "regex": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
     },
     "panels": {
       "type": "component",
       "repeatable": true,
-      "component": "shared.content-panel",
-      "required": true
+      "component": "shared.content-panel"
+    },
+    "colorways": {
+      "type": "component",
+      "repeatable": true,
+      "component": "product.colorway-gallery"
     }
   }
 }

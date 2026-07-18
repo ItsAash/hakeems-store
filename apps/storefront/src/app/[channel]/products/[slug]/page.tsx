@@ -6,6 +6,8 @@ import { retrieveProduct, listCollectionProducts } from '@/lib/medusa/products';
 import { buildVariantMatrix } from '@/lib/medusa/pdp';
 import { buildProductCards } from '@/lib/medusa/product-card';
 import { getProductPage } from '@/lib/strapi/queries';
+import { pickImageUrl } from '@/lib/strapi/client';
+import type { CmsColorwayMap } from '@/components/commerce/product-detail';
 import { buildMetadata } from '@/lib/seo/metadata';
 import { SITE_NAME, absoluteUrl, toMetaDescription } from '@/lib/seo/site';
 import { JsonLd, breadcrumbSchema, productSchema } from '@/lib/seo/structured-data';
@@ -87,6 +89,16 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pd
     });
   }
 
+  // CMS colorway engine: curated per-color galleries from Strapi, keyed by lower-cased
+  // colorName so they join the Medusa Color option values case-insensitively. Where a
+  // colorway exists it overrides that color's variant imagery and swatch hex on the PDP.
+  const cmsColorways: CmsColorwayMap = {};
+  for (const colorway of productPage?.colorways ?? []) {
+    const images = colorway.gallery.map((media) => pickImageUrl(media, ['large', 'medium']));
+    if (images.length === 0) continue;
+    cmsColorways[colorway.colorName.toLowerCase()] = { hex: colorway.colorHex, images };
+  }
+
   const prices = matrix.variants.map((v) => v.priceWithTax);
   const productLd = productSchema({
     name: product.title,
@@ -120,8 +132,11 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pd
           matrix={matrix}
           channelCode={channel.code}
           productName={product.title}
+          productSlug={product.handle}
           productImages={images}
           detailTabs={detailTabs}
+          cmsColorways={cmsColorways}
+          collectionLabel={collection?.title ?? null}
         />
       </div>
 

@@ -1,0 +1,39 @@
+{
+  "collectionName": "components_section_product_carousels",
+  "info": {
+    "displayName": "Section: Product Carousel",
+    "icon": "play",
+    "description": "Configurable product carousel for a Medusa collection (by slug): editor-capped item count and optional autoplay. The presentational sibling of Product Rail — same renderer, marketing-tunable behavior."
+  },
+  "options": {},
+  "attributes": {
+    "header": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.section-header"
+    },
+    "collectionSlug": {
+      "type": "string",
+      "required": true,
+      "maxLength": 191,
+      "regex": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "cta": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.cta"
+    },
+    "itemLimit": {
+      "type": "integer",
+      "default": 12,
+      "min": 4,
+      "max": 24,
+      "required": true
+    },
+    "autoplay": {
+      "type": "boolean",
+      "default": false,
+      "required": true
+    }
+  }
+}

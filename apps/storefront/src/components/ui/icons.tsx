@@ -102,3 +102,38 @@ export function CheckIcon({ className }: IconProps) {
 }
 
 
+
+export function GridViewIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden="true">
+      <rect x="4" y="4" width="7" height="7" />
+      <rect x="13" y="4" width="7" height="7" />
+      <rect x="4" y="13" width="7" height="7" />
+      <rect x="13" y="13" width="7" height="7" />
+    </svg>
+  );
+}
+
+export function SingleViewIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden="true">
+      <rect x="5" y="4" width="14" height="16" />
+    </svg>
+  );
+}
+
+export function HeartIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden="true">
+      <path d="M12 20.5S4 15 4 9.6C4 6.9 6 5 8.4 5c1.5 0 2.8.8 3.6 2 .8-1.2 2.1-2 3.6-2C18 5 20 6.9 20 9.6c0 5.4-8 10.9-8 10.9Z" />
+    </svg>
+  );
+}
+
+export function HeartFilledIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" className={className} aria-hidden="true">
+      <path d="M12 20.5S4 15 4 9.6C4 6.9 6 5 8.4 5c1.5 0 2.8.8 3.6 2 .8-1.2 2.1-2 3.6-2C18 5 20 6.9 20 9.6c0 5.4-8 10.9-8 10.9Z" />
+    </svg>
+  );
+}

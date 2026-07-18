@@ -619,8 +619,11 @@ export interface ApiPagePage extends Struct.CollectionTypeSchema {
     sections: Schema.Attribute.DynamicZone<
       [
         'section.hero-slider',
+        'section.hero-split',
         'section.category-grid',
+        'section.editorial-grid',
         'section.product-rail',
+        'section.product-carousel',
         'section.editorial-banner',
         'section.brand-story',
         'section.value-props',
@@ -644,7 +647,7 @@ export interface ApiPagePage extends Struct.CollectionTypeSchema {
 export interface ApiProductPageProductPage extends Struct.CollectionTypeSchema {
   collectionName: 'product_pages';
   info: {
-    description: "Editorial layer over a Medusa product (matched by handle): rich Markdown panels (size guide, fabric tables\u2026) appended to the PDP's detail tabs. Medusa stays the source of truth for the product itself.";
+    description: "Editorial layer over a Medusa product (matched by handle): rich Markdown panels (size guide, fabric tables\u2026) appended to the PDP's detail accordion, plus curated colorway galleries that override the variant imagery per color. Medusa stays the source of truth for the product itself.";
     displayName: 'Product Page';
     pluralName: 'product-pages';
     singularName: 'product-page';
@@ -653,6 +656,7 @@ export interface ApiProductPageProductPage extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    colorways: Schema.Attribute.Component<'product.colorway-gallery', true>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -662,8 +666,7 @@ export interface ApiProductPageProductPage extends Struct.CollectionTypeSchema {
       'api::product-page.product-page'
     > &
       Schema.Attribute.Private;
-    panels: Schema.Attribute.Component<'shared.content-panel', true> &
-      Schema.Attribute.Required;
+    panels: Schema.Attribute.Component<'shared.content-panel', true>;
     productSlug: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique &

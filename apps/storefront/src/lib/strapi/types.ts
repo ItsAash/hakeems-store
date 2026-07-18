@@ -8,6 +8,7 @@ import type {
   announcementSchema,
   brandStorySchema,
   collectionPageSchema,
+  colorwaySchema,
   ctaSchema,
   facetCategoryTileSchema,
   footerSchema,
@@ -55,6 +56,8 @@ export type LegalPage = z.infer<typeof legalPageSchema>;
 
 /** Editorial Markdown panels layered onto a Medusa product's PDP (matched by handle). */
 export type ProductPage = z.infer<typeof productPageSchema>;
+/** CMS-curated per-color gallery (see colorwaySchema for the Medusa join contract). */
+export type Colorway = z.infer<typeof colorwaySchema>;
 
 export type NavLink = z.infer<typeof navLinkSchema>;
 export type NavItem = z.infer<typeof navItemSchema>;

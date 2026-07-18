@@ -86,15 +86,26 @@ export default async function CollectionPage({
     <main className="flex flex-1 flex-col">
       <JsonLd data={crumbLd} />
       {bannerImage && (
-        <div className="relative aspect-[3/1] w-full overflow-hidden bg-[var(--color-hairline)]">
+        /* Campaign banner with the collection name set INTO the image — an editorial
+           opening statement rather than a strip of image above a plain heading. */
+        <div className="relative aspect-[2/1] w-full overflow-hidden bg-[var(--color-hairline)] md:aspect-[3/1]">
           <Image src={bannerImage} alt={`${title} collection`} fill priority sizes="100vw" className="object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/5 to-transparent" />
+          <div className={`absolute inset-x-0 bottom-0 pb-10 md:pb-14 ${CONTAINER}`}>
+            <h1 className="font-serif text-display-xl text-[var(--color-paper)]">{title}</h1>
+            {tagline && <p className="mt-3 max-w-xl text-sm text-[var(--color-paper)]/85 md:text-base">{tagline}</p>}
+          </div>
         </div>
       )}
 
       <div className={`flex flex-col gap-3 py-section-sm ${CONTAINER}`}>
         <Breadcrumbs items={[{ name: title, slug }]} channelCode={channel.code} />
-        <h1 className="font-serif text-3xl text-[var(--color-ink)] md:text-4xl">{title}</h1>
-        {tagline && <p className="max-w-xl text-[var(--color-ink-muted)]">{tagline}</p>}
+        {!bannerImage && (
+          <>
+            <h1 className="font-serif text-display text-[var(--color-ink)]">{title}</h1>
+            {tagline && <p className="max-w-xl text-[var(--color-ink-muted)]">{tagline}</p>}
+          </>
+        )}
       </div>
 
       <div className={`pb-section ${CONTAINER}`}>

@@ -30,8 +30,11 @@
       "type": "dynamiczone",
       "components": [
         "section.hero-slider",
+        "section.hero-split",
         "section.category-grid",
+        "section.editorial-grid",
         "section.product-rail",
+        "section.product-carousel",
         "section.editorial-banner",
         "section.brand-story",
         "section.value-props",

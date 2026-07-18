@@ -8,17 +8,19 @@ import { routes } from '@/lib/routes';
 import type { ProductCardModel } from '@/lib/medusa/product-card';
 import { formatPrice } from '@/lib/format';
 import { QuickAddButton } from '@/components/commerce/quick-add-button';
-import { ArrowLeftIcon, ArrowRightIcon } from '@/components/ui/icons';
+import { WishlistButton } from '@/components/commerce/wishlist-button';
 
 const MAX_VISIBLE_SWATCHES = 5;
-const HOVER_CYCLE_INTERVAL = 1500;
+const HOVER_CYCLE_INTERVAL = 1800;
 
-const stockLabel = {
-  IN_STOCK: null,
-  LOW_STOCK: 'Low Stock',
-  OUT_OF_STOCK: 'Sold Out',
-} as const;
-
+/**
+ * The product card, rebuilt around the image (Athleta discipline, Prada restraint):
+ * a tall 3:4 photograph with almost no chrome — a single text badge, a wishlist heart and
+ * a slide-up Quick Add that only exist on hover/focus — then swatches, name and price in a
+ * quiet stack below. Selecting a swatch crossfades the image to that colorway's gallery
+ * (CMS-curated when the merchandiser has authored one, variant imagery otherwise); hovering
+ * pages through the active colorway. No arrows, no boxes, no competing pills.
+ */
 export function ProductCard({
   card,
   channelCode,
@@ -49,13 +51,10 @@ export function ProductCard({
     setSelectedCode(code);
     setImageIndex(0);
   };
-  const pageImage = (direction: 1 | -1) => (event: React.MouseEvent) => {
-    event.preventDefault();
-    setImageIndex((current) => Math.min(images.length - 1, Math.max(0, current + direction)));
-  };
 
   const startCycle = useCallback(() => {
     if (images.length <= 1) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     intervalRef.current = setInterval(() => {
       setImageIndex((prev) => (prev + 1) % images.length);
     }, HOVER_CYCLE_INTERVAL);
@@ -87,7 +86,8 @@ export function ProductCard({
     .join(' ');
 
   const currentStockLevel = selectedColor?.stockLevel ?? card.stockLevel;
-  const badgeText = card.badge ?? (card.isNew ? 'New' : null);
+  const badgeText =
+    currentStockLevel === 'LOW_STOCK' ? 'Low Stock' : (card.badge ?? (card.isNew ? 'New' : null));
 
   return (
     <div
@@ -95,9 +95,11 @@ export function ProductCard({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="group/media relative overflow-hidden bg-[var(--color-hairline)]">
-        <Link href={href} className="relative block aspect-[4/5]" tabIndex={-1}>
+      <div className="relative overflow-hidden bg-[var(--color-hairline)]">
+        <Link href={href} className="relative block aspect-[3/4]" tabIndex={-1}>
           {currentImage && (
+            /* Keyed on src → remount re-triggers the crossfade, so color/hover swaps read
+               as a soft dissolve instead of a hard cut. */
             <Image
               key={currentImage}
               src={currentImage}
@@ -105,46 +107,41 @@ export function ProductCard({
               fill
               priority={priority}
               sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
-              className="object-cover transition-transform duration-500 ease-out group-hover/card:scale-105"
+              className="animate-fade-in object-cover transition-transform duration-700 ease-luxe group-hover/card:scale-[1.04]"
             />
           )}
           {currentStockLevel === 'OUT_OF_STOCK' && (
-            <div className="absolute inset-0 flex items-center justify-center bg-[var(--color-paper)]/60">
-              <span className="bg-[var(--color-ink)] px-3 py-1.5 text-xs font-medium tracking-label text-[var(--color-paper)]">
+            <div className="absolute inset-0 flex items-center justify-center bg-[var(--color-paper)]/55">
+              <span className="border border-[var(--color-ink)] px-3 py-1.5 text-3xs font-medium tracking-label text-[var(--color-ink)] uppercase">
                 Sold Out
               </span>
             </div>
           )}
         </Link>
 
+        {/* One quiet text badge, top-left — never a stack of pills. */}
         {badgeText && (
-          <span className="absolute bottom-2 left-2 bg-[var(--color-ink)]/85 px-2 py-1 text-[10px] font-medium tracking-label text-[var(--color-paper)] uppercase">
+          <span className="absolute top-3 left-3 bg-[var(--color-paper)]/90 px-2.5 py-1 text-3xs font-medium tracking-label text-[var(--color-ink)] uppercase backdrop-blur">
             {badgeText}
           </span>
         )}
 
-        {currentStockLevel === 'LOW_STOCK' && (
-          <span className="absolute top-2 left-2 bg-[var(--color-accent)]/90 px-2 py-0.5 text-[10px] font-medium tracking-label text-[var(--color-paper)] uppercase">
-            Low Stock
-          </span>
-        )}
+        {/* Hover chrome: heart top-right, Quick Add sliding up from the image's bottom edge.
+            Both stay reachable by keyboard (focus-within) and are simply always-visible on
+            touch devices via the md: gating. */}
+        <div className="absolute top-3 right-3 transition-opacity duration-200 md:opacity-0 md:group-hover/card:opacity-100 md:group-focus-within/card:opacity-100">
+          <WishlistButton slug={card.slug} productName={card.name} />
+        </div>
 
-        {showQuickAdd && quickAddVariantId && (
-          <div className="absolute top-3 right-3">
+        {showQuickAdd && quickAddVariantId && currentStockLevel !== 'OUT_OF_STOCK' && (
+          <div className="absolute inset-x-0 bottom-0 translate-y-0 transition-transform duration-300 ease-out md:translate-y-full md:group-hover/card:translate-y-0 md:group-focus-within/card:translate-y-0">
             <QuickAddButton channelCode={channelCode} variantId={quickAddVariantId} />
           </div>
-        )}
-
-        {images.length > 1 && (
-          <>
-            <CardArrow direction="prev" onClick={pageImage(-1)} disabled={imageIndex === 0} />
-            <CardArrow direction="next" onClick={pageImage(1)} disabled={imageIndex === images.length - 1} />
-          </>
         )}
       </div>
 
       {card.colors.length > 0 && (
-        <div className="mt-3 flex items-center gap-2">
+        <div className="mt-4 flex items-center gap-2">
           {visibleColors.map((color) => {
             const isSelected = color.code === selectedCode;
             return (
@@ -152,26 +149,26 @@ export function ProductCard({
                 key={color.code}
                 type="button"
                 onClick={() => selectColor(color.code)}
-                aria-label={color.label}
+                aria-label={`View in ${color.label}`}
                 aria-pressed={isSelected}
                 title={color.label}
-                className={`relative h-5 w-5 rounded-full border transition-shadow after:absolute after:-inset-1 ${
+                className={`relative h-4 w-4 rounded-full border transition-shadow duration-200 after:absolute after:-inset-1.5 ${
                   isSelected
-                    ? 'border-transparent ring-1 ring-[var(--color-ink)] ring-offset-1 ring-offset-[var(--color-paper)]'
-                    : 'border-[var(--color-hairline)]'
+                    ? 'border-transparent ring-1 ring-[var(--color-ink)] ring-offset-2 ring-offset-[var(--color-paper)]'
+                    : 'border-[var(--color-hairline)] hover:ring-1 hover:ring-[var(--color-ink-muted)] hover:ring-offset-2 hover:ring-offset-[var(--color-paper)]'
                 }`}
                 style={{ backgroundColor: color.hex ?? 'transparent' }}
               />
             );
           })}
           {hiddenColorCount > 0 && (
-            <span className="text-[11px] text-[var(--color-ink-muted)]">+{hiddenColorCount}</span>
+            <span className="text-2xs text-[var(--color-ink-muted)]">+{hiddenColorCount}</span>
           )}
         </div>
       )}
 
-      <div className="mt-2 flex flex-1 flex-col gap-1">
-        <Link href={href} className="line-clamp-2 text-sm font-medium text-[var(--color-ink)]">
+      <div className="mt-2.5 flex flex-1 flex-col gap-1">
+        <Link href={href} className="line-clamp-2 text-sm text-[var(--color-ink)]">
           {card.name}
         </Link>
 
@@ -189,30 +186,5 @@ export function ProductCard({
         {promoText && <p className="text-xs text-[var(--color-ink-muted)]">{promoText}</p>}
       </div>
     </div>
-  );
-}
-
-function CardArrow({
-  direction,
-  onClick,
-  disabled,
-}: {
-  direction: 'prev' | 'next';
-  onClick: (event: React.MouseEvent) => void;
-  disabled: boolean;
-}) {
-  const Icon = direction === 'prev' ? ArrowLeftIcon : ArrowRightIcon;
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      aria-label={direction === 'prev' ? 'Previous image' : 'Next image'}
-      className={`absolute top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-[var(--color-paper)]/85 text-[var(--color-ink)] shadow-sm backdrop-blur transition-opacity duration-200 hover:bg-[var(--color-paper)] focus-visible:opacity-100 disabled:cursor-default disabled:opacity-0 md:opacity-0 md:group-hover/media:opacity-100 ${
-        direction === 'prev' ? 'left-2' : 'right-2'
-      }`}
-    >
-      <Icon className="h-4 w-4" />
-    </button>
   );
 }

@@ -3,15 +3,18 @@ import { withChannel, type ChannelCode } from '@/lib/channel';
 
 export type CtaVariant = 'primary' | 'secondary' | 'link';
 
+/** The single button language: square (zero radius), uppercase micro type with CTA
+ * tracking. Matches the PDP buy button so every call-to-action on the site speaks the
+ * same visual dialect — no pills, no per-component reinventions. */
 const VARIANTS: Record<CtaVariant, string> = {
-  // Solid ink pill (the New Arrivals / hero CTA look).
+  // Solid ink block.
   primary:
-    'inline-flex w-fit items-center rounded-full bg-[var(--color-ink)] px-8 py-3.5 text-sm font-medium tracking-wide text-[var(--color-paper)] transition-opacity hover:opacity-90',
-  // Outlined pill.
+    'inline-flex w-fit items-center justify-center bg-[var(--color-ink)] px-10 py-4 text-2xs font-medium tracking-cta text-[var(--color-paper)] uppercase transition-opacity duration-300 hover:opacity-85',
+  // Hairline-inked outline block.
   secondary:
-    'inline-flex w-fit items-center rounded-full border border-[var(--color-ink)] px-8 py-3.5 text-sm font-medium tracking-wide text-[var(--color-ink)] transition-colors hover:bg-[var(--color-ink)] hover:text-[var(--color-paper)]',
-  // Underlined text link (the "Shop all" rail look).
-  link: 'inline-flex w-fit border-b border-[var(--color-ink)] pb-1 text-sm font-medium text-[var(--color-ink)] transition-opacity hover:opacity-70',
+    'inline-flex w-fit items-center justify-center border border-[var(--color-ink)] px-10 py-4 text-2xs font-medium tracking-cta text-[var(--color-ink)] uppercase transition-colors duration-300 hover:bg-[var(--color-ink)] hover:text-[var(--color-paper)]',
+  // Underline text link — uppercase micro to match.
+  link: 'inline-flex w-fit border-b border-[var(--color-ink)] pb-1 text-2xs font-medium tracking-cta text-[var(--color-ink)] uppercase transition-opacity duration-300 hover:opacity-60',
 };
 
 /**

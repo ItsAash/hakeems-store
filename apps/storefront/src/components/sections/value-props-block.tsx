@@ -13,13 +13,14 @@ export function ValuePropsBlock({ section }: { section: SectionOf<'section.value
   const background = resolveColorToken(section.backgroundToken);
 
   return (
-    <section className="py-section" style={background ? { backgroundColor: background } : undefined}>
-      <div className={`flex flex-col gap-12 ${CONTAINER}`}>
+    // A quiet strip, not a set piece — py-section-sm keeps the page rhythm varied.
+    <section className="py-section-sm" style={background ? { backgroundColor: background } : undefined}>
+      <div className={`flex flex-col gap-10 ${CONTAINER}`}>
         <SectionHeaderBlock header={section.header} />
-        <dl className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+        <dl className="grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
           {section.items.map((item) => (
-            <div key={item.id} className="flex flex-col gap-2 border-t hairline pt-5">
-              <dt className="text-sm font-medium tracking-wide text-[var(--color-ink)]">{item.heading}</dt>
+            <div key={item.id} className="flex flex-col gap-2.5 border-t hairline pt-5">
+              <dt className="text-2xs font-medium tracking-label text-[var(--color-ink)] uppercase">{item.heading}</dt>
               <dd className="text-sm leading-relaxed text-[var(--color-ink-muted)]">{item.body}</dd>
             </div>
           ))}

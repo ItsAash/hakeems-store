@@ -42,15 +42,21 @@ export function PlpResults({
   const hasFacets = facetGroups.length > 0;
 
   return (
-    <div className={`grid gap-10 lg:gap-12 ${hasFacets ? 'lg:grid-cols-[220px_1fr]' : ''}`}>
+    <div className={`grid gap-10 lg:gap-14 ${hasFacets ? 'lg:grid-cols-[240px_1fr]' : ''}`}>
       {hasFacets && (
+        // Sticky below the fixed header so filters stay at hand through a long grid.
         <aside className="hidden lg:block">
-          <FacetFilterSidebar
-            groups={facetGroups}
-            activeFacetValueIds={activeFacetValueIds}
-            basePath={basePath}
-            searchParams={searchParams}
-          />
+          <div className="sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto pr-2">
+            <p className="mb-6 border-b hairline pb-4 text-2xs font-medium tracking-label text-[var(--color-ink)] uppercase">
+              Filters
+            </p>
+            <FacetFilterSidebar
+              groups={facetGroups}
+              activeFacetValueIds={activeFacetValueIds}
+              basePath={basePath}
+              searchParams={searchParams}
+            />
+          </div>
         </aside>
       )}
 
@@ -62,8 +68,9 @@ export function PlpResults({
           searchParams={searchParams}
         />
 
-        <div className="mb-6 flex items-center justify-between gap-4">
-          <p className="text-sm text-[var(--color-ink-muted)]">
+        {/* Hairline-framed toolbar: count reads as a quiet label, controls sit right. */}
+        <div className="mb-10 flex items-center justify-between gap-4 border-y hairline py-3">
+          <p className="text-2xs tracking-label text-[var(--color-ink-muted)] uppercase">
             {totalItems} {totalItems === 1 ? 'item' : 'items'}
           </p>
           <div className="flex items-center gap-3">

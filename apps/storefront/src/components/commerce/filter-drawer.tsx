@@ -243,7 +243,7 @@ export function FilterDrawer({
       >
         Filter
         {activeFacetValueIds.length > 0 && (
-          <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--color-ink)] px-1 text-[10px] font-medium text-[var(--color-paper)]">
+          <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--color-ink)] px-1 text-3xs font-medium text-[var(--color-paper)]">
             {activeFacetValueIds.length}
           </span>
         )}

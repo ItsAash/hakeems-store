@@ -114,7 +114,7 @@ export function HeroSlider({
          *   other   → z-0,  opacity 0     (instantly hidden)
          */
         const style: React.CSSProperties = isActive
-          ? { zIndex: 20, transition: `opacity ${FADE_MS}ms ease-in-out` }
+          ? { zIndex: 20, transition: `opacity ${FADE_MS}ms var(--ease-luxe)` }
           : isExiting
             ? { opacity: 1, zIndex: 10, transition: 'none' }
             : { opacity: 0, zIndex: 0, transition: 'none', pointerEvents: 'none' };
@@ -133,10 +133,10 @@ export function HeroSlider({
           >
             {/* Image — Ken Burns pauses when hidden, no remounting */}
             <div
-              className="animate-hero-kenburns h-full w-full"
+              className="animate-hero-kenburns relative h-full w-full"
               style={{
                 animationDuration: '12s',
-                animationTimingFunction: 'ease-in-out',
+                animationTimingFunction: 'var(--ease-luxe)',
                 animationIterationCount: 'infinite',
                 animationDirection: 'alternate',
                 animationPlayState: isActive ? 'running' : 'paused',
@@ -181,7 +181,7 @@ export function HeroSlider({
                 {(() => {
                   const HeadingTag = i === 0 ? 'h1' : 'h2';
                   return (
-                    <HeadingTag className="max-w-2xl font-serif text-4xl leading-[1.05] text-[var(--color-paper)] md:text-7xl">
+                    <HeadingTag className="max-w-3xl font-serif text-display-2xl text-[var(--color-paper)]">
                       {slide.heading}
                     </HeadingTag>
                   );
@@ -195,9 +195,7 @@ export function HeroSlider({
                   <Link
                     href={withChannel(channelCode, slide.ctaHref)}
                     /* ── Filled button (clean, premium, high contrast) ── */
-                    className="group/cta mt-2 inline-flex items-center gap-3 bg-[var(--color-paper)] px-8 py-4 text-[11px] font-medium tracking-[0.2em] uppercase text-[var(--color-ink)] transition-all duration-300 hover:bg-[var(--color-paper)]/90"
-                  /* ── Alternative: refined outline ── */
-                  // className="group/cta mt-2 inline-flex items-center gap-3 rounded-sm border border-[var(--color-paper)]/40 px-8 py-4 text-[11px] font-medium tracking-[0.2em] uppercase text-[var(--color-paper)] transition-all duration-500 hover:border-[var(--color-paper)]/80 hover:bg-[var(--color-paper)]/10"
+                    className="group/cta mt-3 inline-flex items-center gap-3 bg-[var(--color-paper)] px-10 py-4 text-2xs font-medium tracking-cta uppercase text-[var(--color-ink)] transition-all duration-300 hover:bg-[var(--color-paper)]/90"
                   >
                     {slide.ctaLabel}
                     <ArrowRightIcon className="h-3.5 w-3.5 transition-transform duration-300 group-hover/cta:translate-x-1" />

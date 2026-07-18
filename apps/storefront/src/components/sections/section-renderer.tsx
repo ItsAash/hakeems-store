@@ -4,6 +4,9 @@ import type { PageSection } from '@/lib/strapi/types';
 import { CONTAINER } from '@/lib/ui';
 import { HeroSlider } from '@/components/marketing/hero-slider';
 import { FacetCategoryGrid } from '@/components/marketing/facet-category-grid';
+import { HeroSplitBlock } from '@/components/sections/hero-split-block';
+import { EditorialGridBlock } from '@/components/sections/editorial-grid-block';
+import { ProductCarouselBlock } from '@/components/sections/product-carousel-block';
 import { ProductRailBlock } from '@/components/sections/product-rail-block';
 import { EditorialBannerBlock } from '@/components/sections/editorial-banner-block';
 import { BrandStoryBlock } from '@/components/sections/brand-story-block';
@@ -46,6 +49,16 @@ export function SectionRenderer({ sections, channelCode }: { sections: PageSecti
         switch (section.__component) {
           case 'section.hero-slider':
             return <HeroSlider key={key} slides={section.slides} channelCode={channelCode} />;
+          case 'section.hero-split':
+            return <HeroSplitBlock key={key} section={section} channelCode={channelCode} />;
+          case 'section.editorial-grid':
+            return <EditorialGridBlock key={key} section={section} channelCode={channelCode} />;
+          case 'section.product-carousel':
+            return (
+              <Suspense key={key} fallback={<SectionSkeleton />}>
+                <ProductCarouselBlock section={section} channelCode={channelCode} />
+              </Suspense>
+            );
           case 'section.category-grid':
             return (
               <Suspense key={key} fallback={<SectionSkeleton />}>
