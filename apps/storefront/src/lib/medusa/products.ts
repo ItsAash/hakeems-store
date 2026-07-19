@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache';
 import type { ChannelCode } from '@/lib/channel';
 import { createMedusaClient } from '@/lib/medusa/client';
 import { getMedusaConfig } from '@/lib/medusa/config';
@@ -7,6 +8,43 @@ import { buildFacetGroupsFromProducts, productMatchesActiveFacets, type FacetFil
 import { getProductColorwaysBySlugs } from '@/lib/strapi/queries';
 import { pickImageUrl } from '@/lib/strapi/client';
 import type { StrapiMedia } from '@/lib/strapi/types';
+
+/** The Medusa JS SDK never sets `cache`/`next` on its underlying fetch, so none of its
+ * requests ever hit Next's fetch cache — every catalog read is a live round trip, even a
+ * repeat of the exact same request a second later. These reads are all public catalog data
+ * (no cart/customer context), so they're safe to cache for a short window — mirrors the
+ * revalidate:60 convention `strapiFetch` already uses. */
+const CATALOG_REVALIDATE_SECONDS = 60;
+
+const cachedProductList = unstable_cache(
+  async (channelCode: ChannelCode, query: Record<string, unknown>): Promise<MedusaProductListResponse> => {
+    const client = createMedusaClient(channelCode);
+    return client.store.product.list(query) as unknown as Promise<MedusaProductListResponse>;
+  },
+  ['medusa-product-list'],
+  { revalidate: CATALOG_REVALIDATE_SECONDS, tags: ['medusa-products'] },
+);
+
+const cachedCollectionByHandle = unstable_cache(
+  async (channelCode: ChannelCode, handle: string): Promise<MedusaCollectionRef | null> => {
+    const client = createMedusaClient(channelCode);
+    const cols = await client.store.collection.list({ handle, limit: 1 });
+    const collection = cols.collections?.[0];
+    return collection ? { id: collection.id, title: collection.title, handle: collection.handle } : null;
+  },
+  ['medusa-collection-by-handle'],
+  { revalidate: CATALOG_REVALIDATE_SECONDS, tags: ['medusa-collections'] },
+);
+
+const cachedCategoryIdByHandle = unstable_cache(
+  async (channelCode: ChannelCode, handle: string): Promise<string | null> => {
+    const client = createMedusaClient(channelCode);
+    const cats = await client.store.category.list({ handle, limit: 1 });
+    return cats.product_categories?.[0]?.id ?? null;
+  },
+  ['medusa-category-id-by-handle'],
+  { revalidate: CATALOG_REVALIDATE_SECONDS, tags: ['medusa-categories'] },
+);
 
 /**
  * Layers CMS colorway galleries over freshly built cards — one bulk Strapi request per
@@ -86,21 +124,16 @@ export async function getCollectionByHandle(
   channelCode: ChannelCode,
   handle: string,
 ): Promise<MedusaCollectionRef | null> {
-  const client = createMedusaClient(channelCode);
-  const cols = await client.store.collection.list({ handle, limit: 1 });
-  const collection = cols.collections?.[0];
-  return collection ? { id: collection.id, title: collection.title, handle: collection.handle } : null;
+  return cachedCollectionByHandle(channelCode, handle);
 }
 
-async function resolveCategoryId(client: any, handle: string): Promise<string | null> {
-  const cats = await client.store.category.list({ handle, limit: 1 });
-  return cats.product_categories?.[0]?.id ?? null;
+async function resolveCategoryId(channelCode: ChannelCode, handle: string): Promise<string | null> {
+  return cachedCategoryIdByHandle(channelCode, handle);
 }
 
 const EMPTY_RESULT: PlpSearchResult = { cards: [], count: 0, offset: 0, limit: PLP_PAGE_SIZE, facetGroups: [] };
 
 export async function listProducts(params: PlpSearchParams): Promise<PlpSearchResult> {
-  const client = createMedusaClient(params.channelCode);
   const config = getMedusaConfig(params.channelCode);
   const page = params.page ?? 1;
   const take = PLP_PAGE_SIZE;
@@ -122,7 +155,7 @@ export async function listProducts(params: PlpSearchParams): Promise<PlpSearchRe
     // Product membership is category-driven (many-to-many — a product can live in
     // `tops` AND `spotlight`), so a collection slug resolves against categories first;
     // the Medusa collection of the same handle exists as the Strapi editorial anchor.
-    const categoryId = await resolveCategoryId(client, params.collectionSlug);
+    const categoryId = await resolveCategoryId(params.channelCode, params.collectionSlug);
     if (categoryId) {
       query.category_id = [categoryId];
     } else {
@@ -135,7 +168,7 @@ export async function listProducts(params: PlpSearchParams): Promise<PlpSearchRe
   }
 
   if (params.categorySlug) {
-    const id = await resolveCategoryId(client, params.categorySlug);
+    const id = await resolveCategoryId(params.channelCode, params.categorySlug);
     if (!id) return EMPTY_RESULT;
     query.category_id = [id];
   }
@@ -145,7 +178,7 @@ export async function listProducts(params: PlpSearchParams): Promise<PlpSearchRe
     query.order = order;
   }
 
-  const data = (await client.store.product.list(query)) as unknown as MedusaProductListResponse;
+  const data = await cachedProductList(params.channelCode, query);
 
   // Facet counts always reflect the full category/collection/term scope, computed
   // before value-filtering is applied.
@@ -194,16 +227,15 @@ export async function retrieveProduct(
   channelCode: ChannelCode,
   handle: string,
 ): Promise<MedusaProduct> {
-  const client = createMedusaClient(channelCode);
   const config = getMedusaConfig(channelCode);
 
-  const listResult = await client.store.product.list({
+  const listResult = await cachedProductList(channelCode, {
     handle: [handle],
     sales_channel_id: config.salesChannelId,
     region_id: config.regionId,
     limit: 1,
     fields: '*variants.calculated_price,*variants.images,*variants.options,*variants.inventory_quantity,*variants.manage_inventory,*variants.allow_backorder,*images,*categories,*collection',
-  } as any) as unknown as MedusaProductListResponse;
+  });
 
   const product = listResult.products[0];
   if (!product) throw new Error(`Product not found: ${handle}`);
@@ -216,15 +248,14 @@ export async function listProductsByIds(
   ids: string[],
 ): Promise<ProductCardModel[]> {
   if (!ids.length) return [];
-  const client = createMedusaClient(channelCode);
   const config = getMedusaConfig(channelCode);
 
-  const data = await client.store.product.list({
+  const data = await cachedProductList(channelCode, {
     id: ids,
     sales_channel_id: config.salesChannelId,
     region_id: config.regionId,
     fields: '*variants.calculated_price,*variants.images,*variants.options,*variants.inventory_quantity,*variants.manage_inventory,*variants.allow_backorder,*images',
-  } as any) as unknown as MedusaProductListResponse;
+  });
 
   return withCmsColorways(buildProductCards(data.products));
 }
@@ -236,16 +267,15 @@ export async function listProductsByHandles(
   handles: string[],
 ): Promise<ProductCardModel[]> {
   if (!handles.length) return [];
-  const client = createMedusaClient(channelCode);
   const config = getMedusaConfig(channelCode);
 
-  const data = await client.store.product.list({
+  const data = await cachedProductList(channelCode, {
     handle: handles,
     sales_channel_id: config.salesChannelId,
     region_id: config.regionId,
     limit: handles.length,
     fields: '*variants.calculated_price,*variants.images,*variants.options,*variants.inventory_quantity,*variants.manage_inventory,*variants.allow_backorder,*images',
-  } as any) as unknown as MedusaProductListResponse;
+  });
 
   const cards = await withCmsColorways(buildProductCards(data.products));
   const order = new Map(handles.map((h, i) => [h, i]));
@@ -257,11 +287,10 @@ export async function listCollectionProducts(
   collectionHandle: string,
   limit: number = 100,
 ): Promise<ProductCardModel[]> {
-  const client = createMedusaClient(channelCode);
   const config = getMedusaConfig(channelCode);
 
   // Same category-first membership resolution as listProducts (see comment there).
-  const categoryId = await resolveCategoryId(client, collectionHandle);
+  const categoryId = await resolveCategoryId(channelCode, collectionHandle);
   let scope: Record<string, unknown>;
   if (categoryId) {
     scope = { category_id: [categoryId] };
@@ -271,13 +300,13 @@ export async function listCollectionProducts(
     scope = { collection_id: [collection.id] };
   }
 
-  const data = await client.store.product.list({
+  const data = await cachedProductList(channelCode, {
     ...scope,
     sales_channel_id: config.salesChannelId,
     region_id: config.regionId,
     limit,
     fields: '*variants.calculated_price,*variants.images,*variants.options,*variants.inventory_quantity,*variants.manage_inventory,*variants.allow_backorder,*images',
-  } as any) as unknown as MedusaProductListResponse;
+  });
 
   return withCmsColorways(buildProductCards(data.products));
 }
