@@ -21,7 +21,7 @@ import { ProseBlock } from '@/components/sections/prose-block';
 function SectionSkeleton() {
   return (
     <div className={`py-section ${CONTAINER}`} aria-hidden="true">
-      <div className="h-64 w-full animate-pulse bg-[var(--color-hairline)]" />
+      <div className="h-64 w-full skeleton" />
     </div>
   );
 }

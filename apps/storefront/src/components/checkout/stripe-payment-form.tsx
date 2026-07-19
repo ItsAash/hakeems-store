@@ -48,7 +48,20 @@ export function StripePaymentForm({ channelCode }: { channelCode: ChannelCode })
   }
 
   if (error) return <p className="text-sm text-danger">{error}</p>;
-  if (!clientSecret) return <p className="text-sm text-[var(--color-ink-muted)]">Preparing payment…</p>;
+  if (!clientSecret) {
+    // Payment-element-shaped shimmer while the session initializes — replaces the
+    // "Preparing payment…" text with the house loading language, zero layout shift.
+    return (
+      <div className="flex flex-col gap-3" role="status" aria-label="Preparing payment">
+        <div className="h-12 w-full skeleton" />
+        <div className="flex gap-3">
+          <div className="h-12 flex-1 skeleton" />
+          <div className="h-12 flex-1 skeleton" />
+        </div>
+        <div className="h-14 w-full skeleton" />
+      </div>
+    );
+  }
 
   return (
     <Elements stripe={stripePromise} options={{ clientSecret }}>

@@ -337,3 +337,70 @@ Rules: serif (Fraunces) for display sizes only; Inter for UI/body; uppercase mic
 - **Badge restraint**: time-based auto-"New" removed (a freshly seeded catalog stamped every card); badges are now explicit metadata or a genuine Low Stock signal only.
 - Deterministic inventory leaves ~1 in 8 SKUs low-stock so the LOW_STOCK UI stays exercised.
 
+---
+
+# PART IV — PREMIUM FASHION MOTION SYSTEM (2026-07-19)
+
+## M0. Inspiration analysis
+The provided references (landing.love fashion gallery, Valery, Dribbble fashion animation) are video showcases — no extractable implementation detail — so the analysis is of the genre's recurring techniques as seen across premium fashion houses: (1) **openers** are typographic, not technical — a wordmark or campaign line revealed by clip/translate (letters rising out of a masked line), against a solid brand field or a single image, closed by a **curtain lift/wipe** that hands off into the page; (2) **pacing** is confident and brief (1.5–3s), with long luxe easings and deliberate holds, never spinners or progress percentages (or at most a quiet counter); (3) **page transitions** are one consistent gesture — a soft fade-through or a veil wipe with slight vertical drift — applied identically everywhere; (4) **loading** is editorial: content skeletons in brand tones or a breathing wordmark, never a circular spinner; (5) restraint is the signature — one motion idea per layer, executed perfectly.
+
+## M1. Concept — two connected layers, one motion language
+
+Both layers speak the existing vocabulary: paper/ink field, Fraunces serif, hairline rules, `--ease-luxe`, 200/300/500 durations, tracking-label micro type.
+
+**Layer 1 — "The House Opening" (first visit per browser session):**
+A full-viewport paper field (identical to the page background — zero flash risk). Sequence: the serif wordmark rises **letter by letter out of a masked line** (40ms stagger, 600ms per letter, ease-luxe) → a **hairline rule draws** outward from center beneath it → the micro eyebrow "KATHMANDU · HONG KONG" (channel cities) fades up in tracking-hero caps → a deliberate beat → the whole field **lifts like a curtain** (750ms, ease-luxe) revealing the homepage already rendered beneath. Total ≈ 2.6s. Typographic-only by design: no network dependency, no CLS, nothing to fail. Brand strings come from Strapi (`site-setting.siteName`) — nothing brand-specific is hardcoded in the component (`brandName`/`eyebrow` are props with app-level fallbacks).
+
+**Layer 2 — internal navigation & loading:**
+- **Route transitions**: one gesture — pages **enter with a soft rise-and-settle** (opacity 0→1 + translateY 14px→0, 500ms ease-luxe) via `app/[channel]/template.tsx` (remounts on every navigation natively — covers Link, router.push, back/forward with zero custom routing code and no scroll-restoration interference). Entry-only by design: exit animations in App Router require frozen-router hacks that risk flicker/double-transitions — rejected.
+- **Loading states**: the existing per-route skeletons stay (they're the premium pattern) but upgrade from `animate-pulse` to a **fabric-like shimmer** (a soft highlight sweeping the placeholder, brand-toned) via a shared `.skeleton` utility; routes without bespoke skeletons get a shared branded fallback — the wordmark with a **breathing hairline** underneath (`loading.tsx` for home + wishlist), visually the intro's little sibling.
+
+## M2. Technical decisions
+| Decision | Rationale |
+|---|---|
+| Pure CSS keyframes + a ~40-line client component; **no animation library** | Project's established infra is CSS-only (`--ease-luxe`, fade/kenburns keyframes); GSAP/Framer would be new weight for two timelines |
+| Session gating via `sessionStorage` + a **pre-paint inline script** stamping `data-intro` on `<html>` | Server can't know first-visit; the inline script runs before first paint so returning visitors never see a flash of the overlay, and first visitors see it from frame 0 (rendered in SSR markup). Survives dev HMR (no replay), back/forward (no replay), hard refresh mid-session (no replay) |
+| Overlay is `position: fixed` at a documented new z-70 rung; scroll locked via `html[data-intro='play']{overflow:hidden}` | Sits above the toast rung (60); no layout impact, no CLS |
+| `prefers-reduced-motion`: the pre-paint script also checks the media query and skips the intro entirely; page-enter/shimmer collapse via the existing global reduced-motion kill-switch | Motion is additive, never required |
+| Compositor-only properties (`transform`, `opacity`, `clip-path` on text) | 60fps; no layout-triggering animation |
+| JS timeline = one `setTimeout` for the total duration + `transitionend` guard; failure mode = overlay force-removed at 4s max | A dropped animation event can never trap the user behind the veil |
+| Intro ≠ route transition: intro lives in the root layout (once per session), transitions in `template.tsx` (every navigation) | The success criterion's two-layer separation, structurally enforced |
+
+Component structure: `components/motion/intro-overlay.tsx` (client, configurable, business-logic-free) · `app/[channel]/template.tsx` (3 lines) · `globals.css` keyframes (`intro-letter`, `intro-rule`, `intro-eyebrow`, `intro-lift`, `page-enter`, `skeleton-shimmer`) · shared `.skeleton` utility replacing per-file `animate-pulse`.
+
+## M3. Implementation notes & verification (all green)
+
+**Implementation deltas from plan (both safety-driven):**
+- The overlay is `display:none` by DEFAULT and shown only under `html[data-intro='play']` — no-JS users and any script failure see the page immediately; nobody can be trapped behind the veil.
+- `.animate-page-enter` uses fill-mode `backwards`, not `both`: a lingering identity transform on the template wrapper would become the containing block for `position:fixed` descendants (the PDP sticky buy bar) and break their viewport pinning. Overlays are unaffected (they portal to `document.body`, verified).
+- `components/motion/route-loading.tsx` + `app/[channel]/loading.tsx`: the branded breathing-wordmark fallback for routes without bespoke skeletons (wordmark from the app-level `SITE_NAME` setting — a loading boundary must paint instantly, so no CMS fetch there by design; the intro overlay itself gets its brand strings from Strapi's site-setting via the root layout).
+- Existing route skeletons (PLP/PDP/checkout/account/section fallbacks) swept from `animate-pulse` to the `.skeleton` fabric shimmer; PDP skeleton ratio aligned to 3:4.
+
+**Verification (scripted, headless Chrome):**
+- **First visit**: frame captures at 0.5s (letters mid-rise out of the mask), 1.5s (full lockup: wordmark + drawn rule + NEPAL · HONG KONG eyebrow), 2.4s (curtain mid-lift revealing the already-rendered hero) — the sequence hands off into the homepage, no separate-screen feel, no CLS.
+- **Gating**: after the intro, `data-intro='done'` + sessionStorage set; reload in the same session → no replay; client navigation → no replay; **reduced-motion context → intro skipped entirely** (`done` + `display:none` from the pre-paint gate).
+- **Layer 2**: mid-navigation capture at 250ms shows the persistent chrome (no re-animation), the PLP skeleton with the shimmer mid-sweep, then the page-enter settle — the two layers are visibly distinct but share the same paper/serif/hairline/ease-luxe language.
+- Mobile (390) and tablet (834) intro renders verified — the clamped display token scales the lockup cleanly.
+- Zero console errors across the suite; `next build` ✓ 41 pages.
+
+## M4. Loading-state audit & unification (follow-up mission, 2026-07-19)
+
+**Full audit — every place a user can wait, and what shows there now:**
+| Surface | Loading experience | Mechanism |
+|---|---|---|
+| Shop / Collections / Search PLPs | Full PLP-shaped fabric-shimmer skeleton (sidebar, toolbar, 3:4 card grid) | `shop/collections/search loading.tsx` → `plp-skeleton.tsx` (`.skeleton`) |
+| Product detail | PDP-shaped shimmer skeleton (gallery, title/price lines, round swatch dots, size boxes, buy bar) — ratio aligned to 3:4 | `products/[slug]/loading.tsx` |
+| Checkout / Account (+subroutes) | Form/section-shaped shimmer skeletons | segment `loading.tsx` files |
+| Home, Cart, Wishlist, Story, Legal, Auth routes | Branded breathing-wordmark mark (`RouteLoading`) | segment-level `[channel]/loading.tsx` |
+| Homepage data-fetching sections (rails, banners, tile counts) | Section-sized shimmer blocks | per-block `Suspense` fallbacks in `SectionRenderer` |
+| Search type-ahead | **Was "Searching…" text** → now 3 shimmer rows in the exact suggestion-row shape (zero shift on resolve) | `SearchRowSkeleton` |
+| Stripe payment init | **Was "Preparing payment…" text** → payment-element-shaped shimmer stack | inline `.skeleton` blocks |
+| Wishlist resolve | 3:4 card shimmer grid | `wishlist-grid.tsx` |
+| Cart line mutations | Optimistic updates (no waiting state by design — the premium pattern) | `useOptimistic` |
+| Buttons (add/save/pay/auth) | Verb-specific pending labels ("Adding…", "Processing…") — intentional, kept | per-component |
+| Product images | Brand-toned field behind progressive render + crossfade on swap; failed loads leave the quiet field (no broken-image glyph) | container bg + `animate-fade-in` |
+
+**Centralization:** `components/motion/loading-primitives.tsx` (`SkeletonBlock`, `BreathingHairline`, `SearchRowSkeleton`) + `route-loading.tsx` (now composing `BreathingHairline`) + the `.skeleton`/`.animate-loading-breathe` utilities — one vocabulary, no product/CMS content embedded anywhere in it. Zero `animate-pulse`, zero spinners, zero "Loading…" text remain (grep-verified).
+
+**Verification:** throttled-network captures — PDP skeleton with shimmer mid-sweep after clicking a product; page-enter transition caught mid-flight (no blank frames between routes); search suggestions resolving into the skeleton's exact layout; intro/session gating unaffected (plays once, never on navigation). Reduced motion: shimmer + breathe + page-enter all collapse via the global kill-switch (loading states remain visible, just static). `tsc` clean; `next build` ✓ 41 pages.
+

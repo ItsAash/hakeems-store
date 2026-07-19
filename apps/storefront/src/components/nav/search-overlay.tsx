@@ -11,6 +11,7 @@ import { searchSuggestionsAction } from '@/lib/medusa/search-actions';
 import { formatPrice } from '@/lib/format';
 import { SearchIcon, CloseIcon } from '@/components/ui/icons';
 import { Overlay } from '@/components/ui/overlay';
+import { SearchRowSkeleton } from '@/components/motion/loading-primitives';
 
 const DEBOUNCE_MS = 250;
 
@@ -96,7 +97,9 @@ export function SearchOverlay({ channelCode }: { channelCode: ChannelCode }) {
           {term.trim().length >= 2 && (
                   <div className="mt-8 border-t hairline pt-6">
                     {isLoading && suggestions.length === 0 ? (
-                      <p className="text-sm text-[var(--color-ink-muted)]">Searching…</p>
+                      /* Shimmer rows in the exact result shape — results replace them
+                         with zero layout shift, no "Searching…" text. */
+                      <SearchRowSkeleton rows={3} />
                     ) : suggestions.length === 0 ? (
                       <p className="text-sm text-[var(--color-ink-muted)]">No products found for “{term.trim()}”.</p>
                     ) : (

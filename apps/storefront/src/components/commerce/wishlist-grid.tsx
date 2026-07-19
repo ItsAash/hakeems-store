@@ -52,7 +52,7 @@ export function WishlistGrid({ channelCode }: { channelCode: ChannelCode }) {
     return (
       <div className="grid grid-cols-2 gap-x-4 gap-y-12 sm:grid-cols-3 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="aspect-[3/4] animate-pulse bg-[var(--color-hairline)]" />
+          <div key={i} className="aspect-[3/4] skeleton" />
         ))}
       </div>
     );
