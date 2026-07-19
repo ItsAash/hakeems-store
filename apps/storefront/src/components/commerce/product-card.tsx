@@ -44,7 +44,9 @@ export function ProductCard({
       ? [card.defaultImageUrl]
       : [];
   const currentImage = images[imageIndex] ?? images[0] ?? null;
-  const quickAddVariantId = selectedColor?.variantId ?? card.defaultVariantId;
+  const quickAddSizeVariants =
+    selectedColor?.sizeVariants ??
+    (card.defaultVariantId ? [{ size: '', variantId: card.defaultVariantId, inStock: true }] : []);
   const href = routes.product(channelCode, card.slug);
 
   const selectColor = (code: string) => {
@@ -86,8 +88,9 @@ export function ProductCard({
     .join(' ');
 
   const currentStockLevel = selectedColor?.stockLevel ?? card.stockLevel;
-  const badgeText =
-    currentStockLevel === 'LOW_STOCK' ? 'Low Stock' : (card.badge ?? (card.isNew ? 'New' : null));
+  // Badges are deliberate: explicit merchandising metadata or a genuine stock signal.
+  // (No time-based auto-"New" — a freshly seeded catalog would stamp every card.)
+  const badgeText = currentStockLevel === 'LOW_STOCK' ? 'Low Stock' : card.badge;
 
   return (
     <div
@@ -133,9 +136,9 @@ export function ProductCard({
           <WishlistButton slug={card.slug} productName={card.name} />
         </div>
 
-        {showQuickAdd && quickAddVariantId && currentStockLevel !== 'OUT_OF_STOCK' && (
+        {showQuickAdd && quickAddSizeVariants.length > 0 && currentStockLevel !== 'OUT_OF_STOCK' && (
           <div className="absolute inset-x-0 bottom-0 translate-y-0 transition-transform duration-300 ease-out md:translate-y-full md:group-hover/card:translate-y-0 md:group-focus-within/card:translate-y-0">
-            <QuickAddButton channelCode={channelCode} variantId={quickAddVariantId} />
+            <QuickAddButton channelCode={channelCode} sizeVariants={quickAddSizeVariants} />
           </div>
         )}
       </div>

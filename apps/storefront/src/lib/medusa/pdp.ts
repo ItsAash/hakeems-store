@@ -132,9 +132,14 @@ export function findVariantForSelection(
   return matrix.variantsBySelectionKey.get(selectionKey(selections)) ?? null;
 }
 
+/** Curated merchandising categories — real memberships, but not taxonomy: they don't
+ * belong in a breadcrumb trail. */
+const MERCHANDISING_CATEGORY_HANDLES = new Set(['spotlight', 'new-arrivals']);
+
 export function getProductBreadcrumbs(product: MedusaProduct): Array<{ name: string; slug: string }> {
   const crumbs: Array<{ name: string; slug: string }> = [];
   for (const cat of product.categories ?? []) {
+    if (MERCHANDISING_CATEGORY_HANDLES.has(cat.handle)) continue;
     crumbs.push({ name: cat.name, slug: cat.handle });
   }
   return crumbs;

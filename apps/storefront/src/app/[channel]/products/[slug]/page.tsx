@@ -57,7 +57,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<Pd
   const matrix = buildVariantMatrix(product);
   const images = (product.images ?? []).map((img) => img.url);
   const collection = product.collection ?? null;
-  const categories = product.categories ?? [];
+  // Merchandising memberships (spotlight/new-arrivals) are real categories but not
+  // taxonomy — keep them out of breadcrumbs and JSON-LD trails.
+  const categories = (product.categories ?? []).filter((c) => !['spotlight', 'new-arrivals'].includes(c.handle));
 
   const description = metaStr(product.metadata, 'enriched_description') || product.description || '';
 

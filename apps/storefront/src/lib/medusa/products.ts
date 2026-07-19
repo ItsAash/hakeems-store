@@ -119,11 +119,19 @@ export async function listProducts(params: PlpSearchParams): Promise<PlpSearchRe
   }
 
   if (params.collectionSlug) {
-    const collection = await getCollectionByHandle(params.channelCode, params.collectionSlug);
-    // An unknown collection slug must never fall through to an unfiltered catalog query
-    // — that would silently show every product instead of "not found".
-    if (!collection) return EMPTY_RESULT;
-    query.collection_id = [collection.id];
+    // Product membership is category-driven (many-to-many — a product can live in
+    // `tops` AND `spotlight`), so a collection slug resolves against categories first;
+    // the Medusa collection of the same handle exists as the Strapi editorial anchor.
+    const categoryId = await resolveCategoryId(client, params.collectionSlug);
+    if (categoryId) {
+      query.category_id = [categoryId];
+    } else {
+      const collection = await getCollectionByHandle(params.channelCode, params.collectionSlug);
+      // An unknown slug must never fall through to an unfiltered catalog query —
+      // that would silently show every product instead of "not found".
+      if (!collection) return EMPTY_RESULT;
+      query.collection_id = [collection.id];
+    }
   }
 
   if (params.categorySlug) {
@@ -252,11 +260,19 @@ export async function listCollectionProducts(
   const client = createMedusaClient(channelCode);
   const config = getMedusaConfig(channelCode);
 
-  const collection = await getCollectionByHandle(channelCode, collectionHandle);
-  if (!collection) return [];
+  // Same category-first membership resolution as listProducts (see comment there).
+  const categoryId = await resolveCategoryId(client, collectionHandle);
+  let scope: Record<string, unknown>;
+  if (categoryId) {
+    scope = { category_id: [categoryId] };
+  } else {
+    const collection = await getCollectionByHandle(channelCode, collectionHandle);
+    if (!collection) return [];
+    scope = { collection_id: [collection.id] };
+  }
 
   const data = await client.store.product.list({
-    collection_id: [collection.id],
+    ...scope,
     sales_channel_id: config.salesChannelId,
     region_id: config.regionId,
     limit,

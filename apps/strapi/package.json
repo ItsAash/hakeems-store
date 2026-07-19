@@ -14,7 +14,8 @@
     "seed": "tsx scripts/seed.ts",
     "purge": "tsx scripts/purge.ts",
     "upgrade": "npx @strapi/upgrade latest",
-    "upgrade:dry": "npx @strapi/upgrade latest --dry"
+    "upgrade:dry": "npx @strapi/upgrade latest --dry",
+    "seed:catalog": "tsx scripts/seed-catalog.ts"
   },
   "dependencies": {
     "@strapi/plugin-cloud": "5.50.1",

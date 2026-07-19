@@ -15,6 +15,12 @@ function variantStockLevel(variant: StoreProductVariant): 'IN_STOCK' | 'LOW_STOC
   return 'IN_STOCK';
 }
 
+export type CardSizeVariant = {
+  size: string;
+  variantId: string;
+  inStock: boolean;
+};
+
 export type MedusaProductCardColor = {
   code: string;
   label: string;
@@ -22,6 +28,8 @@ export type MedusaProductCardColor = {
   images: string[];
   variantId: string;
   stockLevel: 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK';
+  /** Per-size purchasable variants of this color — powers the size-aware quick add. */
+  sizeVariants: CardSizeVariant[];
 };
 
 export type ProductCardModel = {
@@ -70,14 +78,32 @@ function collectColors(variants: StoreProductVariant[], optionTitle: string): Me
     const colorValue = variant.options?.find(
       (ov) => ov.option?.title?.toLowerCase() === optionTitle.toLowerCase(),
     );
-    if (!colorValue || colors.has(colorValue.value)) continue;
-    colors.set(colorValue.value, {
-      code: colorValue.value,
-      label: colorValue.value,
-      hex: (colorValue.metadata?.swatch as string) ?? null,
-      images: variantImages(variant),
+    if (!colorValue) continue;
+    const sizeValue = variant.options?.find((ov) => ov.option?.title?.toLowerCase() === 'size');
+    const level = variantStockLevel(variant);
+
+    let entry = colors.get(colorValue.value);
+    if (!entry) {
+      entry = {
+        code: colorValue.value,
+        label: colorValue.value,
+        hex: (colorValue.metadata?.swatch as string) ?? null,
+        images: variantImages(variant),
+        variantId: variant.id,
+        stockLevel: level,
+        sizeVariants: [],
+      };
+      colors.set(colorValue.value, entry);
+    } else {
+      // The color's headline stock level: any size in stock ⇒ the color is buyable;
+      // LOW_STOCK only when the whole color is thin.
+      if (entry.stockLevel === 'OUT_OF_STOCK' && level !== 'OUT_OF_STOCK') entry.stockLevel = level;
+      else if (entry.stockLevel === 'LOW_STOCK' && level === 'IN_STOCK') entry.stockLevel = 'IN_STOCK';
+    }
+    entry.sizeVariants.push({
+      size: sizeValue?.value ?? '',
       variantId: variant.id,
-      stockLevel: variantStockLevel(variant),
+      inStock: level !== 'OUT_OF_STOCK',
     });
   }
   return Array.from(colors.values());

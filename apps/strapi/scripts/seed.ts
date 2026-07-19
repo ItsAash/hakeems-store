@@ -168,14 +168,15 @@ async function seedFooter(strapi: Core.Strapi) {
 }
 
 async function seedSiteNavs(strapi: Core.Strapi) {
-  // Both channels share the same catalog shape today (tops/bottoms/accessories/sets +
-  // one cross-channel Spotlight capsule) — no more channel-exclusive collections — so
-  // nepal and hongkong get the same nav structure.
+  // Both channels share the same catalog shape (the scraped-catalog taxonomy + one
+  // cross-channel Spotlight capsule) — no channel-exclusive collections — so nepal and
+  // hongkong get the same nav structure.
   const shopChildren = [
     { label: 'Tops', href: '/collections/tops' },
     { label: 'Bottoms', href: '/collections/bottoms' },
+    { label: 'Bras', href: '/collections/bras' },
+    { label: 'Jackets', href: '/collections/jackets' },
     { label: 'Accessories', href: '/collections/accessories' },
-    { label: 'Sets', href: '/collections/sets' },
   ];
   const items = [
     { label: 'Spotlight', href: '/collections/spotlight' },
@@ -314,19 +315,23 @@ Need a different size or colour? Start a return and place a new order — it's t
  * skipped with a warning rather than faked.
  */
 async function seedCollectionPages(strapi: Core.Strapi) {
+  // Collection banners stay editorial Unsplash: the scraped catalog assets are 520px
+  // product shots — unsuitable for a 2800px full-bleed banner (documented in the log).
   const heroTops = await uploadImage(strapi, unsplash('photo-1445205170230-053b83016050', 'w=1600&h=900&fit=crop&q=80'), 'collection-tops.jpg');
   const heroBottoms = await uploadImage(strapi, unsplash('photo-1560243563-062bfc001d68', 'w=1600&h=900&fit=crop&q=80'), 'collection-bottoms.jpg');
+  const heroBras = await uploadImage(strapi, unsplash('photo-1518611012118-696072aa579a', 'w=1600&h=900&fit=crop&q=80'), 'collection-bras.jpg');
+  const heroJackets = await uploadImage(strapi, unsplash('photo-1551488831-00ddcb6c6bd3', 'w=1600&h=900&fit=crop&q=80'), 'collection-jackets.jpg');
   const heroAccessories = await uploadImage(strapi, unsplash('photo-1606522754091-a3bbf9ad4cb3', 'w=1600&h=900&fit=crop&q=80'), 'collection-accessories.jpg');
-  const heroSets = await uploadImage(strapi, unsplash('photo-1487222477894-8943e31ef7b2', 'w=1600&h=900&fit=crop&q=80'), 'collection-sets.jpg');
   const heroSpotlight = await uploadImage(strapi, unsplash('photo-1571945153237-4929e783af4a', 'w=1600&h=900&fit=crop&q=80'), 'collection-spotlight.jpg');
+  const heroNewArrivals = await uploadImage(strapi, unsplash('photo-1558769132-cb1aea458c5e', 'w=1600&h=900&fit=crop&q=80'), 'collection-new-arrivals.jpg');
 
   const enrichments: Array<{ collectionSlug: string; data: Record<string, unknown> }> = [
     {
       collectionSlug: 'tops',
       data: {
         title: 'Tops',
-        tagline: 'Tees, sweats, hoodies and overshirts',
-        description: 'Tees, sweats, hoodies and overshirts — the upper half of every Hakeems fit.',
+        tagline: 'Tees, tanks, sweats and shirting',
+        description: 'Tees, tanks, fleece and crisp poplin — the upper half of every fit.',
         heroImage: heroTops,
         featured: false,
         sortOrder: 1,
@@ -336,33 +341,44 @@ async function seedCollectionPages(strapi: Core.Strapi) {
       collectionSlug: 'bottoms',
       data: {
         title: 'Bottoms',
-        tagline: 'Utility pants, joggers and denim',
-        description: 'Utility pants, joggers and denim built for the street and the stage.',
+        tagline: 'Pants, shorts and leggings',
+        description: 'Featherweight pants, run shorts and rib leggings — built to move.',
         heroImage: heroBottoms,
         featured: false,
         sortOrder: 2,
       },
     },
     {
-      collectionSlug: 'accessories',
+      collectionSlug: 'bras',
       data: {
-        title: 'Accessories',
-        tagline: 'Totes, slings and caps',
-        description: 'Totes, slings and caps — the pieces that finish the fit.',
-        heroImage: heroAccessories,
+        title: 'Bras',
+        tagline: 'Every support level, every size',
+        description: 'From studio scoops to high-impact support, sized A to DD and beyond.',
+        heroImage: heroBras,
         featured: false,
         sortOrder: 3,
       },
     },
     {
-      collectionSlug: 'sets',
+      collectionSlug: 'jackets',
       data: {
-        title: 'Sets',
-        tagline: 'Matching pieces, worn together',
-        description: 'Matching pieces, worn together.',
-        heroImage: heroSets,
+        title: 'Jackets',
+        tagline: 'Layers for weather and warm-ups',
+        description: 'Rain shells and crop layers that finish the fit and shrug the weather.',
+        heroImage: heroJackets,
         featured: false,
         sortOrder: 4,
+      },
+    },
+    {
+      collectionSlug: 'accessories',
+      data: {
+        title: 'Accessories',
+        tagline: 'Pouches, caps and carry-alls',
+        description: 'The pieces that organize the kit — pouches, caps and carry-alls.',
+        heroImage: heroAccessories,
+        featured: false,
+        sortOrder: 5,
       },
     },
     {
@@ -370,10 +386,21 @@ async function seedCollectionPages(strapi: Core.Strapi) {
       data: {
         title: 'Spotlight',
         tagline: 'This week, front row',
-        description: 'A rotating edit of the pieces we’re wearing most right now — pulled from every drop, restocked while they last.',
+        description: 'A rotating edit of the pieces we’re wearing most right now — restocked while they last.',
         heroImage: heroSpotlight,
         featured: true,
-        sortOrder: 5,
+        sortOrder: 6,
+      },
+    },
+    {
+      collectionSlug: 'new-arrivals',
+      data: {
+        title: 'New Arrivals',
+        tagline: 'Just landed',
+        description: 'The latest drop — fresh colorways and new silhouettes, straight off the line.',
+        heroImage: heroNewArrivals,
+        featured: true,
+        sortOrder: 7,
       },
     },
   ];
@@ -391,110 +418,6 @@ async function seedCollectionPages(strapi: Core.Strapi) {
     enriched += 1;
   }
   console.log(`Enriched ${enriched}/${enrichments.length} collection-page entries`);
-}
-
-/**
- * Editorial product-pages exercising the Colorway Media Engine: per-color curated
- * galleries (product.colorway-gallery) whose colorName joins the Medusa Color option
- * value case-insensitively, plus Markdown panels for the PDP accordion. Hexes mirror
- * COLOR_SWATCHES in apps/medusa/src/seed.ts — the CMS hex intentionally wins on the PDP.
- * Idempotent by productSlug.
- */
-async function seedProductPages(strapi: Core.Strapi) {
-  const img = async (photoId: string, fileName: string, crop = 'w=1400&h=1750&fit=crop&q=80') =>
-    uploadImage(strapi, unsplash(photoId, crop), fileName);
-
-  const CARE_PANEL = {
-    title: 'Materials & Care',
-    content: `- Buttery Powervita knit — 79% recycled nylon, 21% elastane
-- Machine wash cold with like colours, inside out
-- Lay flat to dry; no fabric softener, no iron
-- Garment-dyed pieces deepen in character with wear`,
-  };
-  const SIZE_PANEL = {
-    title: 'Size Guide',
-    content: `| Size | Chest (cm) | Waist (cm) |
-|------|-----------|-----------|
-| S | 88–94 | 72–78 |
-| M | 94–100 | 78–84 |
-| L | 100–108 | 84–92 |
-| XL | 108–116 | 92–100 |
-
-Between sizes? Size down for a sculpted fit, up for lounge.`,
-  };
-
-  const entries: Array<{ productSlug: string; panels: any[]; colorways: any[] }> = [
-    {
-      productSlug: 'coaster-luxe-sweatshirt',
-      panels: [CARE_PANEL, SIZE_PANEL],
-      colorways: [
-        {
-          colorName: 'Sandstone',
-          colorHex: '#C4A882',
-          gallery: [
-            await img('photo-1556905055-8f358a7a47b2', 'colorway-coaster-sandstone-1.jpg'),
-            await img('photo-1556905055-8f358a7a47b2', 'colorway-coaster-sandstone-2.jpg', 'w=1400&h=1750&fit=crop&crop=top&q=80'),
-          ],
-        },
-        {
-          colorName: 'Onyx',
-          colorHex: '#0F0F0F',
-          gallery: [
-            await img('photo-1552902865-b72c031ac5ea', 'colorway-coaster-onyx-1.jpg'),
-            await img('photo-1518611012118-696072aa579a', 'colorway-coaster-onyx-2.jpg'),
-          ],
-        },
-        {
-          colorName: 'Soft Sage',
-          colorHex: '#BEC5B0',
-          gallery: [
-            await img('photo-1620799140408-edc6dcb6d633', 'colorway-coaster-sage-1.jpg'),
-            await img('photo-1503341504253-dff4815485f1', 'colorway-coaster-sage-2.jpg'),
-          ],
-        },
-      ],
-    },
-    {
-      productSlug: 'salutation-stash-tight',
-      panels: [CARE_PANEL, SIZE_PANEL],
-      colorways: [
-        {
-          colorName: 'Onyx',
-          colorHex: '#0F0F0F',
-          gallery: [
-            await img('photo-1516762689617-e1cffcef479d', 'colorway-tight-onyx-1.jpg'),
-            await img('photo-1594633312681-425c7b97ccd1', 'colorway-tight-onyx-2.jpg'),
-          ],
-        },
-        {
-          colorName: 'Soft Sage',
-          colorHex: '#BEC5B0',
-          gallery: [
-            await img('photo-1518611012118-696072aa579a', 'colorway-tight-sage-1.jpg'),
-            await img('photo-1544367567-0f2fcb009e0b', 'colorway-tight-sage-2.jpg'),
-          ],
-        },
-        {
-          colorName: 'Espresso',
-          colorHex: '#4A3728',
-          gallery: [
-            await img('photo-1441986300917-64674bd600d8', 'colorway-tight-espresso-1.jpg'),
-            await img('photo-1560243563-062bfc001d68', 'colorway-tight-espresso-2.jpg'),
-          ],
-        },
-      ],
-    },
-  ];
-
-  for (const entry of entries) {
-    await upsertAndPublish(
-      strapi,
-      'api::product-page.product-page',
-      { productSlug: entry.productSlug },
-      entry,
-    );
-  }
-  console.log(`Seeded product-pages with colorway galleries (${entries.map((e) => e.productSlug).join(', ')})`);
 }
 
 /**
@@ -553,14 +476,14 @@ const VALUE_PROPS = [
  * than reused verbatim across channels. */
 const CHANNEL_TESTIMONIALS: Record<'nepal' | 'hongkong', Array<{ quote: string; author: string; context: string }>> = {
   nepal: [
-    { quote: 'The Coaster Sweatshirt is the only thing I wear to Jawalakhel pop-ups now. Fits like nothing else.', author: 'Aayusha R.', context: 'Kathmandu' },
-    { quote: 'Ordered the Stash Tank in three colours after the first one. Real quality, not fast-fashion quality.', author: 'Bibek T.', context: 'Lalitpur' },
-    { quote: 'First streetwear brand that actually fits the way it looks on the model.', author: 'Prakriti S.', context: 'Verified buyer' },
+    { quote: 'The Brooklyn pant goes from the office to the evening walk without missing a beat. I own three colours now.', author: 'Aayusha R.', context: 'Kathmandu' },
+    { quote: 'The Forever Fleece crew in Elm is the softest thing I own. Real quality, not fast-fashion quality.', author: 'Bibek T.', context: 'Lalitpur' },
+    { quote: 'First activewear brand where the bra actually fits the way it looks on the model.', author: 'Prakriti S.', context: 'Verified buyer' },
   ],
   hongkong: [
-    { quote: "Cut for actual humidity — finally a brand that gets HK summers.", author: 'Chloe W.', context: 'Hong Kong Island' },
-    { quote: 'The crossbody bag survived a rainstorm at PMQ and still looks new.', author: 'Marcus L.', context: 'Kowloon' },
-    { quote: 'Ordered from the Kathmandu drop, arrived in HK in days. Worth it.', author: 'Priya N.', context: 'Verified buyer' },
+    { quote: 'The Breezy Tank is cut for actual humidity — finally a brand that gets HK summers.', author: 'Chloe W.', context: 'Hong Kong Island' },
+    { quote: 'The Interval bra held up through a 10K in Kowloon heat and still looks new.', author: 'Marcus L.', context: 'Kowloon' },
+    { quote: 'Ordered the Salutation crop jacket in Breaker, arrived in days. Worth it.', author: 'Priya N.', context: 'Verified buyer' },
   ],
 };
 
@@ -570,16 +493,33 @@ const CHANNEL_TESTIMONIALS: Record<'nepal' | 'hongkong', Array<{ quote: string; 
  * literal here (previously they were migrated from home-page's fields); reorder/add/remove
  * them straight in Strapi afterwards with no code change needed.
  */
+/** Look up a catalog image already uploaded by seed-catalog.ts (keyed by its
+ * deterministic file name); null when the catalog seed hasn't run. */
+async function findCatalogImage(strapi: Core.Strapi, fileName: string): Promise<number | null> {
+  const existing = await strapi.db.query('plugin::upload.file').findOne({ where: { name: fileName } });
+  return existing?.id ?? null;
+}
+
 async function seedPages(strapi: Core.Strapi) {
-  const tileTops = await uploadImage(strapi, unsplash('photo-1445205170230-053b83016050', 'w=1200&h=1500&fit=crop&q=80'), 'tile-tops.jpg');
-  const tileBottoms = await uploadImage(strapi, unsplash('photo-1560243563-062bfc001d68', 'w=1200&h=1500&fit=crop&q=80'), 'tile-bottoms.jpg');
-  const tileAccessories = await uploadImage(strapi, unsplash('photo-1606522754091-a3bbf9ad4cb3', 'w=1200&h=1500&fit=crop&q=80'), 'tile-accessories.jpg');
-  const tileEssentials = await uploadImage(strapi, unsplash('photo-1487222477894-8943e31ef7b2', 'w=1200&h=1500&fit=crop&q=80'), 'tile-essentials.jpg');
+  // Category tiles use REAL catalog imagery (uploaded by seed:catalog); each falls back
+  // to an editorial Unsplash shot only if the catalog seed hasn't run yet.
+  const tileTops =
+    (await findCatalogImage(strapi, 'catalog-18_forever_fleece_relaxed_crew_sweatshirt-elm-elm_01.jpg')) ??
+    (await uploadImage(strapi, unsplash('photo-1445205170230-053b83016050', 'w=1200&h=1500&fit=crop&q=80'), 'tile-tops.jpg'));
+  const tileBottoms =
+    (await findCatalogImage(strapi, 'catalog-01_brooklyn_mid_rise_ankle_pant-navy-navy_01.jpg')) ??
+    (await uploadImage(strapi, unsplash('photo-1560243563-062bfc001d68', 'w=1200&h=1500&fit=crop&q=80'), 'tile-bottoms.jpg'));
+  const tileBras =
+    (await findCatalogImage(strapi, 'catalog-11_transcend_scoop_sports_bra_a_c-coastal_teal-coastal_teal_01.jpg')) ??
+    (await uploadImage(strapi, unsplash('photo-1487222477894-8943e31ef7b2', 'w=1200&h=1500&fit=crop&q=80'), 'tile-essentials.jpg'));
+  const tileAccessories =
+    (await findCatalogImage(strapi, 'catalog-05_all_about_large_cosmetic_pouch-siren-siren_01.jpg')) ??
+    (await uploadImage(strapi, unsplash('photo-1606522754091-a3bbf9ad4cb3', 'w=1200&h=1500&fit=crop&q=80'), 'tile-accessories.jpg'));
   const facetCategoryTiles = [
-    { categoryCode: 'categories:tops', label: 'Tops', tagline: 'Tees, sweats, hoodies & overshirts', image: tileTops },
-    { categoryCode: 'categories:bottoms', label: 'Bottoms', tagline: 'Utility pants, joggers & denim', image: tileBottoms },
-    { categoryCode: 'categories:accessories', label: 'Accessories', tagline: 'Totes, slings & caps', image: tileAccessories },
-    { categoryCode: 'categories:sets', label: 'Sets', tagline: 'Matching pieces, worn together', image: tileEssentials },
+    { categoryCode: 'categories:tops', label: 'Tops', tagline: 'Tees, tanks, sweats & shirting', image: tileTops },
+    { categoryCode: 'categories:bottoms', label: 'Bottoms', tagline: 'Pants, shorts & leggings', image: tileBottoms },
+    { categoryCode: 'categories:bras', label: 'Bras', tagline: 'Every support level, every size', image: tileBras },
+    { categoryCode: 'categories:accessories', label: 'Accessories', tagline: 'Pouches, caps & carry-alls', image: tileAccessories },
   ];
 
   const heroSplitImage = await uploadImage(
@@ -587,11 +527,22 @@ async function seedPages(strapi: Core.Strapi) {
     unsplash('photo-1571945153237-4929e783af4a', 'w=1600&h=2000&fit=crop&q=80'),
     'hero-split-drop.jpg',
   );
-  const editorialFeature = await uploadImage(strapi, unsplash('photo-1558769132-cb1aea458c5e', 'w=1600&h=2000&fit=crop&q=80'), 'editorial-feature.jpg');
-  const editorialStreet = await uploadImage(strapi, unsplash('photo-1552902865-b72c031ac5ea', 'w=1200&h=1500&fit=crop&q=80'), 'editorial-street.jpg');
-  const editorialDetail = await uploadImage(strapi, unsplash('photo-1553062407-98eeb64c6a62', 'w=1200&h=1500&fit=crop&q=80'), 'editorial-detail.jpg');
-  const editorialStudio = await uploadImage(strapi, unsplash('photo-1518611012118-696072aa579a', 'w=1600&h=1000&fit=crop&q=80'), 'editorial-studio.jpg');
-  const editorialFabric = await uploadImage(strapi, unsplash('photo-1620799140408-edc6dcb6d633', 'w=1200&h=1500&fit=crop&q=80'), 'editorial-fabric.jpg');
+  // Editorial mosaic tiles use real catalog imagery (Unsplash fallback pre-catalog-seed).
+  const editorialFeature =
+    (await findCatalogImage(strapi, 'catalog-15_salutation_crop_jacket-breaker-breaker_01.jpg')) ??
+    (await uploadImage(strapi, unsplash('photo-1558769132-cb1aea458c5e', 'w=1600&h=2000&fit=crop&q=80'), 'editorial-feature.jpg'));
+  const editorialStreet =
+    (await findCatalogImage(strapi, 'catalog-17_midday_oversized_poplin_shirt-bright_white-bright_white_01.jpg')) ??
+    (await uploadImage(strapi, unsplash('photo-1552902865-b72c031ac5ea', 'w=1200&h=1500&fit=crop&q=80'), 'editorial-street.jpg'));
+  const editorialDetail =
+    (await findCatalogImage(strapi, 'catalog-05_all_about_large_cosmetic_pouch-spark_bright_white-spark_bright_white_01.jpg')) ??
+    (await uploadImage(strapi, unsplash('photo-1553062407-98eeb64c6a62', 'w=1200&h=1500&fit=crop&q=80'), 'editorial-detail.jpg'));
+  const editorialStudio =
+    (await findCatalogImage(strapi, 'catalog-12_interval_sports_bra_d_dd-alpine-alpine_01.jpg')) ??
+    (await uploadImage(strapi, unsplash('photo-1518611012118-696072aa579a', 'w=1600&h=1000&fit=crop&q=80'), 'editorial-studio.jpg'));
+  const editorialFabric =
+    (await findCatalogImage(strapi, 'catalog-20_pranayama_restore_rib_wrap-elm_rib-elm_rib_01.jpg')) ??
+    (await uploadImage(strapi, unsplash('photo-1620799140408-edc6dcb6d633', 'w=1200&h=1500&fit=crop&q=80'), 'editorial-fabric.jpg'));
 
   const heroBlockUp = await uploadImage(strapi, unsplash('photo-1558769132-cb1aea458c5e'), 'hero-block-up.jpg');
   const heroEssentials = await uploadImage(strapi, unsplash('photo-1487222477894-8943e31ef7b2'), 'hero-essentials.jpg');
@@ -702,11 +653,11 @@ async function seedPages(strapi: Core.Strapi) {
         __component: 'section.editorial-grid',
         header: { eyebrow: 'The Lookbook', heading: 'Worn On The Street', align: 'center' },
         tiles: [
-          { image: editorialFeature, alt: 'Full Hakeems fit shot on a rooftop at dusk', label: 'The Rooftop Fit', tagline: 'Coaster + Rainier', href: '/collections/tops', span: 'feature' },
-          { image: editorialStreet, alt: 'Stash tank styled with utility pants at a street market', label: 'Market Day', href: '/collections/tops', span: 'standard' },
-          { image: editorialDetail, alt: 'Close-up of the All-About crossbody bag hardware', label: 'The Details', href: '/collections/accessories', span: 'standard' },
-          { image: editorialStudio, alt: 'Studio set worn mid-movement in natural light', label: 'Studio Hours', tagline: 'Bra + tight set', href: '/collections/sets', span: 'wide' },
-          { image: editorialFabric, alt: 'Folded garment-dyed tees showing fabric texture', label: 'Fabric First', href: '/collections/tops', span: 'standard' },
+          { image: editorialFeature, alt: 'Salutation crop jacket in Breaker blue, worn on model', label: 'The Crop Jacket', tagline: 'Salutation, in Breaker', href: '/products/salutation-crop-jacket', span: 'feature' },
+          { image: editorialStreet, alt: 'Midday oversized poplin shirt in bright white', label: 'Crisp Poplin', href: '/products/midday-oversized-poplin-shirt', span: 'standard' },
+          { image: editorialDetail, alt: 'All-About cosmetic pouch in Spark', label: 'The Details', href: '/collections/accessories', span: 'standard' },
+          { image: editorialStudio, alt: 'Interval sports bra in Alpine, worn in the studio', label: 'Studio Hours', tagline: 'The Interval bra', href: '/collections/bras', span: 'wide' },
+          { image: editorialFabric, alt: 'Pranayama rib wrap in Elm rib knit', label: 'Fabric First', href: '/products/pranayama-restore-rib-wrap', span: 'standard' },
         ],
       },
       {
@@ -761,7 +712,6 @@ async function main() {
   await seedLegalPages(app);
   await seedBrandStory(app);
   await seedCollectionPages(app);
-  await seedProductPages(app);
   await seedPages(app);
   console.log('Hakeems Strapi seed complete.');
 

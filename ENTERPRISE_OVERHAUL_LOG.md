@@ -259,3 +259,81 @@ Rules: serif (Fraunces) for display sizes only; Inter for UI/body; uppercase mic
 - Browser console: **zero errors/warnings** on home, PLP, PDP after fixes (was: Zod validation noise from the bulk colorway query — fixed with the slim schema; next/image fill-position warning — fixed; favicon 404 — fixed).
 - Not restyled this pass (already token-consistent, tracked as future polish): search overlay, cart drawer internals, checkout forms, account pages.
 
+---
+
+# PART III — SCRAPED CATALOG: DATA UNDERSTANDING, COLORWAY ARCHITECTURE & CATALOG SEED (2026-07-19)
+
+## D0. Dataset inspection (Phase 1 — completed BEFORE any DB operation)
+
+**Source:** `scraped-data/athleta/` — 20 product styles, 99 color variants, 518 images (25 MB), scraped 2026-07-17 from athleta.gap.com (per its README: internal dev/demo seeding only — not for publication/redistribution).
+
+**Structure (verified programmatically, all 20 styles):**
+- `NN_STYLE_NAME/COLOR_NAME/COLOR_NAME_XX.jpg` + `metadata.json` (+ `.txt`) per colorway; flat `catalog.json`/`.csv` index (99 rows = 99 colorway folders — fully consistent).
+- `metadata.json` fields: product_name, color (display name), parent_color, full_name, category (e.g. "Bottoms > Pants"), description, price+currency (USD, **per-colorway** — sale prices differ by color), sizes_available (**a COUNT, not a size list**), materials (**null on every variant**), rating/rating_count, sku_style/sku_color, source_url, image_files, image_source_urls.
+- **Every image is exactly 520×693 (3:4)** — natively matching the storefront's 3:4 product-image standard. All JPG.
+- Image-count integrity: disk files == metadata `image_files` for all 99 colorways; zero empty colorways.
+
+**Visual verification (sampled actual images):** within a colorway, files are different *views* of the same color (e.g. Brooklyn/NAVY: `_01` on-model lifestyle, `_05` flat-lay — both navy); across colorways of one style, the same garment in genuinely different colors (Forever Fleece ELM = forest green vs DAHLIA = pink). No cross-color contamination found in samples. Backgrounds are clean white/light-grey studio — consistent with the Prada-leaning direction.
+
+**Detected data issues / gaps (and how each is handled — nothing silently invented):**
+| # | Finding | Handling |
+|---|---|---|
+| D1 | 1 colorway failed at scrape time (`_errors.log`, pid 408914052) and is absent entirely | Not modeled — absent data stays absent |
+| D2 | Slashed color names ("Black/White") become underscore folders (`BLACK_WHITE`); metadata `color` keeps the display name | Display name is canonical; Strapi colorway regex relaxed to permit "/" |
+| D3 | `sizes_available` is a count with no size list | **Documented gap-fill**: standardized size runs per category (apparel XS–XL, bras XS–XL, girl S–XL, pouches/cap/insert One Size); recorded here as convention, not scraped fact |
+| D4 | `materials` null on all 99 variants | No Materials panel is fabricated; PDP panels are built by splitting the real `description` (FOR/FEEL/FAVE segments) |
+| D5 | No color hex values anywhere in metadata | Swatch hexes are **derived from the actual pixels** (median garment color of each colorway's flat-lay image, background-masked) — data-derived, not invented; patterned colorways (e.g. LANDMARK_ABSTRACT_SKY) get their dominant hue |
+| D6 | Prices are USD; store channels are NPR/HKD | Deterministic dev conversion documented: NPR = USD×135, HKD = USD×7.8, rounded to clean endings; per-colorway price carried to that colorway's variants |
+| D7 | Category taxonomy differs from the current store (adds Bras, Jackets; no Sets products) | Category map: `Bras>*` + `Athleta Girl>*` → **bras**, `Jackets>*` → **jackets**, `Tops>*` → **tops**, `Bottoms>*` → **bottoms**, `Accessories>*` → **accessories**. The old `sets` category/collection retires with the old demo catalog |
+
+## D1. Product → colorway → image mapping strategy (Phase 2 plan)
+- **1 scraped style = 1 Medusa product** (never per-color duplicates). Color = a `Color` option whose values are the metadata display names; Size = a `Size` option per the D3 runs. Variants = color × size; each variant carries its **colorway's** price (D6).
+- **Colorway gallery = exactly the files in that colorway's folder, in `_XX` order** — front/flat/detail/lifestyle views of that one color. Galleries live in Strapi `product-page.colorways` (CMS = presentation source of truth), images uploaded once to the Strapi media library (idempotent by filename `catalog-<style>-<color>-XX.jpg`).
+- Medusa keeps commerce truth (prices, sizes, inventory, categories/collections) + a thumbnail and 2–3 product-level fallback images referencing the same uploaded assets (external URLs).
+- A generated, reviewable `mapping.json` (script: `scraped-data/athleta/build-mapping.py`) is the single input to both seeders — inspected before any DB write.
+- **Old demo catalog retirement**: the 7 Unsplash-based products (and their Strapi product-pages/nav tiles) are replaced by the real catalog; collection set becomes tops/bottoms/bras/jackets/accessories + curated spotlight/new-arrivals.
+
+## D2. Mapping results (Phase 2 — mapping.json reviewed before seeding)
+
+`scraped-data/athleta/build-mapping.py` → `mapping.json`: **20 products, 99 colorways, 518 images**, every gallery = exactly its colorway folder's files in `_NN` order.
+
+**Swatch hex derivation (iterated against the actual images):**
+1. v1 (center-crop median) failed on on-model shots where the *paired* garment dominates the frame (a black cami over the Abalone pant; a blue layer over black shorts).
+2. Final: **category-aware sampling regions** (bottoms→leg zone, tops/bras/jackets→torso, accessories→center), background mask at ≥238 (keeps white garments readable), skin-pixel mask with a relaxed fallback (so Mocha Latte — a genuinely skin-toned product — still reads), then a component-wise median of per-image medians (one outlier frame can't set the swatch).
+3. **Name-prior sanity pass** (5 corrections, all logged): the vendor's own color name overrides only unambiguous disagreements — "Black" mesh shorts read blue from a layered jacket → `#1A1A1B`; "Bright White" bra read brown from skin → `#F0EFEC`; plus Navy Stripe, Black/White, Motion Abstract Navy. This maps vendor-provided names; nothing is invented.
+4. Spot-verified against imagery: Dahlia `#E32B7D` (pink ✓), Elm `#282E27` (forest ✓), Abalone `#EBE7E8` (stone ✓), Auburn `#6A4636` (brown ✓), Siren red, Plum, Ballet, Eclipse all plausible.
+
+**Merchandising (deterministic, documented):** spotlight = the 6 richest-colorway styles; new-arrivals = the 6 highest-index (latest-scraped) styles.
+
+## D3. Seeding architecture (Phase 3)
+
+**Membership model fix:** Medusa `product.collection_id` is a single FK — the old seed's taxonomy collections were created **empty** and spotlight membership stole products from their category collection (latent defect, acknowledged in the old script's own comments). New model: **categories are the membership driver** (many-to-many: a tank lives in `tops` AND `spotlight`); collections mirror the same handles purely as Strapi collection-page anchors (and `collection_id` = primary category's collection, powering the PDP "More from X" rail). Storefront resolution (`products.ts`) now resolves a collection slug **category-first**, falling back to collections; breadcrumbs/JSON-LD exclude the two merchandising categories.
+
+**Pipeline (order matters):**
+1. `pnpm --filter @hakeems/strapi seed:catalog` — uploads all 518 images to the media library (idempotent by deterministic name `catalog-<style>-<color>-NN.jpg`), upserts 20 product-pages (panels from the FOR/FEEL/FAVE description split + one colorway-gallery per color), deletes stale product-pages, writes `upload-manifest.json` (image → media id/url).
+2. `npx medusa exec ./src/scripts/seed-catalog.ts` — retires products not in the mapping (the 7 demo products), ensures 7 categories + 7 collections (retires `sets`), creates 20 products (Color×Size variants, **per-colorway NPR/HKD prices**, thumbnail + per-colorway fallback images referencing the uploaded assets), applies pixel-derived swatch hexes to option values (CMS hex still wins on the storefront), sets deterministic inventory (~1 in 8 SKUs low-stock by design). Idempotent: existing handles are skipped.
+3. `pnpm --filter @hakeems/strapi seed` — nav children (Tops/Bottoms/Bras/Jackets/Accessories), category tiles + editorial mosaic switched to **real catalog imagery** (with pre-catalog fallbacks), collection-page enrichment incl. new bras/jackets/new-arrivals entries. Collection **banners** deliberately stay editorial stock: the scraped assets are 520px product shots — unusable at 2800px full-bleed (documented trade-off).
+4. Verification: Strapi record audit (colorway↔gallery integrity, no orphans) + rendered checks.
+
+## D4. Execution & validation results (Phases 3–4, all green)
+
+**Seed run (in order, against the Railway dev DB):**
+- Strapi `seed:catalog`: 518 images uploaded to the media library; first run surfaced a real schema defect — the colorway `colorName` regex rejected slashed vendor names ("Black/White") exactly as flagged in D0-D2; regex relaxed to `^[A-Za-z][A-Za-z0-9' &/-]*$`, re-run green: **20 product-pages upserted, 2 stale removed, manifest written**.
+- Medusa `seed-catalog`: **7 demo products retired; categories bras/jackets/spotlight/new-arrivals created; collections bras/jackets created, sets retired (sync-deleted in Strapi); 20 products created; swatch hexes applied; 455 variants stocked** (89 sized colorways × 5 sizes + 10 one-size — exact).
+- Strapi `seed`: nav/tiles/pages/collection-pages updated; caught & fixed two coherence bugs: the legacy `seedProductPages` re-created pages for retired products (function deleted — the catalog pipeline owns product-pages now; orphans swept on re-run) and testimonials still quoted retired demo products (rewritten against the real catalog).
+- Description alignment: product.description = the cleaned FOR-sentence (FEEL/FAVE live in panels; the full blob duplicated them in the Details accordion). Bra-style copy ("BEST FOR STUDIO/IMPACT/FEEL") doesn't match the FOR/FEEL/FAVE pattern → per D4 rule, no panels fabricated, full text stays in Details.
+
+**Record audit (`scripts/verify-catalog.ts`, read-only):** `product-pages: 20, colorways: 99, gallery images: 518` — **every** colorway's name/hex/gallery-size matches mapping.json; zero orphan/extra/missing entries.
+
+**Rendered + interaction verification (headless Chrome):**
+- PLP `/nepal/shop`: all 20 real products, 3:4 studio imagery, pixel-derived swatch rows with +N overflow, real color facet (54 values) & size facet with counts, per-colorway sale pricing (Brooklyn from NPR 6,480 = the Abalone sale price).
+- **Swatch interaction test (scripted click)**: Brooklyn PDP default gallery = `abalone_01/02…`; clicking the Black swatch swaps the gallery to `black_01/02…` — exact colorway isolation from the CMS galleries, and the price moves to the Black colorway's NPR 13,360. No cross-color contamination.
+- Home: category tiles (Tops/Bottoms/Bras/Accessories), editorial mosaic, and JUST LANDED montage all render real catalog imagery; carousels pull live catalog products.
+- Mobile PDP (13-colorway bra): swipe gallery isolated to the selected colorway, swatch rows wrap cleanly, sticky buy bar working.
+- Browser console: zero errors/warnings on PLP, bra PDP, bras collection. `tsc` clean; `next build` ✓ 41 pages.
+
+**Phase 4 refinements over the real catalog:**
+- **Size-aware Quick Add**: card model now carries per-color `sizeVariants`; the slide-up bar expands into a size row (OOS sizes struck through) — silently adding an arbitrary size is gone. One-size products still add in one tap.
+- **Badge restraint**: time-based auto-"New" removed (a freshly seeded catalog stamped every card); badges are now explicit metadata or a genuine Low Stock signal only.
+- Deterministic inventory leaves ~1 in 8 SKUs low-stock so the LOW_STOCK UI stays exercised.
+
