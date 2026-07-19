@@ -3,17 +3,7 @@ import { Fraunces, Inter } from 'next/font/google';
 import { getSiteSetting } from '@/lib/strapi/queries';
 import { resolveMediaUrl } from '@/lib/strapi/client';
 import { SITE_NAME, SITE_URL } from '@/lib/seo/site';
-import { CHANNELS, CHANNEL_CODES } from '@/lib/channel';
-import { IntroOverlay } from '@/components/motion/intro-overlay';
 import './globals.css';
-
-/**
- * Decides the brand intro's visibility BEFORE first paint (motion layer 1): 'play' only
- * on the first visit of this browser session with no reduced-motion preference. Runs as a
- * parser-blocking inline script so returning visitors never glimpse the overlay and first
- * visitors see it from frame 0. Any failure defaults to 'done' — the safe state.
- */
-const INTRO_GATE_SCRIPT = `(function(){try{var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;var seen=window.sessionStorage.getItem('hakeems-intro-seen');document.documentElement.dataset.intro=(reduce||seen)?'done':'play'}catch(e){document.documentElement.dataset.intro='done'}})()`;
 
 const inter = Inter({
   subsets: ['latin'],
@@ -68,19 +58,10 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const setting = await getSiteSetting();
-  const brandName = setting?.siteName || SITE_NAME;
-  // The house's markets, from the app-level channel config — not hardcoded copy.
-  const eyebrow = CHANNEL_CODES.map((code) => CHANNELS[code].countryName).join(' · ');
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${fraunces.variable}`} suppressHydrationWarning>
-      <body suppressHydrationWarning>
-        <script dangerouslySetInnerHTML={{ __html: INTRO_GATE_SCRIPT }} />
-        <IntroOverlay brandName={brandName} eyebrow={eyebrow} />
-        {children}
-      </body>
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }

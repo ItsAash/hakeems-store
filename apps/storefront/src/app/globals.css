@@ -67,8 +67,7 @@
 
 /* Layering scale — every fixed/absolute layer picks from this ladder instead of inventing
    its own z-index: content accents 10/20, sticky chrome (nav dropdowns, buy bars) 30,
-   full-screen overlays (drawers, sheets, lightboxes) 50, toasts 60, the one-time brand
-   intro veil 70 (it must sit above everything, once per session). */
+   full-screen overlays (drawers, sheets, lightboxes) 50, toasts 60. */
 
 @layer base {
   html {
@@ -171,66 +170,8 @@ input[type="search"]::-webkit-search-cancel-button {
   animation-fill-mode: forwards;
 }
 
-/* ── Motion system (see ENTERPRISE_OVERHAUL_LOG.md Part IV) ──────────────────────────
-   Layer 1: the one-time brand intro. The overlay is server-rendered so first visitors see
-   it from frame 0; a pre-paint inline script stamps data-intro on <html> so returning
-   visitors (or reduced-motion users) never see it at all. All animation is compositor-only
-   (transform/opacity/clip-path). */
-
-/* Hidden by default (covers no-JS and any script failure — nobody gets trapped behind
-   the veil); shown only when the pre-paint script explicitly says 'play'. */
-.intro-overlay {
-  display: none;
-}
-
-html[data-intro='play'] .intro-overlay {
-  display: flex;
-}
-
-html[data-intro='play'] {
-  overflow: hidden;
-}
-
-@keyframes intro-letter {
-  from {
-    transform: translateY(110%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
-@keyframes intro-rule {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
-  }
-}
-
-@keyframes intro-fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes intro-lift {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(-100%);
-  }
-}
-
-/* Layer 2: every route entry rises and settles — one gesture, applied identically
-   everywhere via app/[channel]/template.tsx. */
+/* Every route entry rises and settles — one gesture, applied identically everywhere via
+   app/[channel]/template.tsx. */
 @keyframes page-enter {
   from {
     opacity: 0;
@@ -273,24 +214,6 @@ html[data-intro='play'] {
   transform: translateX(-100%);
   background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.45), transparent);
   animation: skeleton-shimmer 1.6s var(--ease-luxe) infinite;
-}
-
-/* The branded route-loading mark: the wordmark over a breathing hairline — the intro's
-   little sibling, for routes without a bespoke skeleton. */
-@keyframes loading-breathe {
-  0%,
-  100% {
-    transform: scaleX(0.25);
-    opacity: 0.5;
-  }
-  50% {
-    transform: scaleX(1);
-    opacity: 1;
-  }
-}
-
-.animate-loading-breathe {
-  animation: loading-breathe 1.8s var(--ease-luxe) infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
