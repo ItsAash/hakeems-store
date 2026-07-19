@@ -38,8 +38,18 @@ export function HeroSplitBlock({
           />
         </div>
 
-        {/* Copy half — padded to align with the site CONTAINER on its outer edge. */}
-        <div className="flex flex-col justify-center gap-6 px-6 py-14 [direction:ltr] md:px-12 md:py-20 lg:px-16">
+        {/* Copy half — its outer (page) edge uses *-container-bleed to match CONTAINER
+            exactly, including past CONTAINER's own max-w-[88rem] where plain px-* alone
+            drifts (CONTAINER centres itself on wide monitors; a full-bleed section needs
+            the same centre-offset math, not just the same padding number). Which edge is
+            outer flips with imageSide (the rtl trick on the grid above puts the DOM-second
+            copy div on the right when imageLeft, on the left otherwise) — the inner edge,
+            touching the image, just needs generous ad-hoc padding, not exact alignment. */}
+        <div
+          className={`flex flex-col justify-center gap-6 px-5 py-14 [direction:ltr] sm:px-8 md:py-20 ${
+            imageLeft ? 'md:pr-container-bleed md:pl-12 lg:pl-16' : 'md:pl-container-bleed md:pr-12 lg:pr-16'
+          }`}
+        >
           {section.promoLabel && (
             <span className="w-fit bg-[var(--color-ink)] px-3 py-1.5 text-3xs font-medium tracking-hero text-[var(--color-paper)] uppercase">
               {section.promoLabel}

@@ -111,15 +111,28 @@
   }
 }
 
-/* Left padding for full-bleed sections whose copy must align with the site CONTAINER
+/* Padding for full-bleed sections whose copy must align with the site CONTAINER
    (mx-auto max-w-[88rem] px-5 sm:px-8 lg:px-12 — see lib/ui.ts): centre offset + the
-   container gutter at that breakpoint. `@utility` (not @layer) so it composes with
-   responsive variants (md:…). */
+   container gutter at that breakpoint. Plain px-* alone only matches CONTAINER up to the
+   88rem viewport width — past that, CONTAINER stops growing and centres itself, so a
+   full-bleed section needs the `(100vw - 88rem) / 2` centre offset too, or its edge drifts
+   from the page's actual content edge on wide monitors. `@utility` (not @layer) so it
+   composes with responsive variants (md:…); left/right versions exist since which edge is
+   "outer" can depend on a component's own layout (e.g. an image/copy split that flips
+   sides). */
 @utility pl-container-bleed {
   padding-left: calc(max((100vw - 88rem) / 2, 0px) + 2rem);
 
   @media (min-width: 1024px) {
     padding-left: calc(max((100vw - 88rem) / 2, 0px) + 3rem);
+  }
+}
+
+@utility pr-container-bleed {
+  padding-right: calc(max((100vw - 88rem) / 2, 0px) + 2rem);
+
+  @media (min-width: 1024px) {
+    padding-right: calc(max((100vw - 88rem) / 2, 0px) + 3rem);
   }
 }
 
