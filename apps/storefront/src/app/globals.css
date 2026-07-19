@@ -234,3 +234,31 @@ input[type="search"]::-webkit-search-cancel-button {
     animation-duration: 0.01ms !important;
   }
 }
+
+/* Order-confirmation invoice (components/checkout/invoice.tsx): printing isolates just
+   #invoice — everything else on the page (nav, footer, the confirmation copy above it,
+   the Print/Download buttons themselves) is hidden rather than routed to a separate
+   print-only page. `.no-print` covers anything else that shouldn't appear on paper. */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  #invoice,
+  #invoice * {
+    visibility: visible;
+  }
+
+  #invoice {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    margin: 0;
+    padding: 1.5rem;
+    border: none;
+  }
+}

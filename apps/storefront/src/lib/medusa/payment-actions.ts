@@ -72,7 +72,7 @@ export async function fetchOrderAction(channelCode: ChannelCode, orderId: string
   try {
     const client = createMedusaClient(channelCode);
     const { order } = await client.store.order.retrieve(orderId, {
-      fields: '*items,*shipping_address,*payment_collections.payments',
+      fields: '*items,*shipping_address,*billing_address,*shipping_methods,*payment_collections.payments,*customer',
     });
     return { success: true, order };
   } catch (err) {

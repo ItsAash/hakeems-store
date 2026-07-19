@@ -48,6 +48,9 @@ export const routes = {
   /** `orderId` is the Medusa order's id (e.g. "order_01…"), not its display_id. */
   checkoutConfirmation: (channel: ChannelCode, orderId: string) =>
     `/${channel}/checkout/confirmation${query({ order_id: orderId })}`,
+  /** Downloadable PDF invoice for a placed order — same `orderId` as checkoutConfirmation. */
+  checkoutInvoice: (channel: ChannelCode, orderId: string) =>
+    `/${channel}/checkout/confirmation/invoice${query({ order_id: orderId })}`,
 
   /** Account root, or a sub-page when `sub` is a leading-slash path like `/orders`. */
   account: (channel: ChannelCode, sub = '') => `/${channel}/account${sub}`,
