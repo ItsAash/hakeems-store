@@ -192,7 +192,7 @@ export function AddressForm({
         disabled={isSubmitting || (zoneRequired && !shippingZoneId)}
         className="mt-1 w-full bg-[var(--color-ink)] py-4 text-sm font-medium tracking-label text-[var(--color-paper)] uppercase transition-opacity hover:opacity-90 disabled:opacity-40"
       >
-        {isSubmitting ? 'Saving…' : 'Continue to Shipping'}
+        {isSubmitting ? 'Saving…' : 'Continue to Payment'}
       </button>
     </form>
   );

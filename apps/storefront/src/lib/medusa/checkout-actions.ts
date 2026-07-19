@@ -22,8 +22,13 @@ export type CheckoutAddressInput = {
   postalCode?: string;
 };
 
-/** Sets the cart's email + shipping/billing address in one call (checkout has no
- * separate billing flow yet, so billing always mirrors shipping). */
+/** Sets the cart's email + shipping/billing address, then attaches shipping in the same
+ * step: every channel here has exactly one active shipping method (the zone-priced
+ * "Standard Shipping"), so there's nothing for the customer to choose — a separate
+ * "pick your shipping method" screen would just be an extra click for a list of one.
+ * `addShippingMethod` invokes the fulfillment provider's calculatePrice itself for a
+ * "calculated" price_type option, so the cart comes back with the right price already
+ * on it — no separate calculate-then-display step needed. */
 export async function setCheckoutAddressAction(
   channelCode: ChannelCode,
   input: CheckoutAddressInput,
@@ -51,64 +56,15 @@ export async function setCheckoutAddressAction(
       billing_address: address,
     });
 
+    const { shipping_options } = await client.store.fulfillment.listCartOptions({ cart_id: cartId });
+    const option = shipping_options[0];
+    if (!option) return { success: false, message: 'No shipping is available for this address yet.' };
+    await client.store.cart.addShippingMethod(cartId, { option_id: option.id });
+
     return { success: true };
   } catch (err) {
     console.error('setCheckoutAddressAction failed', err);
     return { success: false, message: 'Could not save your address. Please check the form and try again.' };
-  }
-}
-
-export type ShippingOption = {
-  id: string;
-  name: string;
-  /** Minor units, matching every other price in the app — see toMinorUnits in cart-mapper.ts. */
-  amount: number;
-};
-
-export type ShippingOptionsResult = { success: true; options: ShippingOption[] } | { success: false; message: string };
-
-export async function listShippingOptionsAction(channelCode: ChannelCode): Promise<ShippingOptionsResult> {
-  try {
-    const cartId = await getCartId(channelCode);
-    if (!cartId) return { success: false, message: 'Your cart could not be found.' };
-
-    const client = createMedusaClient(channelCode);
-    const { shipping_options } = await client.store.fulfillment.listCartOptions({ cart_id: cartId });
-
-    // The list route only returns a real `amount` for flat-rate options — a
-    // price_type "calculated" option (like our zone-based "Standard Shipping") comes
-    // back with `calculated_price: null` there and needs its own dedicated call to
-    // actually invoke the fulfillment provider's calculatePrice (see
-    // apps/medusa/src/modules/shipping-zone-fulfillment/service.ts).
-    const options = await Promise.all(
-      shipping_options.map(async (option) => {
-        if (option.price_type !== 'calculated') {
-          return { id: option.id, name: option.name, amount: Math.round((option.amount ?? 0) * 100) };
-        }
-        const { shipping_option } = await client.store.fulfillment.calculate(option.id, { cart_id: cartId });
-        return { id: option.id, name: option.name, amount: Math.round((shipping_option.amount ?? 0) * 100) };
-      }),
-    );
-
-    return { success: true, options };
-  } catch (err) {
-    console.error('listShippingOptionsAction failed', err);
-    return { success: false, message: 'Could not load shipping options.' };
-  }
-}
-
-export async function addShippingMethodAction(channelCode: ChannelCode, optionId: string): Promise<CheckoutActionResult> {
-  try {
-    const cartId = await getCartId(channelCode);
-    if (!cartId) return { success: false, message: 'Your cart could not be found.' };
-
-    const client = createMedusaClient(channelCode);
-    await client.store.cart.addShippingMethod(cartId, { option_id: optionId });
-
-    return { success: true };
-  } catch (err) {
-    console.error('addShippingMethodAction failed', err);
-    return { success: false, message: 'Could not set the shipping method. Please try again.' };
   }
 }
 

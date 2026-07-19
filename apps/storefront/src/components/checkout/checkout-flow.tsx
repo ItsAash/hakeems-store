@@ -1,51 +1,46 @@
 import type { ChannelCode } from '@/lib/channel';
 import { AddressForm } from '@/components/checkout/address-form';
 import type { ZoneNode } from '@/components/checkout/shipping-zone-picker';
-import { ShippingMethodStep, type ShippingMethodOption } from '@/components/checkout/shipping-method-step';
 import { PaymentStep } from '@/components/checkout/payment-step';
 
-type CheckoutStep = 'address' | 'shipping' | 'payment';
+type CheckoutStep = 'address' | 'payment';
 
 const STEPS: Array<{ key: CheckoutStep; label: string }> = [
   { key: 'address', label: 'Address' },
-  { key: 'shipping', label: 'Shipping' },
   { key: 'payment', label: 'Payment' },
 ];
 
 /**
- * Which step to show is derived entirely from the cart's own state (has a shipping
- * address? a shipping method?) rather than tracked as separate client state — after
- * each step's Server Action, the caller does `router.refresh()`, the parent Server
- * Component re-fetches the cart, and this component just re-derives the step from
- * the fresh data. Refreshing mid-checkout can never lose progress.
+ * Which step to show is derived entirely from the cart's own state (does it have a
+ * shipping method yet? — address and shipping are set together, in one Server Action,
+ * see setCheckoutAddressAction) rather than tracked as separate client state — after
+ * the address step's Server Action, the caller does `router.refresh()`, the parent
+ * Server Component re-fetches the cart, and this component just re-derives the step
+ * from the fresh data. Refreshing mid-checkout can never lose progress.
  *
  * Contact fields pre-fill from the logged-in customer's saved data when available.
  */
 export function CheckoutFlow({
   channelCode,
-  hasShippingAddress,
   hasShippingMethod,
   defaultEmail,
   defaultFirstName,
   defaultLastName,
   defaultPhone,
-  shippingMethods,
   shippingZones,
   currencyCode,
 }: {
   channelCode: ChannelCode;
-  hasShippingAddress: boolean;
   hasShippingMethod: boolean;
   defaultEmail?: string;
   defaultFirstName?: string;
   defaultLastName?: string;
   defaultPhone?: string;
-  shippingMethods: ShippingMethodOption[];
   /** This channel's shipping-zone tree — drives the delivery-zone picker below the address. */
   shippingZones: ZoneNode[];
   currencyCode: string;
 }) {
-  const step: CheckoutStep = !hasShippingAddress ? 'address' : !hasShippingMethod ? 'shipping' : 'payment';
+  const step: CheckoutStep = !hasShippingMethod ? 'address' : 'payment';
 
   return (
     <div className="flex flex-col gap-8">
@@ -61,9 +56,6 @@ export function CheckoutFlow({
           shippingZones={shippingZones}
           currencyCode={currencyCode}
         />
-      )}
-      {step === 'shipping' && (
-        <ShippingMethodStep methods={shippingMethods} currencyCode={currencyCode} channelCode={channelCode} />
       )}
       {step === 'payment' && <PaymentStep channelCode={channelCode} />}
     </div>

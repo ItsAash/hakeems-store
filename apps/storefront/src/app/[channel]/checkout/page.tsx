@@ -7,7 +7,7 @@ import { routes } from '@/lib/routes';
 import { fetchCartAction } from '@/lib/medusa/cart-actions';
 import { fetchCustomerAction } from '@/lib/medusa/auth-actions';
 import { toCartLines, toCartTotals } from '@/lib/medusa/cart-mapper';
-import { listShippingOptionsAction, fetchShippingZoneTreeAction } from '@/lib/medusa/checkout-actions';
+import { fetchShippingZoneTreeAction } from '@/lib/medusa/checkout-actions';
 import { CONTAINER } from '@/lib/ui';
 import { CheckoutFlow } from '@/components/checkout/checkout-flow';
 import { OrderSummary } from '@/components/checkout/order-summary';
@@ -24,16 +24,11 @@ export default async function CheckoutPage({ params }: { params: Promise<{ chann
 
   const customer = await fetchCustomerAction(channel.code);
 
-  const hasShippingAddress = !!cart.shipping_address?.address_1;
   const hasShippingMethod = (cart.shipping_methods?.length ?? 0) > 0;
 
-  // The zone tree only matters for the address step; shipping options only resolve
-  // once an address is set (the fulfillment provider needs it to calculate a price).
-  const [shippingZones, shippingOptionsResult] = await Promise.all([
-    !hasShippingAddress ? fetchShippingZoneTreeAction(channel.code) : Promise.resolve([]),
-    hasShippingAddress && !hasShippingMethod ? listShippingOptionsAction(channel.code) : Promise.resolve(null),
-  ]);
-  const shippingMethods = shippingOptionsResult?.success ? shippingOptionsResult.options : [];
+  // The zone tree only matters for the address step (address + shipping are set
+  // together in one action — see setCheckoutAddressAction).
+  const shippingZones = hasShippingMethod ? [] : await fetchShippingZoneTreeAction(channel.code);
 
   const lines = toCartLines(cart);
   const totals = toCartTotals(cart, channel.currencyCode);
@@ -45,14 +40,12 @@ export default async function CheckoutPage({ params }: { params: Promise<{ chann
       <div className="grid gap-12 lg:grid-cols-[1fr_360px]">
         <CheckoutFlow
           channelCode={channel.code}
-          hasShippingAddress={hasShippingAddress}
           hasShippingMethod={hasShippingMethod}
           defaultEmail={customer?.email ?? cart.email ?? undefined}
           defaultFirstName={customer?.first_name ?? undefined}
           defaultLastName={customer?.last_name ?? undefined}
           defaultPhone={customer?.phone ?? undefined}
           shippingZones={shippingZones}
-          shippingMethods={shippingMethods}
           currencyCode={totals.currencyCode}
         />
 
