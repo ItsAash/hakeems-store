@@ -1,16 +1,16 @@
 /**
- * Idempotent content seed for the Hakeems CMS, mirroring the pattern in
+ * Idempotent content seed for the Lopho CMS, mirroring the pattern in
  * apps/medusa/src/seed.ts. Boots Strapi's core (no HTTP server — see
  * `.load()` vs `.start()` below) and writes through the Document Service
  * directly, so it needs no admin credentials or API token.
  *
  * Collection pages are NOT created here: Medusa's collection-sync subscriber creates
  * them automatically (see apps/medusa/src/subscribers/collection-sync.ts) whenever a
- * collection is created in Medusa. Run `pnpm --filter @hakeems/medusa seed`
+ * collection is created in Medusa. Run `pnpm --filter @lopho/medusa seed`
  * first (the root `seed` script already does this in order) so those entries
  * exist before this script enriches them with banners/copy/featured flags.
  *
- * Run with: pnpm --filter @hakeems/strapi seed
+ * Run with: pnpm --filter @lopho/strapi seed
  */
 import fs from 'node:fs';
 import os from 'node:os';
@@ -70,18 +70,18 @@ async function seedSiteSetting(strapi: Core.Strapi) {
   const existing = await strapi.documents('api::site-setting.site-setting').findFirst({});
   // See the comment on upsertAndPublish above re: `any` for hand-written seed literals.
   const data: any = {
-    siteName: 'Hakeems',
+    siteName: 'Lopho',
     tagline: 'Community streetwear, designed in Kathmandu.',
     defaultSeo: {
-      metaTitle: 'Hakeems — Community Streetwear',
+      metaTitle: 'Lopho — Community Streetwear',
       metaDescription:
         'Streetwear designed in Kathmandu, worn in Nepal and Hong Kong. Small-batch drops, real fabric, built for the pop-up and the street.',
     },
     socialLinks: [
-      { platform: 'instagram', url: 'https://instagram.com/hakeems' },
-      { platform: 'tiktok', url: 'https://tiktok.com/@hakeems' },
+      { platform: 'instagram', url: 'https://instagram.com/lopho' },
+      { platform: 'tiktok', url: 'https://tiktok.com/@lopho' },
     ],
-    supportEmail: 'support@hakeems.com',
+    supportEmail: 'support@lopho.com',
     supportPhone: '+977-1-4000000',
     footerNote: 'All prices include tax. Shipping calculated at checkout by district/city.',
     legalLinks: [
@@ -103,7 +103,7 @@ async function seedFooter(strapi: Core.Strapi) {
   const existing = await strapi.documents('api::footer.footer').findFirst({});
   // See the comment on upsertAndPublish above re: `any` for hand-written seed literals.
   const data: any = {
-    brandName: 'Hakeems',
+    brandName: 'Lopho',
     brandTagline: 'Community streetwear, designed in Kathmandu — small-batch drops, real fabric, built for the street.',
     columns: [
       {
@@ -134,13 +134,13 @@ async function seedFooter(strapi: Core.Strapi) {
     ],
     contact: {
       heading: 'Get in touch',
-      email: 'support@hakeems.com',
+      email: 'support@lopho.com',
       phone: '+977-1-4000000',
       address: 'Jhamsikhel, Lalitpur\nKathmandu, Nepal',
     },
     socialLinks: [
-      { platform: 'instagram', url: 'https://instagram.com/hakeems' },
-      { platform: 'tiktok', url: 'https://tiktok.com/@hakeems' },
+      { platform: 'instagram', url: 'https://instagram.com/lopho' },
+      { platform: 'tiktok', url: 'https://tiktok.com/@lopho' },
     ],
     newsletter: {
       enabled: true,
@@ -203,10 +203,10 @@ async function seedLegalPages(strapi: Core.Strapi) {
       slug: 'privacy',
       title: 'Privacy Policy',
       seo: {
-        metaTitle: 'Privacy Policy — Hakeems',
-        metaDescription: 'How Hakeems collects, uses, and protects your personal information when you shop with us.',
+        metaTitle: 'Privacy Policy — Lopho',
+        metaDescription: 'How Lopho collects, uses, and protects your personal information when you shop with us.',
       },
-      content: `Your privacy matters to us. This policy explains what we collect, why we collect it, and the choices you have. It applies to hakeems.com and every order placed with Hakeems in Nepal and Hong Kong.
+      content: `Your privacy matters to us. This policy explains what we collect, why we collect it, and the choices you have. It applies to lopho.com and every order placed with Lopho in Nepal and Hong Kong.
 
 ## Information We Collect
 
@@ -241,16 +241,16 @@ We keep your information for as long as your account is active or as needed to p
 
 ## Contact Us
 
-Questions about this policy? Email us at [support@hakeems.com](mailto:support@hakeems.com) and we'll be happy to help.`,
+Questions about this policy? Email us at [support@lopho.com](mailto:support@lopho.com) and we'll be happy to help.`,
     },
     {
       slug: 'terms',
       title: 'Terms of Service',
       seo: {
-        metaTitle: 'Terms of Service — Hakeems',
-        metaDescription: 'The terms that govern your use of the Hakeems store and any purchase you make with us.',
+        metaTitle: 'Terms of Service — Lopho',
+        metaDescription: 'The terms that govern your use of the Lopho store and any purchase you make with us.',
       },
-      content: `Welcome to Hakeems. By using our site or placing an order, you agree to these terms.
+      content: `Welcome to Lopho. By using our site or placing an order, you agree to these terms.
 
 ## Orders
 
@@ -266,18 +266,18 @@ We work hard to show our products accurately, but colours and details may vary s
 
 ## Intellectual Property
 
-All content on this site — text, imagery, and designs — belongs to Hakeems and may not be reused without permission.
+All content on this site — text, imagery, and designs — belongs to Lopho and may not be reused without permission.
 
 ## Contact
 
-For anything about these terms, reach us at [support@hakeems.com](mailto:support@hakeems.com).`,
+For anything about these terms, reach us at [support@lopho.com](mailto:support@lopho.com).`,
     },
     {
       slug: 'shipping-returns',
       title: 'Shipping & Returns',
       seo: {
-        metaTitle: 'Shipping & Returns — Hakeems',
-        metaDescription: 'Delivery timelines, shipping rates, and how to return or exchange an item bought from Hakeems.',
+        metaTitle: 'Shipping & Returns — Lopho',
+        metaDescription: 'Delivery timelines, shipping rates, and how to return or exchange an item bought from Lopho.',
       },
       content: `## Shipping
 
@@ -289,7 +289,7 @@ Unworn items with their original tags can be returned within **14 days** of deli
 
 ## How to Return
 
-1. Email [support@hakeems.com](mailto:support@hakeems.com) with your order number.
+1. Email [support@lopho.com](mailto:support@lopho.com) with your order number.
 2. We'll share return instructions and the nearest drop-off or pickup option.
 3. Once we receive and inspect your item, your refund is issued to the original payment method.
 
@@ -311,7 +311,7 @@ Need a different size or colour? Start a return and place a new order — it's t
  * (matched by collectionSlug) with banner image, tagline, description, and featured
  * flag. Deliberately does NOT create entries here — Medusa is the source of truth for
  * which collections exist, so a slug with no matching entry means the collection hasn't
- * synced yet (Strapi was down, or `pnpm --filter @hakeems/medusa seed` hasn't run) and is
+ * synced yet (Strapi was down, or `pnpm --filter @lopho/medusa seed` hasn't run) and is
  * skipped with a warning rather than faked.
  */
 async function seedCollectionPages(strapi: Core.Strapi) {
@@ -432,7 +432,7 @@ async function seedBrandStory(strapi: Core.Strapi) {
     heading: 'Not made in a boardroom.',
     paragraphs: [
       {
-        text: 'Hakeems started as a pop-up table at a Kathmandu street event and grew into a full collection without losing that instinct — small batches, real fabric, and pieces built to survive an actual event, not just a lookbook.',
+        text: 'Lopho started as a pop-up table at a Kathmandu street event and grew into a full collection without losing that instinct — small batches, real fabric, and pieces built to survive an actual event, not just a lookbook.',
       },
       { text: 'Every drop is unisex by design. Fit and gender are personal choices, not aisles you have to pick a side of.' },
     ],
@@ -557,7 +557,7 @@ async function seedPages(strapi: Core.Strapi) {
         subheading: 'Streetwear made with the community, for the community — designed in Kathmandu, worn from Jhamsikhel to Jomsom.',
         ctaLabel: 'Shop The Spotlight',
         ctaHref: '/nepal/collections/spotlight',
-        alt: 'Model wearing Hakeems streetwear on a Kathmandu rooftop at golden hour',
+        alt: 'Model wearing Lopho streetwear on a Kathmandu rooftop at golden hour',
       },
       {
         image: heroEssentials,
@@ -565,7 +565,7 @@ async function seedPages(strapi: Core.Strapi) {
         subheading: 'Core pieces we cut in every drop and restock season after season.',
         ctaLabel: 'Shop Tops',
         ctaHref: '/nepal/collections/tops',
-        alt: 'Folded Hakeems everyday tees and sweats in core neutral tones',
+        alt: 'Folded Lopho everyday tees and sweats in core neutral tones',
       },
       {
         image: heroAccessories,
@@ -573,7 +573,7 @@ async function seedPages(strapi: Core.Strapi) {
         subheading: 'Totes, slings and caps — the details that make the difference, from the pop-up to the street.',
         ctaLabel: 'Shop Accessories',
         ctaHref: '/nepal/collections/accessories',
-        alt: 'Hakeems canvas tote, sling pack and cap arranged on a concrete surface',
+        alt: 'Lopho canvas tote, sling pack and cap arranged on a concrete surface',
       },
     ],
     hongkong: [
@@ -584,7 +584,7 @@ async function seedPages(strapi: Core.Strapi) {
           'Streetwear made with the community, for the community — designed in Kathmandu, cut for Hong Kong humidity and harbour nights.',
         ctaLabel: 'Shop The Spotlight',
         ctaHref: '/hongkong/collections/spotlight',
-        alt: 'Model in Hakeems streetwear against a Hong Kong harbour skyline at night',
+        alt: 'Model in Lopho streetwear against a Hong Kong harbour skyline at night',
       },
       {
         image: heroEssentials,
@@ -592,7 +592,7 @@ async function seedPages(strapi: Core.Strapi) {
         subheading: 'Core pieces we cut in every drop and restock season after season.',
         ctaLabel: 'Shop Tops',
         ctaHref: '/hongkong/collections/tops',
-        alt: 'Folded Hakeems everyday tees and sweats in core neutral tones',
+        alt: 'Folded Lopho everyday tees and sweats in core neutral tones',
       },
       {
         image: heroBottoms,
@@ -600,7 +600,7 @@ async function seedPages(strapi: Core.Strapi) {
         subheading: 'Utility pants, joggers and denim, cut for the street and the stage — Hong Kong humidity included.',
         ctaLabel: 'Shop Bottoms',
         ctaHref: '/hongkong/collections/bottoms',
-        alt: 'Model wearing Hakeems utility pants and joggers on a city street',
+        alt: 'Model wearing Lopho utility pants and joggers on a city street',
       },
     ],
   };
@@ -610,7 +610,7 @@ async function seedPages(strapi: Core.Strapi) {
       { __component: 'section.hero-slider', slides: HERO_SLIDES[channel] },
       {
         __component: 'section.value-props',
-        header: { eyebrow: 'Why Hakeems', heading: 'What Makes It Ours', align: 'left' },
+        header: { eyebrow: 'Why Lopho', heading: 'What Makes It Ours', align: 'left' },
         items: VALUE_PROPS,
         backgroundToken: 'paper',
       },
@@ -638,7 +638,7 @@ async function seedPages(strapi: Core.Strapi) {
             'Water-shrugging shells and quick-dry knits, cut for the season the city actually has. Small batch — gone when it rains out.',
           align: 'left',
         },
-        media: { image: heroSplitImage, alt: 'Model in a Hakeems water-resistant shell against a rain-washed street' },
+        media: { image: heroSplitImage, alt: 'Model in a Lopho water-resistant shell against a rain-washed street' },
         cta: { label: 'Shop The Drop', href: '/collections/spotlight', variant: 'primary', openInNewTab: false },
         promoLabel: 'This Week Only',
         imageSide: 'right',
@@ -704,7 +704,7 @@ async function main() {
   const app = await createStrapi({ distDir }).load();
   app.log.level = 'error';
 
-  tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'hakeems-strapi-seed-'));
+  tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lopho-strapi-seed-'));
 
   await seedSiteSetting(app);
   await seedFooter(app);
@@ -713,7 +713,7 @@ async function main() {
   await seedBrandStory(app);
   await seedCollectionPages(app);
   await seedPages(app);
-  console.log('Hakeems Strapi seed complete.');
+  console.log('Lopho Strapi seed complete.');
 
   fs.rmSync(tmpDir, { recursive: true, force: true });
   // Deliberately skip app.destroy(): shutting down the DB pool here can race an

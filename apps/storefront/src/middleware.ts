@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { DEFAULT_CHANNEL, isChannelCode } from '@/lib/channel';
 
-export const CHANNEL_COOKIE = 'hakeems-channel';
+export const CHANNEL_COOKIE = 'lopho-channel';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

@@ -531,7 +531,7 @@ export interface ApiFooterFooter extends Struct.SingleTypeSchema {
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 60;
       }> &
-      Schema.Attribute.DefaultTo<'Hakeems'>;
+      Schema.Attribute.DefaultTo<'Lopho'>;
     brandTagline: Schema.Attribute.Text;
     columns: Schema.Attribute.Component<'footer.link-column', true>;
     contact: Schema.Attribute.Component<'footer.contact', false>;
@@ -738,7 +738,7 @@ export interface ApiSiteSettingSiteSetting extends Struct.SingleTypeSchema {
     publishedAt: Schema.Attribute.DateTime;
     siteName: Schema.Attribute.String &
       Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<'Hakeems'>;
+      Schema.Attribute.DefaultTo<'Lopho'>;
     socialLinks: Schema.Attribute.Component<'shared.social-link', true>;
     supportEmail: Schema.Attribute.Email;
     supportPhone: Schema.Attribute.String;

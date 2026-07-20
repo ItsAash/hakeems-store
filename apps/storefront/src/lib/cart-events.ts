@@ -3,7 +3,7 @@
  * quick-add) and the nav's cart drawer, which live in separate React trees. Dispatching
  * an event keeps them decoupled — no context provider threaded through the server layout.
  */
-const CART_OPEN_EVENT = 'hakeems:cart-open';
+const CART_OPEN_EVENT = 'lopho:cart-open';
 
 export function requestCartOpen() {
   window.dispatchEvent(new Event(CART_OPEN_EVENT));

@@ -4,7 +4,7 @@ export default function NotFound() {
       <p className="eyebrow">404</p>
       <h1 className="font-serif text-3xl text-[var(--color-ink)]">Page not found</h1>
       <a href="/" className="text-sm underline">
-        Back to Hakeems
+        Back to Lopho
       </a>
     </main>
   );

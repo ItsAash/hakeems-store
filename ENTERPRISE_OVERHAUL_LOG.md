@@ -404,3 +404,31 @@ Component structure: `components/motion/intro-overlay.tsx` (client, configurable
 
 **Verification:** throttled-network captures — PDP skeleton with shimmer mid-sweep after clicking a product; page-enter transition caught mid-flight (no blank frames between routes); search suggestions resolving into the skeleton's exact layout; intro/session gating unaffected (plays once, never on navigation). Reduced motion: shimmer + breathe + page-enter all collapse via the global kill-switch (loading states remain visible, just static). `tsc` clean; `next build` ✓ 41 pages.
 
+---
+
+# PART V — BRAND RENAME: HAKEEMS → LOPHO (2026-07-20)
+
+## B0. Search inventory (before any change)
+`grep -ril hakeem` (excluding node_modules/.git/.next/dist): **116 occurrences in 33 tracked files + both local `.env`s**; case split: `hakeems`×70, `Hakeems`×41, `HAKEEMS`×5 (no singular "Hakeem"). Lockfile: 0 hits (pnpm keys workspace importers by path). Heaviest: `apps/strapi/scripts/seed.ts` (40 — the CMS content source), root `package.json` (15 — workspace filters), `infra/postgres/init.sql` (14), `docker-compose.yml` (5).
+
+## B1. Rename plan (case-aware: Hakeems→Lopho, hakeems→lopho, HAKEEMS→LOPHO)
+| Class | Items | Treatment |
+|---|---|---|
+| User-facing copy | nav/mobile-menu wordmark, footer/site fallbacks, `SITE_NAME`, not-found pages, shop meta, seed content (siteName, footer brandName, taglines, brand story, legal pages, support@hakeems.com → support@lopho.com, instagram/tiktok /hakeems → /lopho, announcement copy) | rename + **re-run Strapi seed** so the DB content updates |
+| Brand mark | `app/icon.svg` "H" monogram | becomes "L" |
+| Workspace identity | `@hakeems/*` package names, root `hakeems-commerce` + `--filter` scripts | rename; `pnpm install` refreshes the workspace graph |
+| Integration contract | sync header `X-Hakeems-Sync-Secret` → `X-Lopho-Sync-Secret` (both sides live in this repo and target localhost — safe to flip together); env `HAKEEMS_SYNC_SECRET` → `LOPHO_SYNC_SECRET` **with a fallback read of the old var** so already-deployed instances keep working until their env is renamed | code + local `.env`s |
+| Client-side keys | `hakeems-channel` cookie, `hakeems_wishlist` + `hakeems:*` event names | rename (dev-only cost: existing browsers lose channel pref/wishlist once) |
+| Local infra | docker container/volume `hakeems-postgres`/`hakeems_postgres`, init.sql roles/dbs (`hakeems`, `hakeems_medusa`, …) | rename for fresh setups; the existing local volume keeps its old name (unused — live data is on Railway) and is untouched |
+| Internal docs/comments | Strapi schema descriptions, script comments, `.claude/skills/hakeems-arch` (dir + content), this log | rename |
+| **Explicitly NOT renamed** | repo/folder name `hakeems-store` (a GitHub rename is an owner action), Railway service env vars (covered by the fallback read; rename `HAKEEMS_SYNC_SECRET`→`LOPHO_SYNC_SECRET` there when convenient), scraped-data (contains no brand), third-party URLs/deps | documented here |
+
+Verification plan: post-rename full-project search → only the documented exceptions remain; `tsc` + `next build`; runtime smoke (title/nav/footer/announcements show Lopho; PLP/PDP/cart/sync functional).
+
+## B2. Execution & verification results (all green)
+- Case-aware sweep applied to all 33 inventoried files + both local `.env`s; `.claude/skills/hakeems-arch` → `lopho-arch`; favicon monogram `H` → `L`; sync header `X-Lopho-Sync-Secret` consistent on both sides; env reads are `LOPHO_SYNC_SECRET ?? HAKEEMS_SYNC_SECRET` (the only two remaining old-name tokens in the codebase, by design).
+- Workspace rename effective: `pnpm install` clean, `pnpm --filter @lopho/strapi seed` runs — CMS content re-seeded (siteName, footer brandName, navs, legal pages incl. support@lopho.com / lopho.com, brand story, home pages) → **database content now says Lopho**.
+- **Post-rename search**: zero `hakeem` matches outside this log's Part V (the rename record) and the two documented env fallbacks.
+- `tsc` clean; `next build` ✓ 41 pages; browser title now "Lopho — Community Streetwear".
+- **Rendered sweep**: home/shop/PDP/cart/privacy each contain 0 old-brand tokens and 19–33 "Lopho" occurrences (nav wordmark, footer, metadata, JSON-LD, legal copy); zero console errors; all routes 200.
+- Remaining owner actions (out of code's reach): rename the GitHub repo/local folder `hakeems-store` if desired, and set `LOPHO_SYNC_SECRET` on the Railway services then drop the fallback.

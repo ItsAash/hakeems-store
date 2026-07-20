@@ -27,7 +27,7 @@ import path from 'node:path';
 
 const ROOT = 'https://athleta.gap.com';
 const SITEMAP_URL = `${ROOT}/native-product-sitemap.xml`;
-const USER_AGENT = 'hakeems-dev-catalog-scraper/1.0 (+local dev seed data; run manually, not a public service)';
+const USER_AGENT = 'lopho-dev-catalog-scraper/1.0 (+local dev seed data; run manually, not a public service)';
 
 const args = Object.fromEntries(
   process.argv.slice(2).map((arg) => {

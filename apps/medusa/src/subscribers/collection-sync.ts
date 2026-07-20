@@ -16,7 +16,9 @@ export default async function collectionSyncHandler({
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
 
   const url = process.env.STRAPI_SYNC_URL
-  const secret = process.env.HAKEEMS_SYNC_SECRET
+  // Fallback to the pre-rename var so already-deployed instances keep syncing until
+  // their environment is updated to LOPHO_SYNC_SECRET (see log Part V).
+  const secret = process.env.LOPHO_SYNC_SECRET ?? process.env.HAKEEMS_SYNC_SECRET
   if (!url || !secret) return
 
   let payload: {
@@ -49,7 +51,7 @@ export default async function collectionSyncHandler({
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Hakeems-Sync-Secret": secret,
+        "X-Lopho-Sync-Secret": secret,
       },
       body: JSON.stringify(payload),
     })

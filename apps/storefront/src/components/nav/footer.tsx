@@ -50,7 +50,7 @@ function FooterLink({ href, channelCode, children }: { href: string; channelCode
 export async function Footer({ channel }: { channel: ChannelDefinition }) {
   const footer = await getFooter().catch(() => null);
 
-  const brandName = footer?.brandName ?? 'Hakeems';
+  const brandName = footer?.brandName ?? 'Lopho';
   const columns = footer?.columns ?? [];
   const contact = footer?.contact ?? null;
   const socialLinks = footer?.socialLinks ?? [];

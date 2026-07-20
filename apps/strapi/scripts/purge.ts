@@ -5,7 +5,7 @@
  *
  * SAFETY: dry-run by default. Pass `--execute` to actually delete.
  *
- * Run with: pnpm --filter @hakeems/strapi purge -- --execute
+ * Run with: pnpm --filter @lopho/strapi purge -- --execute
  */
 import { compileStrapi, createStrapi } from '@strapi/strapi';
 import type { Core, UID } from '@strapi/strapi';

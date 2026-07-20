@@ -7,8 +7,8 @@
  * nothing about the consumers below.
  */
 
-const STORAGE_KEY = 'hakeems_wishlist';
-export const WISHLIST_EVENT = 'hakeems:wishlist-changed';
+const STORAGE_KEY = 'lopho_wishlist';
+export const WISHLIST_EVENT = 'lopho:wishlist-changed';
 
 export function getWishlist(): string[] {
   if (typeof window === 'undefined') return [];

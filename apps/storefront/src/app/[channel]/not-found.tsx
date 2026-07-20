@@ -26,7 +26,7 @@ export default function NotFound() {
         href={channel ? routes.home(channel.code) : '/'}
         className="mt-2 border-b border-[var(--color-ink)] pb-1 text-sm font-medium text-[var(--color-ink)] transition-opacity hover:opacity-70"
       >
-        Back to Hakeems
+        Back to Lopho
       </Link>
     </main>
   );

@@ -1,6 +1,6 @@
-# Hakeems CMS (Strapi 5)
+# Lopho CMS (Strapi 5)
 
-Strapi is the **content/presentation** layer for the Hakeems storefront. **Medusa owns all
+Strapi is the **content/presentation** layer for the Lopho storefront. **Medusa owns all
 commerce** (products, collections, prices, stock); Strapi owns editorial content and
 page composition, and references Medusa by **stable string keys** (never database ids).
 
@@ -119,7 +119,7 @@ enum field + filter. It is **orthogonal to language**. Both markets are currentl
 
 ## Seeding
 
-`pnpm --filter @hakeems/strapi seed` (or root `pnpm seed`, which runs Medusa first). Seeders
+`pnpm --filter @lopho/strapi seed` (or root `pnpm seed`, which runs Medusa first). Seeders
 are idempotent. `seedPages` composes each channel's Page from seeded content; run **after**
 Medusa's seed so collections exist for the sync.
 

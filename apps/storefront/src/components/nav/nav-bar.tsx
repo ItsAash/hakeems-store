@@ -70,7 +70,7 @@ export async function NavBar({ channel }: { channel: ChannelDefinition }) {
             href={routes.home(channel.code)}
             className="font-serif text-xl tracking-wide text-[var(--nav-fg)] lg:text-2xl"
           >
-            Hakeems
+            Lopho
           </Link>
         </div>
 

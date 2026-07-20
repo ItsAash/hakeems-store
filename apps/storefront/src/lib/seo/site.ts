@@ -8,7 +8,7 @@ import { DEFAULT_CHANNEL, type ChannelCode } from '@/lib/channel';
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001').replace(/\/$/, '');
 
 /** Brand name fallback used only until Strapi's site-setting `siteName` loads. */
-export const SITE_NAME = 'Hakeems';
+export const SITE_NAME = 'Lopho';
 
 /** Absolute URL for an app-relative path (e.g. "/nepal/shop" -> "https://…/nepal/shop"). */
 export function absoluteUrl(path = '/'): string {

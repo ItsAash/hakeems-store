@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ channel: 
   if (!isChannelCode(channelParam)) return {};
   return buildMetadata({
     title: 'Shop All',
-    description: 'Browse the full Hakeems catalogue — tops, bottoms, accessories and sets.',
+    description: 'Browse the full Lopho catalogue — tops, bottoms, accessories and sets.',
     path: routes.shop(channelParam),
     channel: channelParam,
   });

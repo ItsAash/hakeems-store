@@ -15,7 +15,7 @@
     "brandName": {
       "type": "string",
       "required": true,
-      "default": "Hakeems",
+      "default": "Lopho",
       "maxLength": 60
     },
     "brandTagline": {

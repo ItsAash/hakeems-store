@@ -13,7 +13,7 @@ import path from "node:path"
 
 /**
  * Catalog seeder (Medusa side) — consumes the reviewed mapping.json + the Strapi
- * upload-manifest.json (run `pnpm --filter @hakeems/strapi seed:catalog` FIRST so the
+ * upload-manifest.json (run `pnpm --filter @lopho/strapi seed:catalog` FIRST so the
  * image URLs exist). See ENTERPRISE_OVERHAUL_LOG.md Part III.
  *
  * Model decisions (documented there):

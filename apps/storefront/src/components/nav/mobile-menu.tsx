@@ -38,7 +38,7 @@ export function MobileMenu({ items, channelCode }: { items: NavItem[]; channelCo
         panelOpenClassName="translate-x-0"
       >
         <div className="flex items-center justify-between border-b hairline px-6 py-5">
-          <span className="font-serif text-lg text-[var(--color-ink)]">Hakeems</span>
+          <span className="font-serif text-lg text-[var(--color-ink)]">Lopho</span>
           <button type="button" onClick={close} aria-label="Close menu" className="relative after:absolute after:-inset-3">
             <CloseIcon className="h-5 w-5" />
           </button>

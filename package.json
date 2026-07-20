@@ -1,20 +1,20 @@
 {
-  "name": "hakeems-commerce",
+  "name": "lopho-commerce",
   "private": true,
   "packageManager": "pnpm@10.33.2",
   "engines": {
     "node": ">=20.11 <23"
   },
   "scripts": {
-    "dev": "pnpm --parallel --filter @hakeems/medusa --filter @hakeems/strapi --filter @hakeems/storefront dev",
-    "dev:medusa": "pnpm --filter @hakeems/medusa dev",
-    "dev:strapi": "pnpm --filter @hakeems/strapi dev",
-    "dev:storefront": "pnpm --filter @hakeems/storefront dev",
-    "build": "pnpm --filter @hakeems/medusa build && pnpm --filter @hakeems/strapi build && pnpm --filter @hakeems/storefront build",
-    "build:medusa": "pnpm --filter @hakeems/medusa build",
-    "seed": "pnpm --filter @hakeems/medusa seed && pnpm --filter @hakeems/strapi seed",
-    "seed:medusa": "pnpm --filter @hakeems/medusa seed",
-    "purge": "pnpm --filter @hakeems/strapi purge",
+    "dev": "pnpm --parallel --filter @lopho/medusa --filter @lopho/strapi --filter @lopho/storefront dev",
+    "dev:medusa": "pnpm --filter @lopho/medusa dev",
+    "dev:strapi": "pnpm --filter @lopho/strapi dev",
+    "dev:storefront": "pnpm --filter @lopho/storefront dev",
+    "build": "pnpm --filter @lopho/medusa build && pnpm --filter @lopho/strapi build && pnpm --filter @lopho/storefront build",
+    "build:medusa": "pnpm --filter @lopho/medusa build",
+    "seed": "pnpm --filter @lopho/medusa seed && pnpm --filter @lopho/strapi seed",
+    "seed:medusa": "pnpm --filter @lopho/medusa seed",
+    "purge": "pnpm --filter @lopho/strapi purge",
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down"
   },

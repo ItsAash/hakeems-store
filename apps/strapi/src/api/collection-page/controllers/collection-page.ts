@@ -21,8 +21,10 @@ export default factories.createCoreController(UID, ({ strapi }) => ({
    * they sell in, Strapi only owns presentation (banner, tagline, description, featured).
    */
   async sync(ctx) {
-    const secret = ctx.request.headers['x-hakeems-sync-secret'];
-    const expected = process.env.HAKEEMS_SYNC_SECRET;
+    const secret = ctx.request.headers['x-lopho-sync-secret'];
+    // Fallback to the pre-rename var so already-deployed instances keep accepting the
+    // sync until their environment is updated to LOPHO_SYNC_SECRET (see log Part V).
+    const expected = process.env.LOPHO_SYNC_SECRET ?? process.env.HAKEEMS_SYNC_SECRET;
 
     if (!expected || secret !== expected) {
       ctx.status = 401;

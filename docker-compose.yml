@@ -1,22 +1,22 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: hakeems-postgres
+    container_name: lopho-postgres
     restart: unless-stopped
     ports:
       - "5432:5432"
     environment:
       POSTGRES_USER: aash
       POSTGRES_PASSWORD: aash
-      POSTGRES_DB: hakeems_bootstrap
+      POSTGRES_DB: lopho_bootstrap
     volumes:
-      - hakeems_postgres:/var/lib/postgresql/data
+      - lopho_postgres:/var/lib/postgresql/data
       - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U aash -d hakeems_bootstrap"]
+      test: ["CMD-SHELL", "pg_isready -U aash -d lopho_bootstrap"]
       interval: 5s
       timeout: 5s
       retries: 20
 
 volumes:
-  hakeems_postgres:
+  lopho_postgres:

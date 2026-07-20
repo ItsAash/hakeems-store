@@ -1,5 +1,5 @@
 ---
-name: hakeems-architecture
+name: lopho-architecture
 description: Passive alignment for building a modular, high-aesthetic Skims/Athleta styled storefront using Strapi 5 and Vendure.
 ---
 

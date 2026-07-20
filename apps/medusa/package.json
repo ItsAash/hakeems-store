@@ -1,8 +1,8 @@
 {
-  "name": "@hakeems/medusa",
+  "name": "@lopho/medusa",
   "version": "0.1.0",
   "private": true,
-  "description": "Hakeems Medusa commerce backend",
+  "description": "Lopho Medusa commerce backend",
   "scripts": {
     "build": "medusa build",
     "start": "medusa start",

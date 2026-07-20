@@ -2,27 +2,27 @@
 -- Provisions the roles and databases the apps expect (see apps/*/.env.example).
 
 -- Application roles
-CREATE ROLE hakeems WITH LOGIN PASSWORD 'hakeems';
+CREATE ROLE lopho WITH LOGIN PASSWORD 'lopho';
 CREATE ROLE strapi WITH LOGIN PASSWORD 'strapi';
 
 -- Vendure database
-CREATE DATABASE hakeems_vendure OWNER hakeems;
+CREATE DATABASE lopho_vendure OWNER lopho;
 
 -- Strapi database (hyphenated name must be quoted)
-CREATE DATABASE "hakeems-strapi" OWNER strapi;
+CREATE DATABASE "lopho-strapi" OWNER strapi;
 
 -- Medusa database
-CREATE DATABASE hakeems_medusa OWNER hakeems;
+CREATE DATABASE lopho_medusa OWNER lopho;
 
 -- Ensure each role fully owns its database's public schema (Postgres 15+ locks it down)
-\connect hakeems_vendure
-ALTER SCHEMA public OWNER TO hakeems;
-GRANT ALL ON SCHEMA public TO hakeems;
+\connect lopho_vendure
+ALTER SCHEMA public OWNER TO lopho;
+GRANT ALL ON SCHEMA public TO lopho;
 
-\connect "hakeems-strapi"
+\connect "lopho-strapi"
 ALTER SCHEMA public OWNER TO strapi;
 GRANT ALL ON SCHEMA public TO strapi;
 
-\connect hakeems_medusa
-ALTER SCHEMA public OWNER TO hakeems;
-GRANT ALL ON SCHEMA public TO hakeems;
+\connect lopho_medusa
+ALTER SCHEMA public OWNER TO lopho;
+GRANT ALL ON SCHEMA public TO lopho;

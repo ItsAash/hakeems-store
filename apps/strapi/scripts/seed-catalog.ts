@@ -9,7 +9,7 @@
  * 3. Deletes product-pages whose productSlug is not in the mapping (retired demo catalog).
  * 4. Writes upload-manifest.json (image path -> {id,url}) for the Medusa seeder.
  *
- * Run: pnpm --filter @hakeems/strapi seed:catalog   (safe to re-run)
+ * Run: pnpm --filter @lopho/strapi seed:catalog   (safe to re-run)
  */
 import fs from 'node:fs';
 import path from 'node:path';

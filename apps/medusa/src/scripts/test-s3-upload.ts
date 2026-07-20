@@ -12,7 +12,7 @@ export default async function testS3Upload({ container }: { container: MedusaCon
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
   const fileModuleService = container.resolve(Modules.FILE)
 
-  const content = Buffer.from("Hakeems Medusa S3 smoke test — " + new Date().toISOString()).toString("base64")
+  const content = Buffer.from("Lopho Medusa S3 smoke test — " + new Date().toISOString()).toString("base64")
 
   const [result] = await fileModuleService.createFiles([
     {

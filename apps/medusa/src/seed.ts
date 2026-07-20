@@ -316,7 +316,7 @@ export default async function seed({
     { currency_code: "hkd", is_default: false },
   ]
   await storeService.updateStores(existingStore.id, {
-    name: "Hakeems Store",
+    name: "Lopho Store",
     supported_currencies: supportedCurrencies,
     default_sales_channel_id: nepalSalesChannel.id,
   })
@@ -647,5 +647,5 @@ export default async function seed({
     },
   })
 
-  logger.info("Hakeems Medusa seed complete!")
+  logger.info("Lopho Medusa seed complete!")
 }
